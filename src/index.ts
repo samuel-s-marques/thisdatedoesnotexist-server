@@ -10,6 +10,10 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
+app.post('/feedback', (req, res) => {
+    
+})
+
 app.listen(port, () => {
     console.log(`⚡️ [server]: Server running at http://localhost:${port}.`)
 })
