@@ -5,5 +5,5 @@ export interface IFeedback extends RowDataPacket {
   user_uid: string;
   text: string;
   screenshot: string;
-  created_at: Date;
+  created_at?: Date;
 }
