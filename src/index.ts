@@ -1,19 +1,26 @@
-import express, { Express } from "express";
+import express, { Application, Express } from "express";
+import cors, { CorsOptions } from "cors";
 import dotenv from "dotenv";
+import Routes from "./routes";
 
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT;
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
+export default class Server {
+  constructor(app: Application) {
+    this.config(app);
+    new Routes(app);
+  }
 
-app.post('/feedback', (req, res) => {
-    
-})
+  private config(app: Application): void {
+    const corsOptions: CorsOptions = {
+      origin: "http://localhost:7777",
+    };
 
-app.listen(port, () => {
-    console.log(`⚡️ [server]: Server running at http://localhost:${port}.`)
-})
+    app.use(cors(corsOptions));
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
+  }
+}
