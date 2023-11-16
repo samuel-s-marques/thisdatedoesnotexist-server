@@ -46,7 +46,27 @@ export default class FeedbackController {
 
   async delete(req: Request, res: Response) {}
 
-  async get(req: Request, res: Response) {}
+  async get(req: Request, res: Response) {
+    const id: number = parseInt(req.params.id);
+
+    try {
+      const feedback = await FeedbackRepository.getFeedback(id);
+
+      if (feedback) {
+        res.status(200).send(feedback);
+      } else {
+        res.status(404).send({
+          status: "error",
+          message: `Feedback with id ${id} not found.`,
+        });
+      }
+    } catch (error) {
+      res.status(500).send({
+        status: "error",
+        message: `Error retrieving feedback with id ${id}.`,
+      });
+    }
+  }
 
   async getAll(req: Request, res: Response) {
     const user_uid =
