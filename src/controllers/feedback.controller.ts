@@ -44,7 +44,20 @@ export default class FeedbackController {
 
   async update(req: Request, res: Response) {}
 
-  async delete(req: Request, res: Response) {}
+  async delete(req: Request, res: Response) {
+    const id: number = parseInt(req.params.id);
+
+    try {
+      await FeedbackRepository.deleteFeedback(id);
+
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).send({
+        status: "error",
+        message: `Could not delete feedback with id ${id}.`,
+      });
+    }
+  }
 
   async get(req: Request, res: Response) {
     const id: number = parseInt(req.params.id);
