@@ -6,7 +6,7 @@ interface IFeedbackRepository {
   getFeedbacks(searchParams: {
     user_uid?: string;
     text?: string;
-    created_at?: Date;
+    created_at?: string;
   }): Promise<IFeedback[]>;
   getFeedback(id: number): Promise<IFeedback>;
   createFeedback(feedback: IFeedback): Promise<IFeedback>;
@@ -18,7 +18,7 @@ class FeedbackRepository implements IFeedbackRepository {
   async getFeedbacks(searchParams: {
     user_uid?: string;
     text?: string;
-    created_at?: Date;
+    created_at?: string;
   }): Promise<IFeedback[]> {
     let query: string = "SELECT * FROM feedback";
     let condition: string[] = [];
@@ -32,7 +32,7 @@ class FeedbackRepository implements IFeedbackRepository {
     }
 
     if (searchParams?.text) {
-      condition.push(`text LIKE '%${searchParams.text}%'`);
+      condition.push(`LOWER(text) LIKE '%${searchParams.text}%'`);
     }
 
     for (let i = 0; i < condition.length; i++) {
