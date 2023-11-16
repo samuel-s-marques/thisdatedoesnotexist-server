@@ -29,7 +29,6 @@ class FeedbackRoutes {
     );
     this.router.get("/", this.controller.getAll);
     this.router.get("/:id", this.controller.get);
-    this.router.put("/:id", this.controller.update);
     this.router.delete("/:id", this.controller.delete);
   }
 }
