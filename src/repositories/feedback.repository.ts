@@ -10,7 +10,6 @@ interface IFeedbackRepository {
   }): Promise<IFeedback[]>;
   getFeedback(id: number): Promise<IFeedback>;
   createFeedback(feedback: IFeedback): Promise<IFeedback>;
-  updateFeedback(id: number, feedback: IFeedback): Promise<IFeedback>;
   deleteFeedback(id: number): Promise<void>;
 }
 
@@ -86,10 +85,6 @@ class FeedbackRepository implements IFeedbackRepository {
         }
       );
     });
-  }
-
-  async updateFeedback(id: number, feedback: IFeedback): Promise<IFeedback> {
-    throw new Error("Method Update not implemented.");
   }
 
   async deleteFeedback(id: number): Promise<void> {

@@ -42,8 +42,6 @@ export default class FeedbackController {
     }
   }
 
-  async update(req: Request, res: Response) {}
-
   async delete(req: Request, res: Response) {
     const id: number = parseInt(req.params.id);
 
