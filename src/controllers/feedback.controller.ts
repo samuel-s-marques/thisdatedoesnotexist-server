@@ -48,5 +48,29 @@ export default class FeedbackController {
 
   async get(req: Request, res: Response) {}
 
-  async getAll(req: Request, res: Response) {}
+  async getAll(req: Request, res: Response) {
+    const user_uid =
+      typeof req.query.user_uid === "string" ? req.query.user_uid : "";
+    const text =
+      typeof req.query.text === "string" ? req.query.text : undefined;
+    const created_at =
+      typeof req.query.created_at === "string"
+        ? req.query.created_at
+        : undefined;
+
+    try {
+      const feedbacks = await FeedbackRepository.getFeedbacks({
+        user_uid,
+        text,
+        created_at,
+      });
+
+      res.status(200).send(feedbacks);
+    } catch (error) {
+      res.status(500).send({
+        status: "error",
+        message: "Some error occurred while retrieving feedbacks.",
+      });
+    }
+  }
 }
