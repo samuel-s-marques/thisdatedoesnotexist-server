@@ -93,7 +93,16 @@ class FeedbackRepository implements IFeedbackRepository {
   }
 
   async deleteFeedback(id: number): Promise<void> {
-    throw new Error("Method Delete not implemented.");
+    return new Promise((resolve, reject) => {
+      connection.query<ResultSetHeader>(
+        "DELETE FROM feedback WHERE id = ?",
+        [id],
+        (err, res) => {
+          if (err) reject(err);
+          else resolve();
+        }
+      );
+    });
   }
 }
 
