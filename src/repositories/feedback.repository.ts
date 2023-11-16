@@ -1,10 +1,13 @@
 import { IFeedback } from "../models/feedback_model.js";
 import connection from "../config/db.config.js";
 import { ResultSetHeader } from "mysql2";
-import { resolve } from "path";
 
 interface IFeedbackRepository {
-  getFeedbacks(): Promise<IFeedback[]>;
+  getFeedbacks(searchParams: {
+    user_uid?: string;
+    text?: string;
+    created_at?: Date;
+  }): Promise<IFeedback[]>;
   getFeedback(id: number): Promise<IFeedback>;
   createFeedback(feedback: IFeedback): Promise<IFeedback>;
   updateFeedback(id: number, feedback: IFeedback): Promise<IFeedback>;
@@ -12,8 +15,43 @@ interface IFeedbackRepository {
 }
 
 class FeedbackRepository implements IFeedbackRepository {
-  async getFeedbacks(): Promise<IFeedback[]> {
-    throw new Error("Method GetAll not implemented.");
+  async getFeedbacks(searchParams: {
+    user_uid?: string;
+    text?: string;
+    created_at?: Date;
+  }): Promise<IFeedback[]> {
+    let query: string = "SELECT * FROM feedback";
+    let condition: string[] = [];
+
+    if (searchParams?.user_uid) {
+      condition.push(`user_uid = '${searchParams.user_uid}'`);
+    }
+
+    if (searchParams?.created_at) {
+      condition.push(`created_at = '${searchParams.created_at}'`);
+    }
+
+    if (searchParams?.text) {
+      condition.push(`text LIKE '%${searchParams.text}%'`);
+    }
+
+    for (let i = 0; i < condition.length; i++) {
+      if (i === 0) {
+        query += ` WHERE ${condition[i]}`;
+      } else {
+        query += ` AND ${condition[i]}`;
+      }
+    }
+
+    return new Promise((resolve, reject) => {
+      connection.query<IFeedback[]>(query, (err, res) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(res);
+        }
+      });
+    });
   }
 
   async getFeedback(id: number): Promise<IFeedback> {
