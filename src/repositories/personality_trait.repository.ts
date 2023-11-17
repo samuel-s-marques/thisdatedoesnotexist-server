@@ -5,6 +5,7 @@ interface IPersonalityTraitRepository {
   getPersonalityTraits(searchParams: {
     name?: string;
   }): Promise<IPersonalityTrait[]>;
+  getPersonalityTraitsByNameArray(traitsArray: string[]): Promise<IPersonalityTrait[]>;
   getPersonalityTrait(id: number): Promise<IPersonalityTrait>;
 }
 
@@ -35,6 +36,24 @@ class PersonalityTraitRepository implements IPersonalityTraitRepository {
           resolve(res);
         }
       });
+    });
+  }
+
+  async getPersonalityTraitsByNameArray(
+    traitsArray: string[]
+  ): Promise<IPersonalityTrait[]> {
+    return new Promise((resolve, reject) => {
+      connection.query<IPersonalityTrait[]>(
+        "SELECT id, trait FROM personality_traits WHERE trait in (?)",
+        [traitsArray],
+        (err, res) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(res);
+          }
+        }
+      );
     });
   }
 
