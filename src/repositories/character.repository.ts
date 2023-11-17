@@ -99,7 +99,7 @@ class CharacterRepository implements ICharacterRepository {
           character.occupation,
           character.socialClass,
           character.politicalView,
-          character.sexuality,
+          character.sexuality.sexuality,
           character.alignment,
           character.phobia,
         ],
@@ -116,3 +116,5 @@ class CharacterRepository implements ICharacterRepository {
     });
   }
 }
+
+export default new CharacterRepository();
