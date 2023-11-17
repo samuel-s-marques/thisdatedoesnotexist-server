@@ -3,18 +3,20 @@ import connection from "../config/db.config.js";
 
 interface ICharacterPersonalityTraitRepository {
   getCharacterPersonalityTraits(searchParams: {
-    character_id?: string;
-    personality_trait_id?: string;
+    character_id?: number;
+    trait_id?: number;
   }): Promise<ICharacterPersonalityTrait[]>;
-  createCharacterPersonalityTrait(): Promise<ICharacterPersonalityTrait>;
+  createCharacterPersonalityTrait(
+    characterPersonalityTrait: ICharacterPersonalityTrait
+  ): Promise<ICharacterPersonalityTrait>;
 }
 
 class CharacterPersonalityTraitRepository
   implements ICharacterPersonalityTraitRepository
 {
   async getCharacterPersonalityTraits(searchParams: {
-    character_id?: string;
-    personality_trait_id?: string;
+    character_id?: number;
+    trait_id?: number;
   }): Promise<ICharacterPersonalityTrait[]> {
     let query: string = "SELECT * FROM character_personality_traits";
     let condition: string[] = [];
@@ -23,10 +25,8 @@ class CharacterPersonalityTraitRepository
       condition.push(`character_id = '${searchParams.character_id}'`);
     }
 
-    if (searchParams?.personality_trait_id) {
-      condition.push(
-        `personality_trait_id = '${searchParams.personality_trait_id}'`
-      );
+    if (searchParams?.trait_id) {
+      condition.push(`trait_id = '${searchParams.trait_id}'`);
     }
 
     for (let i = 0; i < condition.length; i++) {
@@ -48,7 +48,24 @@ class CharacterPersonalityTraitRepository
     });
   }
 
-  async createCharacterPersonalityTrait(): Promise<ICharacterPersonalityTrait> {
-    throw new Error("Method not implemented.");
+  async createCharacterPersonalityTrait(
+    characterPersonalityTrait: ICharacterPersonalityTrait
+  ): Promise<ICharacterPersonalityTrait> {
+    return new Promise((resolve, reject) => {
+      connection.query<ICharacterPersonalityTrait[]>(
+        "INSERT INTO character_personality_traits (character_id, trait_id) VALUES (?, ?)",
+        [
+          characterPersonalityTrait.character_id,
+          characterPersonalityTrait.trait_id,
+        ],
+        (err, res) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(res?.[0]);
+          }
+        }
+      );
+    });
   }
 }
