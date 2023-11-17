@@ -11,6 +11,7 @@ interface ICharacterRepository {
     maxHeight?: number;
     minAge?: number;
     maxAge?: number;
+    sex?: string;
   }): Promise<ICharacter[]>;
   getCharacter(uuid: string): Promise<ICharacter>;
   createCharacter(character: ICharacter): Promise<ICharacter>;
