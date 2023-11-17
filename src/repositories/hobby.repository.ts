@@ -64,3 +64,5 @@ class HobbiesRepository implements IHobbyRepository {
     });
   }
 }
+
+export default new HobbiesRepository();
