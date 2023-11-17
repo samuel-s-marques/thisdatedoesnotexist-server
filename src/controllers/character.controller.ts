@@ -72,7 +72,27 @@ export default class CharacterController {
 
   async delete(req: Request, res: Response) {}
 
-  async get(req: Request, res: Response) {}
+  async get(req: Request, res: Response) {
+    const uuid: string = req.params.uuid;
+
+    try {
+      const character = await characterRepository.getCharacter(uuid);
+
+      if (character) {
+        res.status(200).send(character);
+      } else {
+        res.status(404).send({
+          status: "error",
+          message: `Character with uuid ${uuid} not found.`,
+        });
+      }
+    } catch (error) {
+      res.status(500).send({
+        status: "error",
+        message: `Some error occurred while retrieving character with uuid ${uuid}.`,
+      });
+    }
+  }
 
   async getAll(req: Request, res: Response) {}
 }
