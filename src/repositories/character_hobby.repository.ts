@@ -49,7 +49,22 @@ class CharacterHobbyRepository implements ICharacterHobbyRepository {
   createCharacterHobby(
     characterHobby: ICharacterHobby
   ): Promise<ICharacterHobby> {
-    throw new Error("Method not implemented.");
+    return new Promise((resolve, reject) => {
+      connection.query<ICharacterHobby[]>(
+        "INSERT INTO character_personality_traits (character_id, trait_id) VALUES (?, ?)",
+        [
+            characterHobby.character_id,
+            characterHobby.hobby_id,
+        ],
+        (err, res) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(res?.[0]);
+          }
+        }
+      );
+    });
   }
 }
 
