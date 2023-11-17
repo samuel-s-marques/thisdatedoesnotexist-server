@@ -14,18 +14,9 @@ class PersonalityTraitRepository implements IPersonalityTraitRepository {
     name?: string;
   }): Promise<IPersonalityTrait[]> {
     let query: string = "SELECT * FROM personality_traits";
-    let condition: string[] = [];
 
     if (searchParams?.name) {
-      condition.push(`LOWER(name) LIKE '%${searchParams.name}%'`);
-    }
-
-    for (let i = 0; i < condition.length; i++) {
-      if (i === 0) {
-        query += ` WHERE ${condition[i]}`;
-      } else {
-        query += ` AND ${condition[i]}`;
-      }
+      query = query + ` WHERE LOWER(name) LIKE '%${searchParams.name}%'`;
     }
 
     return new Promise((resolve, reject) => {
