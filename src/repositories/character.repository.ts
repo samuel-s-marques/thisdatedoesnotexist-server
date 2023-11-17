@@ -107,7 +107,9 @@ class CharacterRepository implements ICharacterRepository {
           if (err) {
             reject(err);
           } else {
-            this.getCharacter(res.insertId).then((character) => resolve(character)).catch(reject)
+            this.getCharacter(res.insertId)
+              .then((character) => resolve(character))
+              .catch(reject);
           }
         }
       );
