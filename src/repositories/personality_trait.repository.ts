@@ -9,7 +9,7 @@ interface IPersonalityTraitRepository {
   getPersonalityTrait(id: number): Promise<IPersonalityTrait>;
 }
 
-class PersonalityTraitRepository {
+class PersonalityTraitRepository implements IPersonalityTraitRepository {
   async getPersonalityTraits(searchParams: {
     name?: string;
   }): Promise<IPersonalityTrait[]> {
@@ -17,7 +17,7 @@ class PersonalityTraitRepository {
     let condition: string[] = [];
 
     if (searchParams?.name) {
-      condition.push(`name = '${searchParams.name}'`);
+      condition.push(`LOWER(name) LIKE '%${searchParams.name}%'`);
     }
 
     for (let i = 0; i < condition.length; i++) {
@@ -59,3 +59,5 @@ class PersonalityTraitRepository {
     });
   }
 }
+
+export default new PersonalityTraitRepository();
