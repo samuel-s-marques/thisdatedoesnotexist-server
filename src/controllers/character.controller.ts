@@ -94,5 +94,38 @@ export default class CharacterController {
     }
   }
 
-  async getAll(req: Request, res: Response) {}
+  async getAll(req: Request, res: Response) {
+    const minWeight =
+      typeof req.query.minWeight === "string"
+        ? parseFloat(req.query.minWeight)
+        : undefined;
+    const maxWeight =
+      typeof req.query.maxWeight === "string"
+        ? parseFloat(req.query.maxWeight)
+        : undefined;
+    const minHeight =
+      typeof req.query.minHeight === "string"
+        ? parseFloat(req.query.minHeight)
+        : undefined;
+    const maxHeight =
+      typeof req.query.maxHeight === "string"
+        ? parseFloat(req.query.maxHeight)
+        : undefined;
+
+    try {
+      const characters = await characterRepository.getCharacters({
+        minWeight,
+        maxWeight,
+        minHeight,
+        maxHeight,
+      });
+
+      res.status(200).send(characters);
+    } catch (error) {
+      res.status(500).send({
+        status: "error",
+        message: "Some error occurred while retrieving characters.",
+      });
+    }
+  }
 }
