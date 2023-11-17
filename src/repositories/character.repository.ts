@@ -10,7 +10,7 @@ interface ICharacterRepository {
     minHeight?: number;
     maxHeight?: number;
   }): Promise<ICharacter[]>;
-  getCharacter(id: number, uuid?: string): Promise<ICharacter>;
+  getCharacter(uuid: string): Promise<ICharacter>;
   createCharacter(character: ICharacter): Promise<ICharacter>;
 }
 
@@ -55,20 +55,12 @@ class CharacterRepository implements ICharacterRepository {
     });
   }
 
-  async getCharacter(
-    id?: number,
-    uuid?: string | undefined
-  ): Promise<ICharacter> {
-    let query: string = "SELECT * FROM characters WHERE";
-
-    if (id) {
-      query += ` id = ?`;
-    } else {
-      query += ` uuid = ?`;
-    }
+  async getCharacter(uuid: string): Promise<ICharacter> {
+    let query: string =
+      "SELECT c.*, GROUP_CONCAT(DISTINCT pt.trait) AS personality_traits, GROUP_CONCAT(DISTINCT h.hobby) AS hobbies FROM characters c LEFT JOIN character_personality_trait cpt ON c.id = cpt.character_id LEFT JOIN personality_traits pt ON cpt.trait_id = pt.id LEFT JOIN character_hobby ch ON c.id = ch.character_id LEFT JOIN hobbies h ON ch.hobby_id = h.id WHERE c.uuid = ? GROUP BY c.id;";
 
     return new Promise((resolve, reject) => {
-      connection.query<ICharacter[]>(query, [id || uuid], (err, res) => {
+      connection.query<ICharacter[]>(query, [uuid], (err, res) => {
         if (err) {
           reject(err);
         } else {
@@ -107,7 +99,7 @@ class CharacterRepository implements ICharacterRepository {
           if (err) {
             reject(err);
           } else {
-            this.getCharacter(res.insertId)
+            this.getCharacter(character.uuid)
               .then((character) => resolve(character))
               .catch(reject);
           }
