@@ -69,3 +69,5 @@ class CharacterPersonalityTraitRepository
     });
   }
 }
+
+export default new CharacterPersonalityTraitRepository();
