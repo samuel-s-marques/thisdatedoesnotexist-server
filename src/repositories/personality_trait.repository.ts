@@ -1,6 +1,5 @@
 import { IPersonalityTrait } from "../models/personality_trait.model";
 import connection from "../config/db.config.js";
-import { ResultSetHeader } from "mysql2";
 
 interface IPersonalityTraitRepository {
   getPersonalityTraits(searchParams: {
