@@ -5,3 +5,17 @@ interface IHobbyRepository {
   getHobbiesByNameArray(hobbiesArray: string[]): Promise<IHobby[]>;
   getHobby(id: number): Promise<IHobby>;
 }
+
+class HobbiesRepository implements IHobbyRepository {
+  getHobbies(searchParams: { hobby?: string | undefined }): Promise<IHobby[]> {
+    throw new Error("Method not implemented.");
+  }
+
+  getHobbiesByNameArray(hobbiesArray: string[]): Promise<IHobby[]> {
+    throw new Error("Method not implemented.");
+  }
+
+  getHobby(id: number): Promise<IHobby> {
+    throw new Error("Method not implemented.");
+  }
+}
