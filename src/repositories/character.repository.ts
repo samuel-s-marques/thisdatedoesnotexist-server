@@ -21,18 +21,19 @@ class CharacterRepository implements ICharacterRepository {
     minHeight?: number | undefined;
     maxHeight?: number | undefined;
   }): Promise<ICharacter[]> {
-    let query: string = "SELECT * FROM characters";
+    let query: string =
+      "SELECT c.*, GROUP_CONCAT(DISTINCT pt.trait) AS personality_traits, GROUP_CONCAT(DISTINCT h.hobby) AS hobbies FROM characters c LEFT JOIN character_personality_trait cpt ON c.id = cpt.character_id LEFT JOIN personality_traits pt ON cpt.trait_id = pt.id LEFT JOIN character_hobby ch ON c.id = ch.character_id LEFT JOIN hobbies h ON ch.hobby_id = h.id";
     let condition: string[] = [];
 
     if (searchParams?.minWeight && searchParams?.maxWeight) {
       condition.push(
-        `weight BETWEEN ${searchParams.minWeight} AND ${searchParams.maxWeight}`
+        `c.weight BETWEEN ${searchParams.minWeight} AND ${searchParams.maxWeight}`
       );
     }
 
     if (searchParams?.minHeight && searchParams?.maxHeight) {
       condition.push(
-        `height BETWEEN ${searchParams.minHeight} AND ${searchParams.maxHeight}`
+        `c.height BETWEEN ${searchParams.minHeight} AND ${searchParams.maxHeight}`
       );
     }
 
@@ -43,6 +44,8 @@ class CharacterRepository implements ICharacterRepository {
         query += ` AND ${condition[i]}`;
       }
     }
+
+    query += " GROUP BY c.id;";
 
     return new Promise((resolve, reject) => {
       connection.query<ICharacter[]>(query, (err, res) => {
