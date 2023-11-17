@@ -18,7 +18,7 @@ class CharacterPersonalityTraitRepository
     character_id?: number;
     trait_id?: number;
   }): Promise<ICharacterPersonalityTrait[]> {
-    let query: string = "SELECT * FROM character_personality_traits";
+    let query: string = "SELECT * FROM character_personality_trait";
     let condition: string[] = [];
 
     if (searchParams?.character_id) {
@@ -53,7 +53,7 @@ class CharacterPersonalityTraitRepository
   ): Promise<ICharacterPersonalityTrait> {
     return new Promise((resolve, reject) => {
       connection.query<ICharacterPersonalityTrait[]>(
-        "INSERT INTO character_personality_traits (character_id, trait_id) VALUES (?, ?)",
+        "INSERT INTO character_personality_trait (character_id, trait_id) VALUES (?, ?)",
         [
           characterPersonalityTrait.character_id,
           characterPersonalityTrait.trait_id,
