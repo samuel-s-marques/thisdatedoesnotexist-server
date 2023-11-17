@@ -9,6 +9,8 @@ interface ICharacterRepository {
     maxWeight?: number;
     minHeight?: number;
     maxHeight?: number;
+    minAge?: number;
+    maxAge?: number;
   }): Promise<ICharacter[]>;
   getCharacter(uuid: string): Promise<ICharacter>;
   createCharacter(character: ICharacter): Promise<ICharacter>;
@@ -20,6 +22,9 @@ class CharacterRepository implements ICharacterRepository {
     maxWeight?: number | undefined;
     minHeight?: number | undefined;
     maxHeight?: number | undefined;
+    minAge?: number | undefined;
+    maxAge?: number | undefined;
+    sex?: string | undefined;
   }): Promise<ICharacter[]> {
     let query: string =
       "SELECT c.*, GROUP_CONCAT(DISTINCT pt.trait) AS personality_traits, GROUP_CONCAT(DISTINCT h.hobby) AS hobbies FROM characters c LEFT JOIN character_personality_trait cpt ON c.id = cpt.character_id LEFT JOIN personality_traits pt ON cpt.trait_id = pt.id LEFT JOIN character_hobby ch ON c.id = ch.character_id LEFT JOIN hobbies h ON ch.hobby_id = h.id";
@@ -35,6 +40,18 @@ class CharacterRepository implements ICharacterRepository {
       condition.push(
         `c.height BETWEEN ${searchParams.minHeight} AND ${searchParams.maxHeight}`
       );
+    }
+
+    if (searchParams?.minAge && searchParams?.maxAge) {
+      condition.push(
+        `c.age BETWEEN ${searchParams.minAge} AND ${searchParams.maxAge}`
+      );
+    }
+
+    if (searchParams?.sex) {
+      condition.push(
+        `c.sex = "${searchParams.sex}"`
+      )
     }
 
     for (let i = 0; i < condition.length; i++) {
