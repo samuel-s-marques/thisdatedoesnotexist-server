@@ -12,6 +12,7 @@ interface ICharacterRepository {
     minAge?: number;
     maxAge?: number;
     sex?: string;
+    sexuality?: string;
   }): Promise<ICharacter[]>;
   getCharacter(uuid: string): Promise<ICharacter>;
   createCharacter(character: ICharacter): Promise<ICharacter>;
@@ -26,6 +27,7 @@ class CharacterRepository implements ICharacterRepository {
     minAge?: number | undefined;
     maxAge?: number | undefined;
     sex?: string | undefined;
+    sexuality?: string | undefined;
   }): Promise<ICharacter[]> {
     let query: string =
       "SELECT c.*, GROUP_CONCAT(DISTINCT pt.trait) AS personality_traits, GROUP_CONCAT(DISTINCT h.hobby) AS hobbies FROM characters c LEFT JOIN character_personality_trait cpt ON c.id = cpt.character_id LEFT JOIN personality_traits pt ON cpt.trait_id = pt.id LEFT JOIN character_hobby ch ON c.id = ch.character_id LEFT JOIN hobbies h ON ch.hobby_id = h.id";
@@ -50,9 +52,11 @@ class CharacterRepository implements ICharacterRepository {
     }
 
     if (searchParams?.sex) {
-      condition.push(
-        `c.sex = "${searchParams.sex}"`
-      )
+      condition.push(`c.sex = "${searchParams.sex}"`);
+    }
+
+    if (searchParams?.sexuality) {
+      condition.push(`c.sexuality = "${searchParams.sexuality}"`);
     }
 
     for (let i = 0; i < condition.length; i++) {

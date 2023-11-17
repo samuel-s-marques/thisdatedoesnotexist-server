@@ -120,6 +120,8 @@ export default class CharacterController {
         ? parseInt(req.query.maxAge)
         : undefined;
     const sex = typeof req.query.sex === "string" ? req.query.sex : undefined;
+    const sexuality =
+      typeof req.query.sexuality === "string" ? req.query.sexuality : undefined;
 
     try {
       const characters = await characterRepository.getCharacters({
@@ -130,6 +132,7 @@ export default class CharacterController {
         minAge,
         maxAge,
         sex,
+        sexuality,
       });
 
       res.status(200).send(characters);
