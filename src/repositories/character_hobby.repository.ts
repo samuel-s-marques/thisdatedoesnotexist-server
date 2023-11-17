@@ -16,7 +16,7 @@ class CharacterHobbyRepository implements ICharacterHobbyRepository {
     character_id?: number | undefined;
     hobby_id?: number | undefined;
   }): Promise<ICharacterHobby[]> {
-    let query: string = "SELECT * FROM character_personality_traits";
+    let query: string = "SELECT * FROM character_hobby";
     let condition: string[] = [];
 
     if (searchParams?.character_id) {
