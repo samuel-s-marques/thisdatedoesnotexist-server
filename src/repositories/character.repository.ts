@@ -8,7 +8,8 @@ interface ICharacterRepository {
     maxWeight?: number;
     minHeight?: number;
     maxHeight?: number;
-  }): Promise<Character[]>;
+  }): Promise<ICharacter[]>;
+  getCharacter(id: number, uuid?: string): Promise<ICharacter>;
 }
 
 class CharacterRepository implements ICharacterRepository {
@@ -49,6 +50,33 @@ class CharacterRepository implements ICharacterRepository {
           resolve(res);
         }
       });
+    });
+  }
+
+  async getCharacter(
+    id?: number,
+    uuid?: string | undefined
+  ): Promise<ICharacter> {
+    let query: string = "SELECT * FROM characters WHERE";
+
+    if (id) {
+      query += ` id = ?`;
+    } else {
+      query += ` uuid = ?`;
+    }
+
+    return new Promise((resolve, reject) => {
+      connection.query<ICharacter[]>(
+        query,
+        [id || uuid],
+        (err, res) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(res?.[0]);
+          }
+        }
+      );
     });
   }
 }
