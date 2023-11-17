@@ -45,6 +45,22 @@ class HobbiesRepository implements IHobbyRepository {
   }
 
   getHobby(id: number): Promise<IHobby> {
-    throw new Error("Method not implemented.");
+    return new Promise((resolve, reject) => {
+      connection.query<IHobby[]>(
+        "SELECT * FROM hobbies WHERE id = ?",
+        [id],
+        (err, res) => {
+          if (err) {
+            reject(err);
+          } else {
+            if (res.length) {
+              resolve(res[0]);
+            } else {
+              reject("Hobby not found");
+            }
+          }
+        }
+      );
+    });
   }
 }
