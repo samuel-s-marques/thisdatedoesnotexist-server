@@ -51,7 +51,7 @@ class CharacterHobbyRepository implements ICharacterHobbyRepository {
   ): Promise<ICharacterHobby> {
     return new Promise((resolve, reject) => {
       connection.query<ICharacterHobby[]>(
-        "INSERT INTO character_personality_traits (character_id, trait_id) VALUES (?, ?)",
+        "INSERT INTO character_hobby (character_id, hobby_id) VALUES (?, ?)",
         [
             characterHobby.character_id,
             characterHobby.hobby_id,
