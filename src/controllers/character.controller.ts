@@ -111,6 +111,15 @@ export default class CharacterController {
       typeof req.query.maxHeight === "string"
         ? parseFloat(req.query.maxHeight)
         : undefined;
+    const minAge =
+      typeof req.query.minAge === "string"
+        ? parseInt(req.query.minAge)
+        : undefined;
+    const maxAge =
+      typeof req.query.maxAge === "string"
+        ? parseInt(req.query.maxAge)
+        : undefined;
+    const sex = typeof req.query.sex === "string" ? req.query.sex : undefined;
 
     try {
       const characters = await characterRepository.getCharacters({
@@ -118,6 +127,9 @@ export default class CharacterController {
         maxWeight,
         minHeight,
         maxHeight,
+        minAge,
+        maxAge,
+        sex,
       });
 
       res.status(200).send(characters);
