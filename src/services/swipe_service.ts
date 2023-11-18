@@ -1,5 +1,6 @@
 import { CronJob } from "cron";
 import firestore from "../config/firestore.config";
+const { Timestamp, FieldValue, Filter } = require("firebase-admin/firestore");
 
 class SwipeService {
   cronJob: CronJob;
@@ -32,7 +33,13 @@ class SwipeService {
   public async checkSwipes() {
     try {
       const usersRef = firestore.collection("users");
-      const snapshot = await usersRef.where("swipes", "<", 20).get();
+      const now = Timestamp.now();
+      // TODO: Change this to 24 hours
+      let time = now.toMillis() - 5 * 60 * 1000;
+
+      const snapshot = await usersRef
+        .where("lastSwipe", "<", new Date(time))
+        .get();
 
       if (snapshot.empty) {
         console.log("No users with swipes under 20 found.");
@@ -45,7 +52,7 @@ class SwipeService {
         console.log(`User ${doc.id} has swipes under 20.`);
 
         const userRef = usersRef.doc(doc.id);
-        batch.update(userRef, { swipes: 20 });
+        batch.update(userRef, { swipes: 20, lastSwipe: null });
       });
 
       await batch.commit();
