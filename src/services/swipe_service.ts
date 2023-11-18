@@ -39,10 +39,17 @@ class SwipeService {
         return;
       }
 
+      const batch = firestore.batch();
+
       snapshot.forEach((doc) => {
-        const userData = doc.data();
         console.log(`User ${doc.id} has swipes under 20.`);
+
+        const userRef = usersRef.doc(doc.id);
+        batch.update(userRef, { swipes: 20 });
       });
+
+      await batch.commit();
+      console.log("Swipes updated successfully.");
     } catch (error) {
       console.error("Error checking swipes: ", error);
     }
