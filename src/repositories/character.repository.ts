@@ -1,4 +1,3 @@
-import { Character } from "character-forge";
 import connection from "../config/db.config.js";
 import { ICharacter } from "../models/character.model.js";
 import { ResultSetHeader } from "mysql2";
