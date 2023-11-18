@@ -135,7 +135,10 @@ export default class CharacterController {
         sexuality,
       });
 
-      res.status(200).send(characters);
+      res.status(200).send({
+        data: characters,
+        count: characters.length,
+      });
     } catch (error) {
       res.status(500).send({
         status: "error",
