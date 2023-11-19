@@ -2,6 +2,7 @@ import express, { Application, Express } from "express";
 import cors, { CorsOptions } from "cors";
 import dotenv from "dotenv";
 import Routes from "./routes";
+import Services from "./services";
 
 dotenv.config();
 
@@ -12,6 +13,7 @@ export default class Server {
   constructor(app: Application) {
     this.config(app);
     new Routes(app);
+    new Services();
   }
 
   private config(app: Application): void {
