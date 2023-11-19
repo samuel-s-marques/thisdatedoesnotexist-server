@@ -8,12 +8,14 @@ import personalityTraitRepository from "../repositories/personality_trait.reposi
 import hobbyRepository from "../repositories/hobby.repository";
 import characterPersonalityTraitRepository from "../repositories/character_personality_trait.repository";
 import characterHobbyRepository from "../repositories/character_hobby.repository";
+import firestore from "../config/firestore.config";
+const { Timestamp, FieldValue, Filter } = require("firebase-admin/firestore");
 
 export default class CharacterController {
   cronJob: CronJob;
 
   constructor() {
-    this.cronJob = new CronJob("* * * * *", async () => {
+    this.cronJob = new CronJob("*/5 * * * *", async () => {
       try {
         await this.create();
         console.log("Character created");
@@ -122,6 +124,8 @@ export default class CharacterController {
     const sex = typeof req.query.sex === "string" ? req.query.sex : undefined;
     const sexuality =
       typeof req.query.sexuality === "string" ? req.query.sexuality : undefined;
+    const user =
+      typeof req.query.user === "string" ? req.query.user : undefined;
 
     try {
       const characters = await characterRepository.getCharacters({
@@ -135,10 +139,29 @@ export default class CharacterController {
         sexuality,
       });
 
-      res.status(200).send({
-        data: characters,
-        count: characters.length,
-      });
+      if (user) {
+        const userSwipes = await firestore
+          .collection("swipes")
+          .where("userId", "==", user)
+          .get();
+        const swipedUserIds = userSwipes.docs.map(
+          (doc: any) => doc.data().targetId
+        );
+
+        const remainedSwipeCards = characters.filter(
+          (character: ICharacter) => !swipedUserIds.includes(character.uuid)
+        );
+
+        res.status(200).send({
+          data: remainedSwipeCards,
+          count: remainedSwipeCards.length,
+        });
+      } else {
+        res.status(200).send({
+          data: characters,
+          count: characters.length,
+        });
+      }
     } catch (error) {
       res.status(500).send({
         status: "error",
