@@ -8,7 +8,7 @@ class SwipeService {
   private static instance: SwipeService;
 
   private constructor() {
-    this.cronJob = new CronJob("* * * * *", async () => {
+    this.cronJob = new CronJob("*/5 * * * *", async () => {
       try {
         await this.checkSwipes();
         console.log("Checked swipes.");
