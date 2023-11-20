@@ -31,7 +31,7 @@ class HobbiesRepository implements IHobbyRepository {
   getHobbiesByNameArray(hobbiesArray: string[]): Promise<IHobby[]> {
     return new Promise((resolve, reject) => {
       connection.query<IHobby[]>(
-        "SELECT id, name, type FROM hobbies WHERE name in (?)",
+        "SELECT * FROM hobbies WHERE name in (?)",
         [hobbiesArray],
         (err, res) => {
           if (err) {
