@@ -7,9 +7,12 @@ export default class PersonalityTraitController {
       typeof req.query.name === "string" ? req.query.name : undefined;
 
     try {
-      const personalityTraits = await personalityTraitRepository.getPersonalityTraits({ name });
+      const personalityTraits =
+        await personalityTraitRepository.getPersonalityTraits({ name });
 
-      res.status(200).send(personalityTraits);
+      res
+        .status(200)
+        .send({ data: personalityTraits, count: personalityTraits.length });
     } catch (error) {
       res.status(500).send({
         status: "error",
@@ -22,7 +25,9 @@ export default class PersonalityTraitController {
     const id: string = req.params.id;
 
     try {
-      const trait = await personalityTraitRepository.getPersonalityTrait(parseInt(id));
+      const trait = await personalityTraitRepository.getPersonalityTrait(
+        parseInt(id)
+      );
 
       if (trait) {
         res.status(200).send(trait);

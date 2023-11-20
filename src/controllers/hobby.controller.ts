@@ -9,7 +9,7 @@ export default class HobbyController {
     try {
       const hobbies = await hobbyRepository.getHobbies({ hobby });
 
-      res.status(200).send(hobbies);
+      res.status(200).send({ data: hobbies, count: hobbies.length });
     } catch (error) {
       res.status(500).send({
         status: "error",

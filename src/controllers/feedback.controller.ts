@@ -96,7 +96,7 @@ export default class FeedbackController {
         created_at,
       });
 
-      res.status(200).send(feedbacks);
+      res.status(200).send({ data: feedbacks, count: feedbacks.length });
     } catch (error) {
       res.status(500).send({
         status: "error",
