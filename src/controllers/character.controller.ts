@@ -9,13 +9,14 @@ import hobbyRepository from "../repositories/hobby.repository";
 import characterPersonalityTraitRepository from "../repositories/character_personality_trait.repository";
 import characterHobbyRepository from "../repositories/character_hobby.repository";
 import firestore from "../config/firestore.config";
+import { Hobby } from "character-forge/dist/src/modules/hobbies";
 const { Timestamp, FieldValue, Filter } = require("firebase-admin/firestore");
 
 export default class CharacterController {
   cronJob: CronJob;
 
   constructor() {
-    this.cronJob = new CronJob("*/5 * * * *", async () => {
+    this.cronJob = new CronJob("*/30 * * * *", async () => {
       try {
         await this.create();
         console.log("Character created");
@@ -34,7 +35,7 @@ export default class CharacterController {
     const forgedCharacter: Character = forge.forge();
     const forgedPersonalityTraits: string[] =
       forgedCharacter.personalityTraits.map((trait) => trait.name);
-    const forgedHobbies: string[] = forgedCharacter.hobbies;
+    const forgedHobbies: Hobby[] = forgedCharacter.hobbies;
     const character: ICharacter = {
       uuid: uuidv4(),
       ...forgedCharacter,
@@ -49,7 +50,7 @@ export default class CharacterController {
       await personalityTraitRepository.getPersonalityTraitsByNameArray(
         forgedPersonalityTraits
       );
-    const hobbies = await hobbyRepository.getHobbiesByNameArray(forgedHobbies);
+    const hobbies = await hobbyRepository.getHobbiesByNameArray(forgedHobbies.map((hobby) => hobby.name));
 
     for (let i = 0; i < personalityTraits.length; i++) {
       const trait = personalityTraits[i];
