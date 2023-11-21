@@ -3,11 +3,11 @@ import hobbyRepository from "../repositories/hobby.repository";
 
 export default class HobbyController {
   async getAll(req: Request, res: Response) {
-    const hobby =
-      typeof req.query.hobby === "string" ? req.query.hobby : undefined;
+    const name =
+      typeof req.query.name === "string" ? req.query.name : undefined;
 
     try {
-      const hobbies = await hobbyRepository.getHobbies({ hobby });
+      const hobbies = await hobbyRepository.getHobbies({ name });
 
       res.status(200).send({ data: hobbies, count: hobbies.length });
     } catch (error) {
