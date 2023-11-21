@@ -16,7 +16,7 @@ export default class CharacterController {
   cronJob: CronJob;
 
   constructor() {
-    this.cronJob = new CronJob("*/30 * * * *", async () => {
+    this.cronJob = new CronJob("* * * * *", async () => {
       try {
         await this.create();
         console.log("Character created");
@@ -50,7 +50,9 @@ export default class CharacterController {
       await personalityTraitRepository.getPersonalityTraitsByNameArray(
         forgedPersonalityTraits
       );
-    const hobbies = await hobbyRepository.getHobbiesByNameArray(forgedHobbies.map((hobby) => hobby.name));
+    const hobbies = await hobbyRepository.getHobbiesByNameArray(
+      forgedHobbies.map((hobby) => hobby.name)
+    );
 
     for (let i = 0; i < personalityTraits.length; i++) {
       const trait = personalityTraits[i];
@@ -58,6 +60,7 @@ export default class CharacterController {
       characterPersonalityTraitRepository.createCharacterPersonalityTrait({
         character_id: savedCharacter.id!,
         trait_id: trait.id!,
+        character_uuid: savedCharacter.uuid,
         constructor: { name: "RowDataPacket" },
       });
     }
@@ -68,6 +71,7 @@ export default class CharacterController {
       characterHobbyRepository.createCharacterHobby({
         character_id: savedCharacter.id!,
         hobby_id: hobby.id!,
+        character_uuid: savedCharacter.uuid,
         constructor: { name: "RowDataPacket" },
       });
     }
