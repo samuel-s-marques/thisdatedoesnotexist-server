@@ -1,6 +1,6 @@
 import connection from "../config/db.config.js";
-import { ICharacter } from "../models/character.model.js";
 import { ResultSetHeader } from "mysql2";
+import { ICharacter } from "../models/character.model";
 
 interface ICharacterRepository {
   getCharacters(searchParams: {
@@ -29,7 +29,7 @@ class CharacterRepository implements ICharacterRepository {
     sexuality?: string | undefined;
   }): Promise<ICharacter[]> {
     let query: string =
-      "SELECT c.*, GROUP_CONCAT(DISTINCT pt.trait) AS personality_traits, GROUP_CONCAT(DISTINCT h.hobby) AS hobbies FROM characters c LEFT JOIN character_personality_trait cpt ON c.id = cpt.character_id LEFT JOIN personality_traits pt ON cpt.trait_id = pt.id LEFT JOIN character_hobby ch ON c.id = ch.character_id LEFT JOIN hobbies h ON ch.hobby_id = h.id";
+      "SELECT c.*, GROUP_CONCAT(DISTINCT pt.trait) AS personality_traits, GROUP_CONCAT(DISTINCT h.name) AS hobbies FROM characters c LEFT JOIN character_personality_trait cpt ON c.id = cpt.character_id LEFT JOIN personality_traits pt ON cpt.trait_id = pt.id LEFT JOIN character_hobby ch ON c.id = ch.character_id LEFT JOIN hobbies h ON ch.hobby_id = h.id";
     let condition: string[] = [];
 
     if (searchParams?.minWeight && searchParams?.maxWeight) {
@@ -66,7 +66,7 @@ class CharacterRepository implements ICharacterRepository {
       }
     }
 
-    query += " GROUP BY c.id;";
+    query += " GROUP BY c.id";
 
     return new Promise((resolve, reject) => {
       connection.query<ICharacter[]>(query, (err, res) => {
@@ -81,14 +81,18 @@ class CharacterRepository implements ICharacterRepository {
 
   async getCharacter(uuid: string): Promise<ICharacter> {
     let query: string =
-      "SELECT c.*, GROUP_CONCAT(DISTINCT pt.trait) AS personality_traits, GROUP_CONCAT(DISTINCT h.hobby) AS hobbies FROM characters c LEFT JOIN character_personality_trait cpt ON c.id = cpt.character_id LEFT JOIN personality_traits pt ON cpt.trait_id = pt.id LEFT JOIN character_hobby ch ON c.id = ch.character_id LEFT JOIN hobbies h ON ch.hobby_id = h.id WHERE c.uuid = ? GROUP BY c.id;";
+      "SELECT * FROM characters WHERE uuid = ?; SELECT * FROM character_hobby WHERE character_uuid = ?; SELECT * FROM character_personality_trait WHERE character_uuid = ?";
 
     return new Promise((resolve, reject) => {
-      connection.query<ICharacter[]>(query, [uuid], (err, res) => {
+      connection.query<ICharacter[]>(query, [uuid, uuid, uuid], (err, res) => {
         if (err) {
           reject(err);
         } else {
-          resolve(res?.[0]);
+          resolve({
+            ...res[0][0],
+            hobbies: res[1],
+            personalityTraits: res[2],
+          });
         }
       });
     });
