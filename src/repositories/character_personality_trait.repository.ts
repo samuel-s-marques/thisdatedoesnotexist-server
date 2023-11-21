@@ -53,9 +53,10 @@ class CharacterPersonalityTraitRepository
   ): Promise<ICharacterPersonalityTrait> {
     return new Promise((resolve, reject) => {
       connection.query<ICharacterPersonalityTrait[]>(
-        "INSERT INTO character_personality_trait (character_id, trait_id) VALUES (?, ?)",
+        "INSERT INTO character_personality_trait (character_id, character_uuid, trait_id) VALUES (?, ?, ?)",
         [
           characterPersonalityTrait.character_id,
+          characterPersonalityTrait.character_uuid,
           characterPersonalityTrait.trait_id,
         ],
         (err, res) => {
