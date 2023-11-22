@@ -8,12 +8,12 @@ export default class HobbiesController {
     const value = ctx.request.input('value')
 
     if (query && value) {
-      const hobbies = await HobbyModel.query().where(query, value).paginate(page, 40)
+      const hobbies = await HobbyModel.query().where(query, value).paginate(page, 70)
 
       return hobbies
     }
 
-    const hobbies = await HobbyModel.query().paginate(page, 40)
+    const hobbies = await HobbyModel.query().paginate(page, 70)
     return hobbies
   }
 
