@@ -130,3 +130,4 @@ output
 package-lock.json
 build
 src/config/serviceAccountKey.json
+config/serviceAccountKey.json
