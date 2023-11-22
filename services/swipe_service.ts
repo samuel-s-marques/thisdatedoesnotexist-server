@@ -1,5 +1,6 @@
 import firestore from '../config/firebase_database'
 import { Timestamp } from 'firebase-admin/firestore'
+import Logger from '@ioc:Adonis/Core/Logger'
 
 class SwipeService {
   private static instance: SwipeService
@@ -22,23 +23,23 @@ class SwipeService {
       const snapshot = await usersRef.where('lastSwipe', '<', new Date(time)).get()
 
       if (snapshot.empty) {
-        console.log('No users with swipes under 20 found.')
+        Logger.info('No users with swipes under 20 found.')
         return
       }
 
       const batch = firestore.batch()
 
       snapshot.forEach((doc) => {
-        console.log(`User ${doc.id} has swipes under 20.`)
+        Logger.warn(`User ${doc.id} has swipes under 20.`)
 
         const userRef = usersRef.doc(doc.id)
         batch.update(userRef, { swipes: 20, lastSwipe: null })
       })
 
       await batch.commit()
-      console.log('Swipes updated successfully.')
+      Logger.info('Swipes updated successfully.')
     } catch (error) {
-      console.error('Error checking swipes: ', error)
+      Logger.error('Error checking swipes: ', error)
     }
   }
 }
