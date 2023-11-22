@@ -41,4 +41,9 @@ Route.group(() => {
     Route.get('/', 'PersonalityTraitsController.index')
     Route.get('/:id', 'PersonalityTraitsController.show')
   }).prefix('/traits')
+
+  Route.group(() => {
+    Route.get('/', 'RelationshipGoalsController.index')
+    Route.get('/:id', 'RelationshipGoalsController.show')
+  }).prefix('/relationship-goals')
 }).prefix('/api')
