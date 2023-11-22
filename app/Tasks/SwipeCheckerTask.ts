@@ -4,7 +4,7 @@ import SwipeService from '../../services/swipe_service'
 export default class SwipeCheckerTask extends BaseTask {
   public static get schedule() {
     // Use CronTimeV2 generator:
-    return CronTimeV2.everyTenMinutes()
+    return CronTimeV2.everyThirtyMinutes()
     // or just use return cron-style string (simple cron editor: crontab.guru)
   }
   /**
@@ -12,7 +12,7 @@ export default class SwipeCheckerTask extends BaseTask {
    * Lock file save to `build/tmp/adonis5-scheduler/locks/your-class-name`
    */
   public static get useLock() {
-    return true
+    return false
   }
 
   public async handle() {
