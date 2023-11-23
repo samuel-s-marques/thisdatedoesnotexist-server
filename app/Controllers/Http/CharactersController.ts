@@ -32,6 +32,9 @@ export default class CharactersController {
       .if(searchQuery.relationship_goal, (query) => {
         query.where('relationship_goal', searchQuery.relationship_goal)
       })
+      .if(searchQuery.min_age && searchQuery.max_age, (query) => {
+        query.whereBetween('age', [searchQuery.min_age, searchQuery.max_age])
+      })
       .paginate(page, 40)
     return characters
   }
