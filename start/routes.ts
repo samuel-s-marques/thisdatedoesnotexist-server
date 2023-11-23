@@ -40,7 +40,7 @@ Route.group(() => {
   Route.group(() => {
     Route.get('/', 'PersonalityTraitsController.index')
     Route.get('/:id', 'PersonalityTraitsController.show')
-  }).prefix('/traits')
+  }).prefix('/personality-traits')
 
   Route.group(() => {
     Route.get('/', 'RelationshipGoalsController.index')
@@ -50,5 +50,10 @@ Route.group(() => {
   Route.group(() => {
     Route.get('/', 'BodyTypesController.index')
     Route.get('/:id', 'BodyTypesController.show')
-  }).prefix('/bodytypes')
+  }).prefix('/body-types')
+
+  Route.group(() => {
+    Route.get('/', 'PoliticalViewsController.index')
+    Route.get('/:id', 'PoliticalViewsController.show')
+  }).prefix('/political-views')
 }).prefix('/api')
