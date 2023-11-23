@@ -3,6 +3,7 @@ import { BaseModel, ManyToMany, column, manyToMany } from '@ioc:Adonis/Lucid/Orm
 import HobbyModel from './HobbyModel'
 import PersonalityTraitModel from './PersonalityTraitModel'
 import PronounsModel from './PronounsModel'
+import RelationshipGoal from './RelationshipGoal'
 
 export default class CharacterModel extends BaseModel {
   public static table = 'characters'
@@ -39,6 +40,9 @@ export default class CharacterModel extends BaseModel {
 
   @column()
   public religion: string
+
+  @column()
+  public relationshipGoal: string
 
   @column()
   public bodyType: string
@@ -78,7 +82,7 @@ export default class CharacterModel extends BaseModel {
     localKey: 'id',
     pivotForeignKey: 'character_id',
     relatedKey: 'id',
-    pivotRelatedForeignKey: 'hobby_id'
+    pivotRelatedForeignKey: 'hobby_id',
   })
   public hobbies: ManyToMany<typeof HobbyModel>
 
@@ -87,7 +91,7 @@ export default class CharacterModel extends BaseModel {
     localKey: 'id',
     pivotForeignKey: 'character_id',
     relatedKey: 'id',
-    pivotRelatedForeignKey: 'trait_id'
+    pivotRelatedForeignKey: 'trait_id',
   })
   public personalityTraits: ManyToMany<typeof PersonalityTraitModel>
 
@@ -96,7 +100,7 @@ export default class CharacterModel extends BaseModel {
     localKey: 'id',
     pivotForeignKey: 'character_id',
     relatedKey: 'id',
-    pivotRelatedForeignKey: 'pronoun_id'
+    pivotRelatedForeignKey: 'pronoun_id',
   })
   public pronouns: ManyToMany<typeof PronounsModel>
 
