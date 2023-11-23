@@ -10,26 +10,28 @@ import { v4 as uuidv4 } from 'uuid'
 export default class CharactersController {
   public async index(ctx: HttpContextContract) {
     const page = ctx.request.input('page', 1)
-    const query = ctx.request.input('query')
-    const value = ctx.request.input('value')
-
-    if (query && value) {
-      const characters = await CharacterModel.query()
-        .preload('pronouns')
-        .preload('hobbies')
-        .preload('personalityTraits')
-        .preload('pronouns')
-        .where(query, value)
-        .paginate(page, 40)
-
-      return characters
-    }
+    const searchQuery = ctx.request.qs()
 
     const characters = await CharacterModel.query()
       .preload('pronouns')
       .preload('hobbies')
       .preload('personalityTraits')
       .preload('pronouns')
+      .if(searchQuery.sex, (query) => {
+        query.where('sex', searchQuery.sex)
+      })
+      .if(searchQuery.sexuality, (query) => {
+        query.where('sexuality', searchQuery.sexuality)
+      })
+      .if(searchQuery.body_type, (query) => {
+        query.where('body_type', searchQuery.bodyType)
+      })
+      .if(searchQuery.political_view, (query) => {
+        query.where('political_view', searchQuery.political_view)
+      })
+      .if(searchQuery.relationship_goal, (query) => {
+        query.where('relationship_goal', searchQuery.relationship_goal)
+      })
       .paginate(page, 40)
     return characters
   }
