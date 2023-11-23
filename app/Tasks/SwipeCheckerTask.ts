@@ -4,7 +4,7 @@ import SwipeService from '../../services/swipe_service'
 export default class SwipeCheckerTask extends BaseTask {
   public static get schedule() {
     // Use CronTimeV2 generator:
-    return CronTimeV2.everyThirtyMinutes()
+    return CronTimeV2.everyHour()
     // or just use return cron-style string (simple cron editor: crontab.guru)
   }
   /**
