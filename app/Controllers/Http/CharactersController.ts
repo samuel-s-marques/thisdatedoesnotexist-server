@@ -3,6 +3,7 @@ import CharacterModel from 'App/Models/CharacterModel'
 import HobbyModel from 'App/Models/HobbyModel'
 import PersonalityTraitModel from 'App/Models/PersonalityTraitModel'
 import PronounsModel from 'App/Models/PronounsModel'
+import RelationshipGoal from 'App/Models/RelationshipGoal'
 import { CharacterForge } from 'character-forge'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -14,6 +15,7 @@ export default class CharactersController {
 
     if (query && value) {
       const characters = await CharacterModel.query()
+        .preload('pronouns')
         .preload('hobbies')
         .preload('personalityTraits')
         .preload('pronouns')
@@ -24,6 +26,7 @@ export default class CharactersController {
     }
 
     const characters = await CharacterModel.query()
+      .preload('pronouns')
       .preload('hobbies')
       .preload('personalityTraits')
       .preload('pronouns')
@@ -33,6 +36,7 @@ export default class CharactersController {
 
   public async show(ctx: HttpContextContract) {
     const character = await CharacterModel.query()
+      .preload('pronouns')
       .preload('hobbies')
       .preload('personalityTraits')
       .preload('pronouns')
@@ -70,6 +74,8 @@ export default class CharactersController {
     character.socialClass = forgedCharacter.socialClass
     character.politicalView = forgedCharacter.politicalView
     character.phobia = forgedCharacter.phobia ? forgedCharacter.phobia : null
+    const relationshipGoals = await RelationshipGoal.query().orderByRaw('RAND()').first()
+    character.relationshipGoal = relationshipGoals!.name
 
     const createdCharacter = await character.save()
     const hobbies = await HobbyModel.query().whereIn('name', forgedHobbies)
