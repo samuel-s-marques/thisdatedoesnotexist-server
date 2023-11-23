@@ -12,6 +12,7 @@ export default class extends BaseSchema {
       table.string('surname').notNullable()
       table.integer('age')
       table.enum('sex', ['male', 'female'])
+      table.string('relationship_goal')
       table.string('eye_color')
       table.string('hair_color')
       table.string('hair_style')
