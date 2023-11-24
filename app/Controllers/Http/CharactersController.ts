@@ -18,19 +18,19 @@ export default class CharactersController {
       .preload('personalityTraits')
       .preload('pronouns')
       .if(searchQuery.sex, (query) => {
-        query.where('sex', searchQuery.sex)
+        query.whereIn('sex', searchQuery.sex.split(','))
       })
       .if(searchQuery.sexuality, (query) => {
-        query.where('sexuality', searchQuery.sexuality)
+        query.whereIn('sexuality', searchQuery.sexuality.split(','))
       })
       .if(searchQuery.body_type, (query) => {
-        query.where('body_type', searchQuery.bodyType)
+        query.whereIn('body_type', searchQuery.bodyType.split(','))
       })
       .if(searchQuery.political_view, (query) => {
-        query.where('political_view', searchQuery.political_view)
+        query.whereIn('political_view', searchQuery.political_view.split(','))
       })
       .if(searchQuery.relationship_goal, (query) => {
-        query.where('relationship_goal', searchQuery.relationship_goal)
+        query.whereIn('relationship_goal', searchQuery.relationship_goal.split(','))
       })
       .if(searchQuery.min_age && searchQuery.max_age, (query) => {
         query.whereBetween('age', [searchQuery.min_age, searchQuery.max_age])
