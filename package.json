@@ -61,13 +61,14 @@
     "@adonisjs/lucid": "^18.4.2",
     "@adonisjs/repl": "^3.1.11",
     "adonis5-scheduler": "^2.1.1",
-    "character-forge": "^1.2.6",
+    "character-forge": "^1.2.7",
     "firebase": "^10.6.0",
     "firebase-admin": "^11.11.0",
     "luxon": "^3.4.4",
     "mysql2": "^3.6.4",
     "proxy-addr": "^2.0.7",
     "reflect-metadata": "^0.1.13",
+    "sharp": "^0.32.6",
     "source-map-support": "^0.5.21"
   }
 }
