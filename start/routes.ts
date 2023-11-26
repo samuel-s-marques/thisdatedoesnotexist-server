@@ -56,4 +56,9 @@ Route.group(() => {
     Route.get('/', 'PoliticalViewsController.index')
     Route.get('/:id', 'PoliticalViewsController.show')
   }).prefix('/political-views')
+
+  Route.group(() => {
+    Route.get('/', 'SexesController.index')
+    Route.get('/:id', 'SexesController.show')
+  }).prefix('/sexes')
 }).prefix('/api')
