@@ -6,9 +6,6 @@ export default class BodyType extends BaseModel {
   public id: number
 
   @column()
-  public sex: string
-
-  @column()
   public name: string
 
   @column.dateTime({ autoCreate: true })
