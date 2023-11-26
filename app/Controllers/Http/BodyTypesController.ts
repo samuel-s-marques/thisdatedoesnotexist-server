@@ -4,13 +4,8 @@ import BodyType from 'App/Models/BodyType'
 export default class BodyTypesController {
   public async index(ctx: HttpContextContract) {
     const page = ctx.request.input('page', 1)
-    const searchQuery = ctx.request.qs()
 
-    const bodyTypes = await BodyType.query()
-      .if(searchQuery.sex, (query) => {
-        query.where('sex', searchQuery.sex)
-      })
-      .paginate(page, 70)
+    const bodyTypes = await BodyType.query().paginate(page, 70)
     return bodyTypes
   }
 
