@@ -5,109 +5,50 @@ export default class extends BaseSeeder {
   public async run() {
     await BodyType.createMany([
       {
-        name: 'slim',
-        sex: 'female',
+        name: "slim"
       },
       {
-        name: 'muscular',
-        sex: 'female',
+        name: "muscular"
       },
       {
-        name: 'fat',
-        sex: 'female',
+        name: "fat"
       },
       {
-        name: 'athletic',
-        sex: 'female',
+        name: "athletic"
       },
       {
-        name: 'curvy',
-        sex: 'female',
+        name: "chubby"
       },
       {
-        name: 'petite',
-        sex: 'female',
+        name: "stocky"
       },
       {
-        name: 'chubby',
-        sex: 'female',
+        name: "lithe"
       },
       {
-        name: 'stocky',
-        sex: 'female',
+        name: "obese"
       },
       {
-        name: 'lithe',
-        sex: 'female',
+        name: "fit"
       },
       {
-        name: 'voluptuous',
-        sex: 'female',
+        name: "v-shaped"
       },
       {
-        name: 'obese',
-        sex: 'female',
+        name: "slender"
       },
       {
-        name: 'statuesque',
-        sex: 'female',
+        name: "toned"
       },
       {
-        name: 'boyish',
-        sex: 'female',
+        name: "statuesque"
       },
       {
-        name: 'plump',
-        sex: 'female',
+        name: "plump"
       },
       {
-        name: 'slim',
-        sex: 'male',
-      },
-      {
-        name: 'muscular',
-        sex: 'male',
-      },
-      {
-        name: 'fat',
-        sex: 'male',
-      },
-      {
-        name: 'athletic',
-        sex: 'male',
-      },
-      {
-        name: 'chubby',
-        sex: 'male',
-      },
-      {
-        name: 'stocky',
-        sex: 'male',
-      },
-      {
-        name: 'lithe',
-        sex: 'male',
-      },
-      {
-        name: 'obese',
-        sex: 'male',
-      },
-      {
-        name: 'fit',
-        sex: 'male',
-      },
-      {
-        name: 'v-shaped',
-        sex: 'male',
-      },
-      {
-        name: 'slender',
-        sex: 'male',
-      },
-      {
-        name: 'toned',
-        sex: 'male',
-      },
+        name: "curvy"
+      }
     ])
   }
 }
