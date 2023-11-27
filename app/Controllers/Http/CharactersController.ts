@@ -24,7 +24,7 @@ export default class CharactersController {
         query.whereIn('sexuality', searchQuery.sexuality.split(','))
       })
       .if(searchQuery.body_type, (query) => {
-        query.whereIn('body_type', searchQuery.bodyType.split(','))
+        query.whereIn('body_type', searchQuery.body_type.split(','))
       })
       .if(searchQuery.political_view, (query) => {
         query.whereIn('political_view', searchQuery.political_view.split(','))
