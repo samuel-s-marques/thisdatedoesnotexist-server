@@ -61,4 +61,14 @@ Route.group(() => {
     Route.get('/', 'SexesController.index')
     Route.get('/:id', 'SexesController.show')
   }).prefix('/sexes')
+
+  Route.group(() => {
+    Route.post('/', 'UsersController.store')
+    Route.put('/', 'UsersController.update')
+    Route.get('/:uid', 'UsersController.show')
+    Route.delete('/', 'UsersController.destroy')
+    Route.get('/', 'UsersController.index')
+  })
+    .prefix('/users')
+    .middleware('auth')
 }).prefix('/api')
