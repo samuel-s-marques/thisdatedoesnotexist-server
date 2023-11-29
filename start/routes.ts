@@ -71,4 +71,9 @@ Route.group(() => {
   })
     .prefix('/users')
     .middleware('auth')
+
+  Route.group(() => {
+    Route.post('/', 'SwipesController.store')
+    Route.get('/', 'SwipesController.index')
+  }).prefix('/swipes')
 }).prefix('/api')
