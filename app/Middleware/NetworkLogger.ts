@@ -5,7 +5,7 @@ export default class NetworkLogger {
     logger.info(`${request.method()} ${request.url()}`)
 
     if (request.hasBody()) {
-      logger.info(JSON.stringify(request.body()))
+      logger.info(JSON.stringify(request.body(), null, "\t"))
     }
 
     await next()
