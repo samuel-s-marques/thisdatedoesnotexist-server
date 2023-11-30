@@ -76,4 +76,8 @@ Route.group(() => {
     Route.post('/', 'SwipesController.store')
     Route.get('/', 'SwipesController.index')
   }).prefix('/swipes')
+
+  Route.group(() => {
+    Route.get('/', 'MatchesController.index')
+  }).prefix('/matches')
 }).prefix('/api')
