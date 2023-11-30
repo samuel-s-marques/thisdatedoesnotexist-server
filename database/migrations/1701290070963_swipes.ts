@@ -6,8 +6,8 @@ export default class extends BaseSchema {
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      table.integer('target_id')
-      table.integer('swiper_id')
+      table.string('target_id')
+      table.string('swiper_id')
       table.enum('direction', ['left', 'right']).notNullable()
 
       table.timestamps(true, true)
