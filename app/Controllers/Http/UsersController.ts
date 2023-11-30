@@ -1,10 +1,12 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import BodyType from 'App/Models/BodyType'
 import HobbyModel from 'App/Models/HobbyModel'
+import Match from 'App/Models/Match'
 import PoliticalView from 'App/Models/PoliticalView'
 import Preference from 'App/Models/Preference'
 import RelationshipGoal from 'App/Models/RelationshipGoal'
 import Sex from 'App/Models/Sex'
+import Swipe from 'App/Models/Swipe'
 import User from 'App/Models/User'
 import admin from 'firebase-admin'
 
@@ -244,6 +246,8 @@ export default class UsersController {
       }
 
       user.delete()
+      Match.query().where('user_id', user.uid).delete()
+      Swipe.query().where('swiper_id', user.uid).orWhere('target_id', user.uid).delete()
 
       return ctx.response.status(200).json({ message: 'User deleted.' })
     } catch (error) {
