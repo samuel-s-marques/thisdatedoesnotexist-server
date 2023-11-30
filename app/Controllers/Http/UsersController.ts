@@ -135,7 +135,6 @@ export default class UsersController {
           )
           createdPreference.related('relationshipGoals').attach(goals.map((goal) => goal.id))
         }
-        console.log(preference)
       }
 
       return user
@@ -164,6 +163,8 @@ export default class UsersController {
         'weight',
         'height',
         'surname',
+        'last_swipe',
+        'swipes',
         'birthday_date',
         'hobbies',
         'religion',
@@ -180,7 +181,7 @@ export default class UsersController {
           (hobby: { name: string; type: string }) => hobby.name
         )
         const hobbies = await HobbyModel.query().whereIn('name', filteredHobbies)
-        // user.related('hobbies').attach(hobbies.map((hobby) => hobby.id))
+        user.related('hobbies').attach(hobbies.map((hobby) => hobby.id))
       }
 
       if (filteredData.preferences) {
@@ -221,14 +222,10 @@ export default class UsersController {
           preference.related('relationshipGoals').attach(goals.map((goal) => goal.id))
         }
 
-        // preference.save()
-        console.log(preference)
         await preference.related('user').associate(user)
       }
 
-      console.log(user)
-
-      // await user.save()
+      await user.save()
     } catch (error) {
       return ctx.response.status(400).json({ error: 'Error updating user' })
     }
