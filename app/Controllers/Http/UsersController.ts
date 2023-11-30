@@ -246,8 +246,8 @@ export default class UsersController {
       }
 
       user.delete()
-      Match.query().where('user_id', user.uid).delete()
-      Swipe.query().where('swiper_id', user.uid).orWhere('target_id', user.uid).delete()
+      Match.query().where('user_id', user.id).delete()
+      Swipe.query().where('swiper_id', user.id).orWhere('target_id', user.id).delete()
 
       return ctx.response.status(200).json({ message: 'User deleted.' })
     } catch (error) {
