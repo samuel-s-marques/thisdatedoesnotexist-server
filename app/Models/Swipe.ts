@@ -6,10 +6,10 @@ export default class Swipe extends BaseModel {
   public id: number
 
   @column()
-  public targetId: number
+  public targetId: string
 
   @column()
-  public swiperId: number
+  public swiperId: string
 
   @column()
   public direction: string
