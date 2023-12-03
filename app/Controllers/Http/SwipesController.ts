@@ -4,11 +4,11 @@ import Swipe from 'App/Models/Swipe'
 export default class SwipesController {
   public async store({ request, response }: HttpContextContract) {
     try {
-      const { targetId, swiperId, direction } = request.all()
+      const { target_id, swiper_id, direction } = request.all()
 
       const swipe = await Swipe.create({
-        targetId,
-        swiperId,
+        targetId: target_id,
+        swiperId: swiper_id,
         direction,
       })
 
