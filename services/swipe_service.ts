@@ -1,6 +1,6 @@
-import firestore from '../config/firebase_database'
 import { Timestamp } from 'firebase-admin/firestore'
 import Logger from '@ioc:Adonis/Core/Logger'
+import User from 'App/Models/User'
 
 class SwipeService {
   private static instance: SwipeService
@@ -15,28 +15,32 @@ class SwipeService {
 
   public async checkSwipes() {
     try {
-      const usersRef = firestore.collection('users')
       const now = Timestamp.now()
       // TODO: Change this to 24 hours
       let time = now.toMillis() - 5 * 60 * 1000
+      const users = await User.query().where('last_swipe', '<', new Date(time))
 
-      const snapshot = await usersRef.where('lastSwipe', '<', new Date(time)).get()
-
-      if (snapshot.empty) {
+      if (users.length === 0) {
         Logger.info('No users with swipes under 20 found.')
         return
       }
 
-      const batch = firestore.batch()
+      for (const user of users) {
+        Logger.warn(`User ${user.uid} has swipes under 20.`)
 
-      snapshot.forEach((doc) => {
-        Logger.warn(`User ${doc.id} has swipes under 20.`)
+        user.swipes = 20
+        user.last_swipe = null
+        await user.save()
+      }
 
-        const userRef = usersRef.doc(doc.id)
-        batch.update(userRef, { swipes: 20, lastSwipe: null })
-      })
+      await Promise.all(
+        users.map(async (user) => {
+          user.swipes = 20
+          user.last_swipe = null
+          await user.save()
+        })
+      )
 
-      await batch.commit()
       Logger.info('Swipes updated successfully.')
     } catch (error) {
       Logger.error('Error checking swipes: ', error)
