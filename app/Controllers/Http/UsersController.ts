@@ -18,9 +18,9 @@ export default class UsersController {
       .preload('hobbies')
       .preload('preferences', (query) => {
         query
-          .preload('bodyTypes')
-          .preload('politicalViews')
-          .preload('relationshipGoals')
+          .preload('body_types')
+          .preload('political_views')
+          .preload('relationship_goals')
           .preload('sexes')
       })
       .paginate(page, 40)
@@ -42,9 +42,9 @@ export default class UsersController {
       .preload('hobbies')
       .preload('preferences', (query) => {
         query
-          .preload('bodyTypes')
-          .preload('politicalViews')
-          .preload('relationshipGoals')
+          .preload('body_types')
+          .preload('political_views')
+          .preload('relationship_goals')
           .preload('sexes')
       })
       .firstOrFail()
@@ -76,12 +76,18 @@ export default class UsersController {
         'hobbies',
         'religion',
         'country',
+        'active',
         'political_view',
         'relationship_goal',
         'preferences',
       ])
 
       let filteredData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v != null))
+
+      if (!filteredData.email) {
+        filteredData.email = decodedToken.email
+      }
+
       newUser.fill({
         uid: decodedToken.uid,
         ...filteredData,
@@ -111,29 +117,39 @@ export default class UsersController {
         const createdPreference = await preference.save()
 
         if (filteredPreferences.body_types.length != 0) {
-          const bodyTypes = await BodyType.query().whereIn('name', filteredPreferences.body_types)
-          createdPreference.related('bodyTypes').attach(bodyTypes.map((bodyType) => bodyType.id))
+          createdPreference
+            .related('body_types')
+            .attach(
+              filteredPreferences.body_types.map(
+                (bodyType: { id: number; name: string }) => bodyType.id
+              )
+            )
         }
 
         if (filteredPreferences.political_views.length != 0) {
-          const politicalViews = await PoliticalView.query().whereIn(
-            'name',
-            filteredPreferences.political_views
-          )
-          createdPreference.related('politicalViews').attach(politicalViews.map((view) => view.id))
+          createdPreference
+            .related('political_views')
+            .attach(
+              filteredPreferences.political_views.map(
+                (view: { id: number; name: string }) => view.id
+              )
+            )
         }
 
         if (filteredPreferences.sexes.length != 0) {
-          const sexes = await Sex.query().whereIn('name', filteredPreferences.sexes)
-          createdPreference.related('sexes').attach(sexes.map((sex) => sex.id))
+          createdPreference
+            .related('sexes')
+            .attach(filteredPreferences.sexes.map((sex: { id: number; name: string }) => sex.id))
         }
 
         if (filteredPreferences.relationship_goals.length != 0) {
-          const goals = await RelationshipGoal.query().whereIn(
-            'name',
-            filteredPreferences.relationship_goals
-          )
-          createdPreference.related('relationshipGoals').attach(goals.map((goal) => goal.id))
+          createdPreference
+            .related('relationship_goals')
+            .attach(
+              filteredPreferences.relationship_goals.map(
+                (sex: { id: number; name: string }) => sex.id
+              )
+            )
         }
       }
 
@@ -197,16 +213,16 @@ export default class UsersController {
         }
 
         if (filteredPreferences.body_types.length != 0) {
-          const bodyTypes = await BodyType.query().whereIn('name', filteredPreferences.body_types)
-          preference.related('bodyTypes').attach(bodyTypes.map((bodyType) => bodyType.id))
+          const body_types = await BodyType.query().whereIn('name', filteredPreferences.body_types)
+          preference.related('body_types').attach(body_types.map((bodyType) => bodyType.id))
         }
 
         if (filteredPreferences.political_views.length != 0) {
-          const politicalViews = await PoliticalView.query().whereIn(
+          const political_views = await PoliticalView.query().whereIn(
             'name',
             filteredPreferences.political_views
           )
-          preference.related('politicalViews').attach(politicalViews.map((view) => view.id))
+          preference.related('political_views').attach(political_views.map((view) => view.id))
         }
 
         if (filteredPreferences.sexes.length != 0) {
@@ -219,7 +235,7 @@ export default class UsersController {
             'name',
             filteredPreferences.relationship_goals
           )
-          preference.related('relationshipGoals').attach(goals.map((goal) => goal.id))
+          preference.related('relationship_goals').attach(goals.map((goal) => goal.id))
         }
 
         await preference.related('user').associate(user)
