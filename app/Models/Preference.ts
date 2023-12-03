@@ -38,7 +38,7 @@ export default class Preference extends BaseModel {
     relatedKey: 'id',
     pivotRelatedForeignKey: 'goal_id',
   })
-  public relationshipGoals: ManyToMany<typeof RelationshipGoal>
+  public relationship_goals: ManyToMany<typeof RelationshipGoal>
 
   @manyToMany(() => PoliticalView, {
     pivotTable: 'preference_political_views',
@@ -47,7 +47,7 @@ export default class Preference extends BaseModel {
     relatedKey: 'id',
     pivotRelatedForeignKey: 'view_id',
   })
-  public politicalViews: ManyToMany<typeof PoliticalView>
+  public political_views: ManyToMany<typeof PoliticalView>
 
   @manyToMany(() => BodyType, {
     pivotTable: 'preference_body_types',
@@ -56,7 +56,7 @@ export default class Preference extends BaseModel {
     relatedKey: 'id',
     pivotRelatedForeignKey: 'body_type_id',
   })
-  public bodyTypes: ManyToMany<typeof BodyType>
+  public body_types: ManyToMany<typeof BodyType>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
