@@ -73,6 +73,12 @@ Route.group(() => {
     .middleware('auth')
 
   Route.group(() => {
+    Route.post('/', 'PreferencesController.store')
+    Route.put('/:id', 'PreferencesController.update')
+    Route.get('/:id', 'PreferencesController.show')
+  }).prefix('/preferences')
+
+  Route.group(() => {
     Route.post('/', 'SwipesController.store')
     Route.get('/', 'SwipesController.index')
   }).prefix('/swipes')
