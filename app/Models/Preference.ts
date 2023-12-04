@@ -1,10 +1,18 @@
 import { DateTime } from 'luxon'
-import { BaseModel, BelongsTo, ManyToMany, belongsTo, column, manyToMany } from '@ioc:Adonis/Lucid/Orm'
+import {
+  BaseModel,
+  BelongsTo,
+  ManyToMany,
+  belongsTo,
+  column,
+  manyToMany,
+} from '@ioc:Adonis/Lucid/Orm'
 import Sex from './Sex'
 import RelationshipGoal from './RelationshipGoal'
 import PoliticalView from './PoliticalView'
 import BodyType from './BodyType'
 import User from './User'
+import Religion from './Religion'
 
 export default class Preference extends BaseModel {
   @column({ isPrimary: true })
@@ -57,6 +65,15 @@ export default class Preference extends BaseModel {
     pivotRelatedForeignKey: 'body_type_id',
   })
   public body_types: ManyToMany<typeof BodyType>
+
+  @manyToMany(() => BodyType, {
+    pivotTable: 'preference_religion',
+    localKey: 'id',
+    pivotForeignKey: 'preference_id',
+    relatedKey: 'id',
+    pivotRelatedForeignKey: 'religion_id',
+  })
+  public religions: ManyToMany<typeof Religion>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
