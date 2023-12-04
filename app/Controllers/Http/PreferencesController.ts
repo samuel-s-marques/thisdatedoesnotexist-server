@@ -11,6 +11,7 @@ export default class PreferencesController {
       .preload('political_views')
       .preload('relationship_goals')
       .preload('sexes')
+      .preload('religions')
       .firstOrFail()
 
     return preference
@@ -30,6 +31,7 @@ export default class PreferencesController {
       'sexes',
       'body_types',
       'political_views',
+      'religions',
     ])
     const user = await User.findByOrFail('uid', params.id)
     const preference = await Preference.query().where('user_id', user.id).firstOrFail()
@@ -59,6 +61,12 @@ export default class PreferencesController {
       await preference
         .related('political_views')
         .sync(requestData.political_views.map((view: { id: number; name: string }) => view.id))
+    }
+
+    if (requestData.religions) {
+      await preference
+        .related('religions')
+        .sync(requestData.religions.map((religion: { id: number; name: string }) => religion.id))
     }
 
     return preference
