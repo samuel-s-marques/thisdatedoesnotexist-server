@@ -38,6 +38,9 @@ export default class CharactersController {
       .if(searchQuery.political_view, (query) => {
         query.whereIn('political_view', searchQuery.political_view.split(','))
       })
+      .if(searchQuery.religion, (query) => {
+        query.whereIn('religion', searchQuery.religion.split(','))
+      })
       .if(searchQuery.relationship_goal, (query) => {
         query.whereIn('relationship_goal', searchQuery.relationship_goal.split(','))
       })
