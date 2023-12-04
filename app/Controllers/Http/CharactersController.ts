@@ -4,6 +4,8 @@ import HobbyModel from 'App/Models/HobbyModel'
 import PersonalityTraitModel from 'App/Models/PersonalityTraitModel'
 import PronounsModel from 'App/Models/PronounsModel'
 import RelationshipGoal from 'App/Models/RelationshipGoal'
+import Swipe from 'App/Models/Swipe'
+import User from 'App/Models/User'
 import { CharacterForge } from 'character-forge'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -17,6 +19,13 @@ export default class CharactersController {
       .preload('hobbies')
       .preload('personalityTraits')
       .preload('pronouns')
+      .if(searchQuery.uid, async (query) => {
+        const user = await User.query().where('uid', searchQuery.uid).firstOrFail()
+
+        query.whereNotExists(() => {
+          Swipe.query().where('swiper_id', user.id)
+        })
+      })
       .if(searchQuery.sex, (query) => {
         query.whereIn('sex', searchQuery.sex.split(','))
       })
