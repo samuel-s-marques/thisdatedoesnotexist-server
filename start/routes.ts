@@ -63,6 +63,11 @@ Route.group(() => {
   }).prefix('/sexes')
 
   Route.group(() => {
+    Route.get('/', 'ReligionsController.index')
+    Route.get('/:id', 'ReligionsController.show')
+  }).prefix('/religions')
+
+  Route.group(() => {
     Route.post('/', 'UsersController.store')
     Route.put('/', 'UsersController.update')
     Route.get('/:uid', 'UsersController.show')
