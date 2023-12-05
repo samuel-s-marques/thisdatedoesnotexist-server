@@ -1,3 +1,4 @@
+import Application from '@ioc:Adonis/Core/Application'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import BodyType from 'App/Models/BodyType'
 import HobbyModel from 'App/Models/HobbyModel'
@@ -52,18 +53,18 @@ export default class UsersController {
     return user
   }
 
-  public async store(ctx: HttpContextContract) {
+  public async store({ request, response }: HttpContextContract) {
     try {
-      const token = ctx.request.header('Authorization')!.split(' ')[1]
+      const token = request.header('Authorization')!.split(' ')[1]
       const decodedToken = await admin.auth().verifyIdToken(token)
       const existingUser = await User.findBy('uid', decodedToken.uid)
 
       if (existingUser) {
-        return ctx.response.status(400).json({ error: 'User already exists' })
+        return response.status(400).json({ error: 'User already exists' })
       }
 
       const newUser = new User()
-      const data = ctx.request.only([
+      const data = request.only([
         'name',
         'email',
         'age',
@@ -82,6 +83,24 @@ export default class UsersController {
         'preferences',
       ])
 
+      const profileImage = request.file('profile_image', {
+        size: '2mb',
+        extnames: ['jpg', 'png', 'jpeg'],
+      })
+
+      if (!profileImage) {
+        return response.status(400).json({ error: 'Profile image is required' })
+      }
+
+      if (!profileImage.isValid) {
+        return response.status(400).json({ error: profileImage.errors })
+      }
+
+      await profileImage.move(Application.tmpPath('uploads'), {
+        name: decodedToken.uid,
+        overwrite: true,
+      })
+
       let filteredData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v != null))
 
       if (!filteredData.email) {
@@ -90,6 +109,7 @@ export default class UsersController {
 
       newUser.fill({
         uid: decodedToken.uid,
+        image_url: `/uploads/${decodedToken.uid}`,
         ...filteredData,
       })
       const user = await newUser.save()
@@ -155,7 +175,7 @@ export default class UsersController {
 
       return user
     } catch (error) {
-      return ctx.response.status(400).json({ error: 'Error creating user' })
+      return response.status(400).json({ error: 'Error creating user' })
     }
   }
 
