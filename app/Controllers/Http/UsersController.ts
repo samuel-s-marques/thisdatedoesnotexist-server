@@ -96,8 +96,8 @@ export default class UsersController {
         return response.status(400).json({ error: profileImage.errors })
       }
 
-      await profileImage.move(Application.tmpPath('uploads'), {
-        name: decodedToken.uid,
+      await profileImage.move(Application.publicPath('uploads'), {
+        name: decodedToken.uid + '.' + profileImage.extname,
         overwrite: true,
       })
 
@@ -109,7 +109,7 @@ export default class UsersController {
 
       newUser.fill({
         uid: decodedToken.uid,
-        image_url: `/uploads/${decodedToken.uid}`,
+        image_url: `/uploads/${decodedToken.uid}.${profileImage.extname}`,
         ...filteredData,
       })
       const user = await newUser.save()
@@ -125,6 +125,10 @@ export default class UsersController {
       if (filteredData.preferences) {
         const filteredPreferences = filteredData.preferences
         const preference = new Preference()
+        const body_types = filteredPreferences.body_types ?? []
+        const political_views = filteredPreferences.political_views ?? []
+        const sexes = filteredPreferences.sexes ?? []
+        const relationship_goals = filteredPreferences.relationship_goals ?? []
 
         if (filteredPreferences.min_age) {
           preference.minAge = filteredData.preferences.min_age
@@ -136,7 +140,7 @@ export default class UsersController {
         await preference.related('user').associate(user)
         const createdPreference = await preference.save()
 
-        if (filteredPreferences.body_types.length != 0) {
+        if (body_types.length != 0) {
           createdPreference
             .related('body_types')
             .attach(
@@ -146,7 +150,7 @@ export default class UsersController {
             )
         }
 
-        if (filteredPreferences.political_views.length != 0) {
+        if (political_views.length != 0) {
           createdPreference
             .related('political_views')
             .attach(
@@ -156,13 +160,13 @@ export default class UsersController {
             )
         }
 
-        if (filteredPreferences.sexes.length != 0) {
+        if (sexes.length != 0) {
           createdPreference
             .related('sexes')
             .attach(filteredPreferences.sexes.map((sex: { id: number; name: string }) => sex.id))
         }
 
-        if (filteredPreferences.relationship_goals.length != 0) {
+        if (relationship_goals.length != 0) {
           createdPreference
             .related('relationship_goals')
             .attach(
@@ -175,7 +179,8 @@ export default class UsersController {
 
       return user
     } catch (error) {
-      return response.status(400).json({ error: 'Error creating user' })
+      console.log(error)
+      return response.status(400).json({ error: 'Error creating user', message: error })
     }
   }
 
