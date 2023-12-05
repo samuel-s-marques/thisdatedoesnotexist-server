@@ -107,6 +107,8 @@ export default class UsersController {
         filteredData.email = decodedToken.email
       }
 
+      filteredData.active = true
+
       newUser.fill({
         uid: decodedToken.uid,
         image_url: `/uploads/${decodedToken.uid}.${profileImage.extname}`,
