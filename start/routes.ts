@@ -92,3 +92,5 @@ Route.group(() => {
     Route.get('/', 'MatchesController.index')
   }).prefix('/matches')
 }).prefix('/api')
+
+Route.get('/uploads/:filename', 'UploadsController.show')
