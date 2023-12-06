@@ -10,6 +10,7 @@ import Sex from 'App/Models/Sex'
 import Swipe from 'App/Models/Swipe'
 import User from 'App/Models/User'
 import admin from 'firebase-admin'
+import { v4 as uuidv4 } from 'uuid'
 
 export default class UsersController {
   public async index(ctx: HttpContextContract) {
@@ -97,8 +98,9 @@ export default class UsersController {
         return response.status(400).json({ error: profileImage.errors })
       }
 
+      const imageName = uuidv4() + '.' + profileImage.extname
       await profileImage.move(Application.publicPath('uploads'), {
-        name: decodedToken.uid + '.' + profileImage.extname,
+        name: imageName,
         overwrite: true,
       })
 
@@ -112,7 +114,7 @@ export default class UsersController {
 
       newUser.fill({
         uid: decodedToken.uid,
-        image_url: `/uploads/${decodedToken.uid}.${profileImage.extname}`,
+        image_url: `/uploads/${imageName}`,
         ...filteredData,
       })
       const user = await newUser.save()
