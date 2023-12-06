@@ -91,6 +91,11 @@ Route.group(() => {
   Route.group(() => {
     Route.get('/', 'MatchesController.index')
   }).prefix('/matches')
+
+  Route.group(() => {
+    Route.get('/', 'OccupationsController.index')
+    Route.get('/:id', 'OccupationsController.show')
+  }).prefix('/occupations')
 }).prefix('/api')
 
 Route.get('/uploads/:filename', 'UploadsController.show')

@@ -13,6 +13,7 @@ export default class extends BaseSchema {
       table.integer('age')
       table.string('sex')
       table.text('bio')
+      table.string('occupation')
       table.string('relationship_goal')
       table.string('religion')
       table.string('country')

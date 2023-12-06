@@ -29,6 +29,9 @@ export default class User extends BaseModel {
   public bio: string
 
   @column()
+  public occupation: string
+
+  @column()
   public relationship_goal: string
 
   @column()
