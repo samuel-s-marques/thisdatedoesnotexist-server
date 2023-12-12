@@ -1,6 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, ManyToMany, column, manyToMany } from '@ioc:Adonis/Lucid/Orm'
-import CharacterModel from './CharacterModel'
+import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
 
 export default class PersonalityTraitModel extends BaseModel {
   public static table = 'personality_traits'
@@ -13,11 +12,6 @@ export default class PersonalityTraitModel extends BaseModel {
 
   @column()
   public type: string
-
-  @manyToMany(() => CharacterModel, {
-    pivotTable: 'character_personalitytrait',
-  })
-  public personalityTraits: ManyToMany<typeof CharacterModel>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
