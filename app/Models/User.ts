@@ -2,10 +2,12 @@ import { DateTime } from 'luxon'
 import {
   BaseModel,
   BelongsTo,
+  HasMany,
   HasOne,
   ManyToMany,
   belongsTo,
   column,
+  hasMany,
   hasOne,
   manyToMany,
 } from '@ioc:Adonis/Lucid/Orm'
@@ -14,6 +16,7 @@ import HobbyModel from './HobbyModel'
 import PersonalityTraitModel from './PersonalityTraitModel'
 import RelationshipGoal from './RelationshipGoal'
 import PronounsModel from './PronounsModel'
+import Swipe from './Swipe'
 
 export default class User extends BaseModel {
   @column({ isPrimary: true })
@@ -101,7 +104,7 @@ export default class User extends BaseModel {
   public birthdate: DateTime | null
 
   @column()
-  public swipes: number
+  public availableSwipes: number
 
   @column()
   public type: string
@@ -147,6 +150,12 @@ export default class User extends BaseModel {
     localKey: 'id',
   })
   public pronoun: BelongsTo<typeof PronounsModel>
+
+  @hasMany(() => Swipe, {
+    foreignKey: 'swiper_id',
+    localKey: 'id',
+  })
+  public swipes: HasMany<typeof Swipe>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
