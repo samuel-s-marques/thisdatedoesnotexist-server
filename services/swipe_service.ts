@@ -18,7 +18,7 @@ class SwipeService {
       const now = Timestamp.now()
       // TODO: Change this to 24 hours
       let time = now.toMillis() - 5 * 60 * 1000
-      const users = await User.query().where('last_swipe', '<', new Date(time))
+      const users = await User.query().where('type', 'user').andWhere('last_swipe', '<', new Date(time))
 
       if (users.length === 0) {
         Logger.info('No users with swipes under 20 found.')
@@ -29,14 +29,14 @@ class SwipeService {
         Logger.warn(`User ${user.uid} has swipes under 20.`)
 
         user.swipes = 20
-        user.last_swipe = null
+        user.lastSwipe = null
         await user.save()
       }
 
       await Promise.all(
         users.map(async (user) => {
           user.swipes = 20
-          user.last_swipe = null
+          user.lastSwipe = null
           await user.save()
         })
       )
