@@ -11,19 +11,46 @@ import Swipe from 'App/Models/Swipe'
 import User from 'App/Models/User'
 import admin from 'firebase-admin'
 import { v4 as uuidv4 } from 'uuid'
+import Drive from '@ioc:Adonis/Core/Drive'
+import { AgesModule, CharacterForge } from 'character-forge'
+import PersonalityTraitModel from 'App/Models/PersonalityTraitModel'
+import PronounsModel from 'App/Models/PronounsModel'
 
 export default class UsersController {
   public async index(ctx: HttpContextContract) {
     const page = ctx.request.input('page', 1)
+    const searchQuery = ctx.request.qs()
 
     const users = await User.query()
       .preload('hobbies')
-      .preload('preferences', (query) => {
-        query
-          .preload('body_types')
-          .preload('political_views')
-          .preload('relationship_goals')
-          .preload('sexes')
+      .preload('pronoun')
+      .preload('relationshipGoal')
+      .preload('personalityTraits')
+      .where('type', 'character')
+      // todo: check this
+      .whereNotExists((query) => {
+        query.from('swipes').where('target_id', searchQuery.uid).andWhere('swiper_id', searchQuery.uid)
+      })
+      .if(searchQuery.sex, (query) => {
+        query.whereIn('sex', searchQuery.sex.split(','))
+      })
+      .if(searchQuery.sexuality, (query) => {
+        query.whereIn('sexuality', searchQuery.sexuality.split(','))
+      })
+      .if(searchQuery.body_type, (query) => {
+        query.whereIn('body_type', searchQuery.body_type.split(','))
+      })
+      .if(searchQuery.political_view, (query) => {
+        query.whereIn('political_view', searchQuery.political_view.split(','))
+      })
+      .if(searchQuery.religion, (query) => {
+        query.whereIn('religion', searchQuery.religion.split(','))
+      })
+      .if(searchQuery.relationship_goal, (query) => {
+        query.whereIn('relationship_goal', searchQuery.relationship_goal.split(','))
+      })
+      .if(searchQuery.min_age && searchQuery.max_age, (query) => {
+        query.whereBetween('age', [searchQuery.min_age, searchQuery.max_age])
       })
       .paginate(page, 40)
 
@@ -42,6 +69,8 @@ export default class UsersController {
     const user = await User.query()
       .where('uid', decodedToken.uid)
       .preload('hobbies')
+      .preload('pronoun')
+      .preload('relationshipGoal')
       .preload('preferences', (query) => {
         query
           .preload('body_types')
@@ -49,6 +78,18 @@ export default class UsersController {
           .preload('relationship_goals')
           .preload('sexes')
       })
+      .firstOrFail()
+
+    return user
+  }
+
+  public async showCharacter(ctx: HttpContextContract) {
+    const user = await User.query()
+      .where('uid', ctx.params.uuid)
+      .preload('hobbies')
+      .preload('pronoun')
+      .preload('relationshipGoal')
+      .preload('personalityTraits')
       .firstOrFail()
 
     return user
@@ -74,7 +115,6 @@ export default class UsersController {
         'weight',
         'height',
         'surname',
-        'birthday_date',
         'hobbies',
         'religion',
         'occupation',
@@ -82,6 +122,7 @@ export default class UsersController {
         'active',
         'political_view',
         'relationship_goal',
+        'pronoun_id',
         'preferences',
       ])
 
@@ -114,7 +155,8 @@ export default class UsersController {
 
       newUser.fill({
         uid: decodedToken.uid,
-        image_url: `/uploads/${imageName}`,
+        imageUrl: `/uploads/${imageName}`,
+        type: 'user',
         ...filteredData,
       })
       const user = await newUser.save()
@@ -189,6 +231,57 @@ export default class UsersController {
     }
   }
 
+  public async storeCharacter() {
+    const forge: CharacterForge = new CharacterForge()
+    const ageModule: AgesModule = new AgesModule()
+    const forgedCharacter = forge.forge()
+    const forgedPersonalityTraits = forgedCharacter.personalityTraits.map((trait) => trait.name)
+    const forgedHobbies = forgedCharacter.hobbies.map((hobby) => hobby.name)
+
+    let character: User = new User()
+    character.uid = uuidv4()
+    character.name = forgedCharacter.name
+    character.nickname = forgedCharacter.nickname ? forgedCharacter.nickname : null
+    character.surname = forgedCharacter.surname
+    character.age = ageModule.getRandomAge(18, 70)
+    character.sex = forgedCharacter.sex
+    character.sexuality = forgedCharacter.sexuality.sexuality
+    character.bodyType = forgedCharacter.bodyType.type
+    character.height = forgedCharacter.bodyType.height
+    character.weight = forgedCharacter.bodyType.weight
+    character.skinTone = forgedCharacter.skinTone
+    character.hairStyle = forgedCharacter.hairStyle
+    character.occupation = forgedCharacter.occupation
+    character.birthplace = forgedCharacter.birthplace
+    character.ethnicity = forgedCharacter.ethnicity
+    character.eyeColor = forgedCharacter.eyeColor
+    character.hairColor = forgedCharacter.hairColor
+    character.religion = forgedCharacter.religion
+    character.socialClass = forgedCharacter.socialClass
+    character.politicalView = forgedCharacter.politicalView
+    character.phobia = forgedCharacter.phobia ? forgedCharacter.phobia : null
+    character.type = 'character'
+
+    const pronouns = await PronounsModel.query().where('type', forgedCharacter.sex).firstOrFail()
+    const relationshipGoals = await RelationshipGoal.query().orderByRaw('RAND()').firstOrFail()
+
+    await character.related('pronoun').associate(pronouns)
+    await character.related('relationshipGoal').associate(relationshipGoals)
+
+    const createdCharacter = await character.save()
+
+    const hobbies = await HobbyModel.query().whereIn('name', forgedHobbies)
+    const traits = await PersonalityTraitModel.query().whereIn('name', forgedPersonalityTraits)
+
+    // console.log(imagePromptBuilder(forgedCharacter))
+    // console.log(negativeImagePromptBuilder(forgedCharacter.sex))
+
+    await createdCharacter.related('hobbies').attach(hobbies.map((hobby) => hobby.id))
+    await createdCharacter.related('personalityTraits').attach(traits.map((trait) => trait.id))
+
+    return createdCharacter
+  }
+
   public async update(ctx: HttpContextContract) {
     try {
       const token = ctx.request.header('Authorization')!.split(' ')[1]
@@ -211,7 +304,7 @@ export default class UsersController {
         'surname',
         'occupation',
         'last_swipe',
-        'swipes',
+        'available_swipes',
         'birthday_date',
         'hobbies',
         'religion',
@@ -289,6 +382,7 @@ export default class UsersController {
         return ctx.response.status(400).json({ error: 'User does not exist.' })
       }
 
+      Drive.delete(user.imageUrl)
       user.delete()
       Match.query().where('user_id', user.uid).delete()
       Swipe.query().where('swiper_id', user.uid).orWhere('target_id', user.uid).delete()
