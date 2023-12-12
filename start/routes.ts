@@ -22,8 +22,8 @@ import Route from '@ioc:Adonis/Core/Route'
 
 Route.group(() => {
   Route.group(() => {
-    Route.get('/', 'CharactersController.index')
-    Route.get('/:uuid', 'CharactersController.show')
+    Route.get('/', 'UsersController.index')
+    Route.get('/:uuid', 'UsersController.showCharacter')
   }).prefix('/characters')
 
   Route.group(() => {
@@ -72,7 +72,6 @@ Route.group(() => {
     Route.put('/', 'UsersController.update')
     Route.get('/:uid', 'UsersController.show')
     Route.delete('/', 'UsersController.destroy')
-    Route.get('/', 'UsersController.index')
   })
     .prefix('/users')
     .middleware('auth')
