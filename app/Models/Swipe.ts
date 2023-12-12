@@ -1,15 +1,32 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import User from './User'
 
 export default class Swipe extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
-  @column()
-  public targetId: string
+  @column({
+    columnName: 'target_id',
+  })
+  public targetId: number
 
-  @column()
-  public swiperId: string
+  @column({
+    columnName: 'swiper_id',
+  })
+  public swiperId: number
+
+  @belongsTo(() => User, {
+    foreignKey: 'target_id',
+    localKey: 'id',
+  })
+  public target: BelongsTo<typeof User>
+
+  @belongsTo(() => User, {
+    foreignKey: 'swiper_id',
+    localKey: 'id',
+  })
+  public swiper: BelongsTo<typeof User>
 
   @column()
   public direction: string
