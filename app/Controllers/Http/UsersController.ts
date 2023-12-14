@@ -15,6 +15,7 @@ import Drive from '@ioc:Adonis/Core/Drive'
 import { AgesModule, CharacterForge } from 'character-forge'
 import PersonalityTraitModel from 'App/Models/PersonalityTraitModel'
 import PronounsModel from 'App/Models/PronounsModel'
+import ComfyUiService from 'Service/ComfyUiService'
 
 export default class UsersController {
   public async index(ctx: HttpContextContract) {
@@ -279,13 +280,14 @@ export default class UsersController {
     character.politicalView = forgedCharacter.politicalView
     character.phobia = forgedCharacter.phobia ? forgedCharacter.phobia : null
     character.type = 'character'
-
+    
     const pronouns = await PronounsModel.query().where('type', forgedCharacter.sex).firstOrFail()
     const relationshipGoals = await RelationshipGoal.query().orderByRaw('RAND()').firstOrFail()
-
+    
     await character.related('pronoun').associate(pronouns)
     await character.related('relationshipGoal').associate(relationshipGoals)
-
+    
+    await new ComfyUiService().sendPrompt(forgedCharacter, character.uid)
     const createdCharacter = await character.save()
 
     const hobbies = await HobbyModel.query().whereIn('name', forgedHobbies)
@@ -296,6 +298,7 @@ export default class UsersController {
 
     await createdCharacter.related('hobbies').attach(hobbies.map((hobby) => hobby.id))
     await createdCharacter.related('personalityTraits').attach(traits.map((trait) => trait.id))
+
 
     return createdCharacter
   }
