@@ -9,12 +9,12 @@ export default class Swipe extends BaseModel {
   @column({
     columnName: 'target_id',
   })
-  public targetId: number
+  public target_id: number
 
   @column({
     columnName: 'swiper_id',
   })
-  public swiperId: number
+  public swiper_id: number
 
   @belongsTo(() => User, {
     foreignKey: 'target_id',
