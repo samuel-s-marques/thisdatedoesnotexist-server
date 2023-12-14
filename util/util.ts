@@ -2,6 +2,8 @@ import sharp from 'sharp'
 import fs from 'fs'
 import { v4 as uuidv4 } from 'uuid'
 import { Character } from 'character-forge'
+import seedrandom from 'seedrandom'
+import Logger from '@ioc:Adonis/Core/Logger'
 
 /**
  * Processes an array of base64-encoded images, saves them to disk, and returns an array of their file paths.
@@ -23,9 +25,10 @@ export async function processImage(imageData: Uint8Array): Promise<string> {
     fs.writeFileSync(`output/images/${uuid}.png`, outputImageBuffer)
     imageResult = uuid
 
-    console.log(`🤖 [server]: Images processed and saved.`)
+    Logger.info('🤖 [server]: Images processed and saved.')
   } catch (error) {
-    console.error('Error processing images: ', error)
+    console.log(error)
+    Logger.error('Error processing images: ', error)
   }
 
   return imageResult
@@ -80,26 +83,10 @@ export function imagePromptBuilder(character: Character) {
 
 export function negativeImagePromptBuilder(sex: string): string {
   let negativePrompts = [
-    'paintings',
-    'sketches',
-    'lowres',
-    'bad anatomy',
-    'DeepNegative',
-    'facing away',
-    'looking away',
-    'tilted head',
-    'bad hands',
-    'text',
-    'error',
-    'missing fingers',
-    'cropped',
-    'low quality',
-    'normal quality',
-    'jpeg artifacts',
-    'watermark',
-    'blurry',
-    'long neck',
-    'deformed',
+    'cartoon',
+    'painting',
+    'illustration',
+    '(worst quality, low quality, normal quality:2)',
   ]
 
   if (sex === 'male') {
@@ -162,4 +149,12 @@ export function pListBuilder(character: Character): string {
   }
 
   return `[${appearance};\nTags: ${tags.join(', ')};\n${scenario};\n${persona}]`
+}
+
+export function generateRandomSeed(seed: string): number {
+  const rng = seedrandom(seed)
+  const randomValue = rng.int32()
+
+  const randomInteger = Math.floor(randomValue * 10000) + 1
+  return Math.abs(randomInteger)
 }
