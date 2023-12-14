@@ -42,6 +42,7 @@
     "@japa/preset-adonis": "^1.2.0",
     "@japa/runner": "^2.5.1",
     "@types/proxy-addr": "^2.0.3",
+    "@types/seedrandom": "^3.0.8",
     "@types/source-map-support": "^0.5.10",
     "@types/uuid": "^9.0.7",
     "adonis-preset-ts": "^2.1.0",
@@ -62,6 +63,7 @@
     "@adonisjs/repl": "^3.1.11",
     "@onesignal/node-onesignal": "^2.0.1-beta2",
     "adonis5-scheduler": "^2.1.1",
+    "axios": "^1.6.2",
     "character-forge": "^1.2.7",
     "firebase": "^10.6.0",
     "firebase-admin": "^11.11.0",
@@ -69,6 +71,7 @@
     "mysql2": "^3.6.4",
     "proxy-addr": "^2.0.7",
     "reflect-metadata": "^0.1.13",
+    "seedrandom": "^3.0.5",
     "sharp": "^0.32.6",
     "socket.io": "^4.7.2",
     "source-map-support": "^0.5.21"
