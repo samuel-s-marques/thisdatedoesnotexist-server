@@ -28,14 +28,14 @@ class SwipeService {
       for (const user of users) {
         Logger.warn(`User ${user.uid} has swipes under 20.`)
 
-        user.swipes = 20
+        user.availableSwipes = 20
         user.lastSwipe = null
         await user.save()
       }
 
       await Promise.all(
         users.map(async (user) => {
-          user.swipes = 20
+          user.availableSwipes = 20
           user.lastSwipe = null
           await user.save()
         })
