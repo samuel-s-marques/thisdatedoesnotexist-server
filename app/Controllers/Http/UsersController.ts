@@ -29,7 +29,10 @@ export default class UsersController {
       .where('type', 'character')
       // todo: check this
       .whereNotExists((query) => {
-        query.from('swipes').where('target_id', searchQuery.uid).andWhere('swiper_id', searchQuery.uid)
+        query
+          .from('swipes')
+          .where('target_id', searchQuery.uid)
+          .andWhere('swiper_id', searchQuery.uid)
       })
       .if(searchQuery.sex, (query) => {
         query.whereIn('sex', searchQuery.sex.split(','))
@@ -122,7 +125,7 @@ export default class UsersController {
         'active',
         'political_view',
         'relationship_goal',
-        'pronoun_id',
+        'pronoun',
         'preferences',
       ])
 
@@ -153,12 +156,27 @@ export default class UsersController {
 
       filteredData.active = true
 
+      const pronoun = await PronounsModel.findOrFail(filteredData.pronoun.id)
+      const relationshipGoal = await RelationshipGoal.findOrFail(filteredData.relationship_goal.id)
+
+      if (filteredData.hasOwnProperty('relationship_goal')) {
+        delete filteredData['relationship_goal']
+      }
+
+      if (filteredData.hasOwnProperty('pronoun')) {
+        delete filteredData['pronoun']
+      }
+
       newUser.fill({
         uid: decodedToken.uid,
         imageUrl: `/uploads/${imageName}`,
         type: 'user',
         ...filteredData,
       })
+
+      await newUser.related('pronoun').associate(pronoun)
+      await newUser.related('relationshipGoal').associate(relationshipGoal)
+
       const user = await newUser.save()
 
       if (filteredData.hobbies) {
