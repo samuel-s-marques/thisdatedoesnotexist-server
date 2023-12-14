@@ -100,9 +100,6 @@ export default class User extends BaseModel {
   @column.dateTime()
   public lastSwipe: DateTime | null
 
-  @column.dateTime()
-  public birthdate: DateTime | null
-
   @column()
   public availableSwipes: number
 
@@ -130,6 +127,7 @@ export default class User extends BaseModel {
     pivotForeignKey: 'user_id',
     relatedKey: 'id',
     pivotRelatedForeignKey: 'trait_id',
+    serializeAs: 'personality_traits',
   })
   public personalityTraits: ManyToMany<typeof PersonalityTraitModel>
 
@@ -139,6 +137,7 @@ export default class User extends BaseModel {
   @belongsTo(() => RelationshipGoal, {
     foreignKey: 'relationship_goal_id',
     localKey: 'id',
+    serializeAs: 'relationship_goal',
   })
   public relationshipGoal: BelongsTo<typeof RelationshipGoal>
 
