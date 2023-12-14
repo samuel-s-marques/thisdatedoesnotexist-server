@@ -6,35 +6,6 @@ import seedrandom from 'seedrandom'
 import Logger from '@ioc:Adonis/Core/Logger'
 
 /**
- * Processes an array of base64-encoded images, saves them to disk, and returns an array of their file paths.
- * @param images An array of base64-encoded images.
- * @returns An array of file paths where the processed images were saved.
- */
-export async function processImage(imageData: Uint8Array): Promise<string> {
-  let imageResult: string = ''
-
-  try {
-    const image = sharp(imageData)
-    const outputImageBuffer = await image.toBuffer()
-    const uuid = uuidv4()
-
-    if (!fs.existsSync('output')) {
-      fs.mkdirSync('output')
-    }
-
-    fs.writeFileSync(`output/images/${uuid}.png`, outputImageBuffer)
-    imageResult = uuid
-
-    Logger.info('🤖 [server]: Images processed and saved.')
-  } catch (error) {
-    console.log(error)
-    Logger.error('Error processing images: ', error)
-  }
-
-  return imageResult
-}
-
-/**
  * Extends the Array prototype with a new method called formattedJoin.
  * This method joins the elements of an array into a string, with a comma and space between each element.
  * The last element is preceded by "and" instead of a comma.
