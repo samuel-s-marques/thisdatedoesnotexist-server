@@ -3,17 +3,6 @@ import fs from 'fs'
 import { v4 as uuidv4 } from 'uuid'
 import { Character } from 'character-forge'
 
-declare global {
-  interface String {
-    isUUID(): boolean
-  }
-}
-
-String.prototype.isUUID = function (): boolean {
-  const uuidRegex: RegExp = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-  return uuidRegex.test(this)
-}
-
 /**
  * Processes an array of base64-encoded images, saves them to disk, and returns an array of their file paths.
  * @param images An array of base64-encoded images.
