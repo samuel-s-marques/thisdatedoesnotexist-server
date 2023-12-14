@@ -37,7 +37,7 @@ export function imagePromptBuilder(character: Character) {
   let prompt = 'RAW Photo, DSLR BREAK '
 
   prompt += `${character.bodyType.type} `
-  prompt += `${character.skinTone} skin ${character.ethnicity} ${character.occupation}, `
+  prompt += `${character.skinTone} skin ${character.ethnicity}, `
   prompt += `${character.age} years old ${character.sex}, `
   prompt += `${character.hairColor} color ${character.hairStyle} hairstyle, `
   prompt += `${character.eyeColor} eyes, `
@@ -47,7 +47,7 @@ export function imagePromptBuilder(character: Character) {
     prompt += `, wearing ${character.clothings.accessories.formattedJoin()}`
   }
 
-  prompt += ', (looking at viewer), focused, detailed, natural light'
+  prompt += `, (looking at viewer), focused, detailed, natural light, (old: 1.5), old ${character.sex}, very old ${character.sex}, elder ${character.sex}`
 
   return prompt
 }
@@ -58,6 +58,8 @@ export function negativeImagePromptBuilder(sex: string): string {
     'painting',
     'illustration',
     '(worst quality, low quality, normal quality:2)',
+    'young',
+    'new',
   ]
 
   if (sex === 'male') {
