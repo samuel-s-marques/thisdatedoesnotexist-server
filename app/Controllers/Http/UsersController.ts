@@ -299,7 +299,6 @@ export default class UsersController {
     await createdCharacter.related('hobbies').attach(hobbies.map((hobby) => hobby.id))
     await createdCharacter.related('personalityTraits').attach(traits.map((trait) => trait.id))
 
-
     return createdCharacter
   }
 
