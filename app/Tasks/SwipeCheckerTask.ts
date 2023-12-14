@@ -1,5 +1,5 @@
+import SwipeService from 'Service/SwipeService'
 import { BaseTask, CronTimeV2 } from 'adonis5-scheduler/build/src/Scheduler/Task'
-import SwipeService from '../../services/swipe_service'
 
 export default class SwipeCheckerTask extends BaseTask {
   public static get schedule() {
