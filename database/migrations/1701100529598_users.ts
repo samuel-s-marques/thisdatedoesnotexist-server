@@ -39,8 +39,7 @@ export default class extends BaseSchema {
       table.string('political_view')
       table.enum('type', ['user', 'character'])
       table.timestamp('last_swipe').nullable()
-      table.timestamp('birthdate').nullable()
-      table.integer('swipes').defaultTo(20)
+      table.integer('available_swipes').defaultTo(20)
       table.boolean('active').defaultTo(false)
 
       table.timestamps(true, true)
