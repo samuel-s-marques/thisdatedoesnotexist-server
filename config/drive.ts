@@ -31,15 +31,6 @@ export default driveConfig({
   disk: Env.get('DRIVE_DISK'),
 
   disks: {
-    /*
-    |--------------------------------------------------------------------------
-    | Local
-    |--------------------------------------------------------------------------
-    |
-    | Uses the local file system to manage files. Make sure to turn off serving
-    | files when not using this disk.
-    |
-    */
     local: {
       driver: 'local',
       visibility: 'public',
