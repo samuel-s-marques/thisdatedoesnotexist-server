@@ -253,16 +253,17 @@ export default class UsersController {
   public async storeCharacter() {
     const forge: CharacterForge = new CharacterForge()
     const ageModule: AgesModule = new AgesModule()
-    const forgedCharacter = forge.forge()
+    let forgedCharacter = forge.forge()
     const forgedPersonalityTraits = forgedCharacter.personalityTraits.map((trait) => trait.name)
     const forgedHobbies = forgedCharacter.hobbies.map((hobby) => hobby.name)
+    forgedCharacter.age = ageModule.getRandomAge(18, 70)
 
     let character: User = new User()
     character.uid = uuidv4()
     character.name = forgedCharacter.name
     character.nickname = forgedCharacter.nickname ? forgedCharacter.nickname : null
     character.surname = forgedCharacter.surname
-    character.age = ageModule.getRandomAge(18, 70)
+    character.age = forgedCharacter.age
     character.sex = forgedCharacter.sex
     character.sexuality = forgedCharacter.sexuality.sexuality
     character.bodyType = forgedCharacter.bodyType.type
