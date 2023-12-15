@@ -1,6 +1,7 @@
 import type { ApplicationContract } from '@ioc:Adonis/Core/Application'
 import Env from '@ioc:Adonis/Core/Env'
 import * as OneSignal from '@onesignal/node-onesignal'
+import { appKey } from '../config/app'
 
 /*
 |--------------------------------------------------------------------------
@@ -22,14 +23,22 @@ import * as OneSignal from '@onesignal/node-onesignal'
 |
 */
 export default class OneSignalProvider {
+  app_key_provider = {
+    getToken() {
+      return Env.get('ONESIGNAL_APP_KEY')
+    },
+  }
+
   constructor(protected app: ApplicationContract) {}
 
   public register() {
     this.app.container.singleton('Adonis/Addons/OneSignal', (_) => {
       const configuration = OneSignal.createConfiguration({
+        userKey: Env.get('ONESIGNAL_USER_KEY'),
+        appKey: Env.get('ONESIGNAL_APP_KEY'),
         authMethods: {
           app_key: {
-            tokenProvider: Env.get('ONESIGNAL_APP_KEY'),
+            tokenProvider: this.app_key_provider,
           },
         },
       })
