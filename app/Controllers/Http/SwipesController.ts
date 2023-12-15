@@ -6,6 +6,7 @@ import * as OneSignal from '@onesignal/node-onesignal'
 import Env from '@ioc:Adonis/Core/Env'
 import User from 'App/Models/User'
 import notificationsJson from '../../../assets/json/notifications.json'
+import Logger from '@ioc:Adonis/Core/Logger'
 
 declare global {
   interface String {
@@ -27,16 +28,19 @@ export default class SwipesController {
     try {
       const { target_id, swiper_id, direction } = request.all()
 
-      if (
-        Swipe.query().where('target_id', target_id).where('swiper_id', swiper_id).first() != null
-      ) {
+      const swiper = await User.query().where('uid', swiper_id).firstOrFail()
+      const target = await User.query().where('uid', target_id).firstOrFail()
+
+      const existingSwipe = await Swipe.query()
+        .where('target_id', target.id)
+        .where('swiper_id', swiper.id)
+        .first()
+
+      if (existingSwipe) {
         return response.status(400).json({ error: 'Swipe already exists.' })
       }
 
       const swipe = new Swipe()
-
-      const swiper = await User.query().where('uid', swiper_id).firstOrFail()
-      const target = await User.query().where('uid', target_id).firstOrFail()
 
       swipe.related('swiper').associate(swiper)
       swipe.related('target').associate(target)
@@ -47,8 +51,8 @@ export default class SwipesController {
       const isCharacter: boolean = swiper.uid.isUUID()
 
       const reciprocalSwipe = await Swipe.query()
-        .where('target_id', target_id)
-        .where('swiper_id', swiper_id)
+        .where('target_id', target.id)
+        .where('swiper_id', swiper.id)
         .where('direction', 'right')
         .whereNotExists((query) => {
           query.from('matches').where('user_id', swiper_id).orWhere('user_id', target_id)
@@ -59,13 +63,15 @@ export default class SwipesController {
         const notification = new OneSignal.Notification()
         notification.app_id = oneSignalAppId
         notification.headings = {
-          en: this.getRandomNotification('en', 'like').title,
-          pt: this.getRandomNotification('pt', 'like').title,
+          en: this.getRandomNotification('en', 'like')!.title,
+          pt: this.getRandomNotification('pt', 'like')!.title,
         }
         notification.contents = {
-          en: this.getRandomNotification('en', 'like').content.replace('[name]', swiper.name),
+          en: this.getRandomNotification('en', 'like')!.content.replace('[name]', swiper.name),
+          pt: this.getRandomNotification('pt', 'like')!.content.replace('[name]', swiper.name),
         }
         notification.include_player_ids = [target.uid]
+        this.oneSignal.createNotification(notification)
 
         return
       }
@@ -79,16 +85,19 @@ export default class SwipesController {
         const notification = new OneSignal.Notification()
         notification.app_id = oneSignalAppId
         notification.headings = {
-          en: this.getRandomNotification('en', 'match').title,
-          pt: this.getRandomNotification('pt', 'match').title,
+          en: this.getRandomNotification('en', 'match')!.title,
+          pt: this.getRandomNotification('pt', 'match')!.title,
         }
         notification.contents = {
-          en: this.getRandomNotification('en', 'match').content.replace(
+          en: this.getRandomNotification('en', 'match')!.content.replace(
             '[name]',
             isCharacter ? swiper.name : null
           ),
         }
         notification.include_player_ids = isCharacter ? [] : [target.uid]
+        this.oneSignal.createNotification(notification)
+
+        return
       }
 
       return swipe
@@ -107,8 +116,9 @@ export default class SwipesController {
         return ctx.response.status(400).json({ error: 'User ID is required.' })
       }
 
+      const user = await User.query().where('uid', uid).firstOrFail()
       const swipes = await Swipe.query()
-        .where('swiper_id', uid)
+        .where('swiper_id', user.id)
         .if(searchQuery.direction, (query) => {
           query.whereIn('direction', searchQuery.direction)
         })
@@ -126,8 +136,27 @@ export default class SwipesController {
   }
 
   private getRandomNotification(language: string, type: string) {
-    const titles = notificationsJson[language][type].titles
-    const contents = notificationsJson[language][type].contents
+    const languageData = notificationsJson[language]
+
+    if (!languageData) {
+      Logger.error(`Language ${language} not found.`)
+      return null
+    }
+
+    const typeData = languageData[type]
+
+    if (!typeData) {
+      Logger.error(`Type ${type} not found for language ${language}.`)
+      return null
+    }
+
+    const titles = typeData.titles
+    const contents = typeData.contents
+
+    if (!titles || !contents) {
+      Logger.error(`Titles or contents not found for type ${type} in language ${language}.`)
+      return null
+    }
 
     const title = this.getRandomElement(titles)
     const content = this.getRandomElement(contents)
