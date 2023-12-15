@@ -34,12 +34,41 @@ Array.prototype.formattedJoin = function () {
  * @returns The generated image prompt string.
  */
 export function imagePromptBuilder(character: Character) {
-  let prompt = 'RAW Photo, DSLR BREAK '
+  const expressions = ['seductive smirk', 'smiling', 'smiling with teeth', 'serious', 'neutral']
+  const expression = expressions[Math.floor(Math.random() * expressions.length)]
+
+  const photoTypes = [
+    'selfie',
+    'portrait',
+    'looking at viewer',
+    'candid shot',
+    'full body shot',
+    'nighttime',
+  ]
+  const photoType = photoTypes[Math.floor(Math.random() * photoTypes.length)]
+
+  const places = ['indoors', 'outdoors', 'at home', 'at the beach', 'at the park']
+  const place = places[Math.floor(Math.random() * places.length)]
+
+  let age = ''
+
+  if (character.age >= 18 && character.age <= 25) {
+    age = 'a young adult'
+  } else if (character.age >= 26 && character.age <= 35) {
+    age = 'an adult'
+  } else if (character.age >= 36 && character.age <= 55) {
+    age = 'a middle aged'
+  } else if (character.age >= 56) {
+    age = 'a senior'
+  }
+
+  let sex = character.sex === 'male' ? 'man' : 'woman'
+
+  let prompt = ''
 
   prompt += `${character.bodyType.type} `
   prompt += `${character.skinTone} skin ${character.ethnicity}, `
-  prompt += `${character.age} years old ${character.sex}, `
-  prompt += `${character.hairColor} color ${character.hairStyle} hairstyle, `
+  prompt += `${character.hairColor} color (${character.hairStyle} hairstyle), `
   prompt += `${character.eyeColor} eyes, `
   prompt += `wearing ${character.clothings.upperbody}`
 
@@ -47,24 +76,50 @@ export function imagePromptBuilder(character: Character) {
     prompt += `, wearing ${character.clothings.accessories.formattedJoin()}`
   }
 
-  prompt += `, (looking at viewer), focused, detailed, natural light, (old: 1.5), old ${character.sex}, very old ${character.sex}, elder ${character.sex}`
+  prompt += `, (${photoType}), ${expression}, (${place}), (${age} ${sex}: 1.5)`
+
+  console.log(prompt)
 
   return prompt
 }
 
 export function negativeImagePromptBuilder(sex: string): string {
   let negativePrompts = [
-    'cartoon',
-    'painting',
+    '(deformed iris, deformed hands, worst quality, low quality, normal quality:2)',
     'illustration',
-    '(worst quality, low quality, normal quality:2)',
+    'painting',
+    'cartoon',
     'young',
     'new',
+    'anime',
+    'doll',
+    '3d',
+    'cloned face',
+    'disfigured',
+    'gross proportions',
+    'malformed limbs',
+    'missing arms',
+    'missing legs',
+    'extra arms',
+    'extra legs',
+    'fused fingers',
+    'too many fingers',
+    'long neck',
+    'username',
+    'watermark',
+    'signature',
+    'mutation',
+    'mutated',
+    'nipple showing',
+    'nipple appearing',
+    'nipples',
   ]
 
   if (sex === 'male') {
+    negativePrompts.push('woman')
     negativePrompts.push('female')
   } else {
+    negativePrompts.push('man')
     negativePrompts.push('male')
   }
 
