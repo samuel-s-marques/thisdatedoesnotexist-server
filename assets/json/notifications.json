@@ -2,44 +2,79 @@
   "en": {
     "match": {
       "titles": [
-        "Connections Redefined!",
-        "Connect & Explore!",
-        "Diverse Connections Unlocked!",
-        "The Universe Agrees: It's a Match! 🌌",
-        "Matched & Thrilled! 🚀",
-        "New Match, New Beginnings! 🌅",
-        "Match Found: Let the Adventure Begin! 🚀"
+        "Connections Redefined! 🌐🔗",
+        "Connect & Explore! 🌍✨",
+        "Diverse Connections Unlocked! 🚀🤝💖",
+        "It's a Match! 💑",
+        "Matched & Thrilled! 🎉💖",
+        "New Match, New Beginnings! 🌟💑",
+        "Let the Adventure Begin! 🚀🌈"
       ],
       "contents": [
-        "A new connection awaits! Whether it's for love, friendship, or professional networking, [name] is ready to embark on this journey with you. The choice is yours! 🌐✨",
-        "Exciting news! You've matched with [name]. The possibilities are endless - friendship, business, or romance. What path will you choose? 🚀🤝💖",
-        "Brace yourself for new connections! [name] is eager to connect with you. Whether you're seeking friends, mentors, or something more, the power is in your hands. 🌟🤗🌐",
-        "Breaking news: You've matched with [name]! Your journey of connection begins now. Will it be a professional collaboration, a deep friendship, or a love story? You decide! 🌍💼❤️",
-        "Get ready for an adventure! [name] is now part of your network. Define your connection - friendship, networking, or something extraordinary. The choice is yours! 🌈🔗🚀",
-        "Exciting match alert! [name] is eager to connect. Will it be a new friend, a professional ally, or a romantic partner? The possibilities are boundless! 🤝🌐💑"
+        "A new connection awaits! Whether it's for love, friendship, or professional networking, [name] is ready to embark on this journey with you. The choice is yours!",
+        "Exciting news! You've matched with [name]. The possibilities are endless - friendship, business, or romance. What path will you choose?",
+        "Brace yourself for new connections! [name] is eager to connect with you. Whether you're seeking friends, mentors, or something more, the power is in your hands.",
+        "You've matched with [name]! Your journey of connection begins now. Will it be a professional collaboration, a deep friendship, or a love story? You decide!",
+        "Get ready for an adventure! [name] is now part of your network. Define your connection - friendship, networking, or something extraordinary. The choice is yours!",
+        "Exciting match alert! [name] is eager to connect. Will it be a new friend, a professional ally, or a romantic partner? The possibilities are boundless!"
       ]
     },
     "like": {
       "titles": [
-        "Someone's Interested!",
-        "Curiosity Sparked!",
-        "You've Caught Their Eye!",
-        "Attention Received!",
-        "Incoming Like Alert!",
-        "Someone's Knocking!"
+        "Someone's Interested! 👀",
+        "Curiosity Sparked! ✨🔍",
+        "You've Caught Their Eye! 👁️",
+        "Attention Received! 👁️✨",
+        "Incoming Like Alert! 🚨💙",
+        "Someone's Knocking! 🚪🌈"
       ],
       "contents": [
-        "Great news! [name] has liked you. Take the lead and explore the potential for a fantastic connection. The ball is in your court! 🌟👀",
-        "Guess what? [name] is intrigued by you! Dive into the excitement and see where this newfound interest might lead. Your journey of connection starts now! ✨🔍",
-        "Bravo! [name] has shown interest in you. The door to a new connection is open - are you ready to step through? 🚪💬",
-        "Exciting news! [name] has noticed you. Seize the opportunity to connect and discover what makes this interaction special. The possibilities are endless! 👁️✨",
-        "Hold on to your hat! [name] has sent a like your way. Time to explore the potential for a meaningful connection. Get ready for a new chapter! 🎩💙",
-        "Knock, knock! [name] has expressed interest in you. Open the door to a world of possibilities and see what kind of connection awaits. 🚪🌈"
+        "Great news! [name] has liked you. Take the lead and explore the potential for a fantastic connection. The ball is in your court!",
+        "Guess what? [name] is intrigued by you! Dive into the excitement and see where this newfound interest might lead. Your journey of connection starts now!",
+        "Bravo! [name] has shown interest in you. The door to a new connection is open - are you ready to step through?",
+        "Exciting news! [name] has noticed you. Seize the opportunity to connect and discover what makes this interaction special. The possibilities are endless!",
+        "Hold on to your hat! [name] has sent a like your way. Time to explore the potential for a meaningful connection. Get ready for a new chapter!",
+        "Knock, knock! [name] has expressed interest in you. Open the door to a world of possibilities and see what kind of connection awaits."
       ]
     }
   },
   "pt": {
-    "titles": [],
-    "contents": []
+    "match": {
+      "titles": [
+        "Conexões Redefinidas! 🌐🔗",
+        "Conecte e Explore! 🌍✨",
+        "Conexões Diversas Desbloqueadas! 🚀🤝💖",
+        "É uma Combinação! 💑",
+        "Combinação e Empolgação! 🎉💖",
+        "Nova Combinação, Novos Começos! 🌟💑",
+        "Que Comece a Aventura! 🚀🌈"
+      ],
+      "contents": [
+        "Uma nova conexão está à sua espera! Seja para o amor, amizade ou networking profissional, [name] está pronto para embarcar nesta jornada com você. A escolha é sua!",
+        "Notícia emocionante! Você combinou com [name]. As possibilidades são infinitas - amizade, negócios ou romance. Qual caminho você escolherá?",
+        "Prepare-se para novas conexões! [name] está ansioso para se conectar com você. Seja procurando amigos, mentores ou algo mais, o poder está em suas mãos.",
+        "Você combinou com [name]! Sua jornada de conexão começa agora. Será uma colaboração profissional, uma amizade profunda ou uma história de amor? Você decide!",
+        "Prepare-se para uma aventura! [name] agora faz parte da sua rede. Defina sua conexão - amizade, networking ou algo extraordinário. A escolha é sua!",
+        "Alerta de combinação emocionante! [name] está ansioso para se conectar. Será um novo amigo, um aliado profissional ou um parceiro romântico? As possibilidades são infinitas!"
+      ]
+    },
+    "like": {
+      "titles": [
+        "Alguém está interessado! 👀",
+        "Faísca de Curiosidade! ✨🔍",
+        "Você chamou a atenção de alguém! 👁️",
+        "Atenção recebida! 👁️✨",
+        "Alerta de curtida recebida! 🚨💙",
+        "Alguém está batendo! 🚪🌈"
+      ],
+      "contents": [
+        "[name] gostou de você. Assuma a liderança e explore o potencial para uma conexão fantástica. A bola está no seu campo!",
+        "Adivinha só? [name] está intrigado(a) por você! Mergulhe na emoção e veja para onde esse novo interesse pode te levar.",
+        "Bravo! [name] mostrou interesse em você. A porta para uma nova conexão está aberta - você está pronto para atravessar?",
+        "Notícia emocionante! [name] percebeu você. Aproveite a oportunidade para se conectar e descubra o que torna essa interação especial.",
+        "[name] enviou uma curtida para o seu caminho. Hora de explorar o potencial para uma conexão significativa.",
+        "Toc, toc! [name] expressou interesse em você. Abra a porta para um mundo de possibilidades e veja que tipo de conexão o aguarda."
+      ]
+    }
   }
 }
