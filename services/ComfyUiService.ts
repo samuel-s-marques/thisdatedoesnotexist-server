@@ -74,7 +74,7 @@ export default class ComfyUiService {
         prompt: {
           '1': {
             inputs: {
-              ckpt_name: 'epicrealism_pureEvolutionV5.safetensors',
+              ckpt_name: 'analogMadness_v70.safetensors',
             },
             class_type: 'CheckpointLoaderSimple',
           },
