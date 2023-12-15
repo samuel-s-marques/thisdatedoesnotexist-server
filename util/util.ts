@@ -34,7 +34,7 @@ Array.prototype.formattedJoin = function () {
  * @returns The generated image prompt string.
  */
 export function imagePromptBuilder(character: Character) {
-  const expressions = ['seductive smirk', 'smiling', 'smiling with teeth', 'serious', 'neutral']
+  const expressions = ['seductive smirk', 'smiling', 'focused', 'distracted', 'serious', 'neutral']
   const expression = expressions[Math.floor(Math.random() * expressions.length)]
 
   const photoTypes = [
@@ -113,6 +113,10 @@ export function negativeImagePromptBuilder(sex: string): string {
     'nipple showing',
     'nipple appearing',
     'nipples',
+    'naked',
+    'nude',
+    'nudity',
+    'nsfw',
   ]
 
   if (sex === 'male') {
