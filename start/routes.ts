@@ -93,8 +93,8 @@ Route.group(() => {
   }).prefix('/swipes')
 
   Route.group(() => {
-    Route.get('/', 'MatchesController.index')
-  }).prefix('/matches')
+    Route.get('/', 'ChatsController.index')
+  }).prefix('/chats')
 
   Route.group(() => {
     Route.get('/', 'OccupationsController.index')
