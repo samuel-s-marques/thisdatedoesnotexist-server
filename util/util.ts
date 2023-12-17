@@ -34,20 +34,58 @@ Array.prototype.formattedJoin = function () {
  * @returns The generated image prompt string.
  */
 export function imagePromptBuilder(character: Character) {
-  const expressions = ['seductive smirk', 'smiling', 'focused', 'distracted', 'serious', 'neutral']
+  const expressions = [
+    'seductive smirk',
+    'smiling',
+    'focused',
+    'distracted',
+    'serious',
+    'neutral',
+    '(troubled facial expression)',
+    'happy',
+  ]
   const expression = expressions[Math.floor(Math.random() * expressions.length)]
 
   const photoTypes = [
     'selfie',
     'portrait',
+    'instagram selfie',
     'looking at viewer',
     'candid shot',
     'full body shot',
     'nighttime',
+    '(from behind)',
   ]
   const photoType = photoTypes[Math.floor(Math.random() * photoTypes.length)]
 
-  const places = ['indoors', 'outdoors', 'at home', 'at the beach', 'at the park']
+  const places = [
+    'indoors',
+    'outdoors',
+    'at home',
+    'in a park',
+    'riding the subway',
+    'in an indoor gym',
+    'in a party',
+    'in a farm',
+    'in a shopping mall',
+    'in a store',
+    'in a restaurant',
+    'in a nightclub',
+    'in a beach',
+    'in a bar',
+    'in a cafe',
+    'in a club',
+    'in a library',
+    'in a classroom',
+    'in a hospital',
+    'in a hotel',
+    'in a motel',
+    'in a bedroom',
+    'in a bathroom',
+    'in a kitchen',
+    'in a living room',
+    'in a dining room',
+  ]
   const place = places[Math.floor(Math.random() * places.length)]
 
   let age = ''
@@ -68,7 +106,7 @@ export function imagePromptBuilder(character: Character) {
 
   prompt += `${character.bodyType.type} `
   prompt += `${character.skinTone} skin ${character.ethnicity}, `
-  prompt += `${character.hairColor} color (${character.hairStyle} hairstyle), `
+  prompt += `(${character.hairColor}) (${character.hairStyle} hairstyle), `
   prompt += `${character.eyeColor} eyes, `
   prompt += `wearing ${character.clothings.upperbody}`
 
@@ -77,8 +115,6 @@ export function imagePromptBuilder(character: Character) {
   }
 
   prompt += `, (${photoType}), ${expression}, (${place}), (${age} ${sex}: 1.5)`
-
-  console.log(prompt)
 
   return prompt
 }
@@ -110,13 +146,10 @@ export function negativeImagePromptBuilder(sex: string): string {
     'signature',
     'mutation',
     'mutated',
-    'nipple showing',
-    'nipple appearing',
-    'nipples',
-    'naked',
-    'nude',
-    'nudity',
-    'nsfw',
+    'teen',
+    'child',
+    'kid',
+    'children',
   ]
 
   if (sex === 'male') {
