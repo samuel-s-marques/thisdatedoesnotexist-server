@@ -1,5 +1,4 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import Match from 'App/Models/Match'
 import Swipe from 'App/Models/Swipe'
 import Application from '@ioc:Adonis/Core/Application'
 import * as OneSignal from '@onesignal/node-onesignal'
@@ -7,6 +6,7 @@ import Env from '@ioc:Adonis/Core/Env'
 import User from 'App/Models/User'
 import notificationsJson from '../../../assets/json/notifications.json'
 import Logger from '@ioc:Adonis/Core/Logger'
+import Chat from 'App/Models/Chat'
 
 declare global {
   interface String {
@@ -21,10 +21,9 @@ String.prototype.isUUID = function (): boolean {
 
 export default class SwipesController {
   oneSignal = Application.container.use('Adonis/Addons/OneSignal')
+  oneSignalAppId = Env.get('ONESIGNAL_APP_ID')
 
   public async store({ request, response }: HttpContextContract) {
-    const oneSignalAppId = Env.get('ONESIGNAL_APP_ID')
-
     try {
       const { target_id, swiper_id, direction } = request.all()
 
@@ -33,7 +32,7 @@ export default class SwipesController {
 
       const existingSwipe = await Swipe.query()
         .where('target_id', target.id)
-        .where('swiper_id', swiper.id)
+        .andWhere('swiper_id', swiper.id)
         .first()
 
       if (existingSwipe) {
@@ -42,60 +41,34 @@ export default class SwipesController {
 
       const swipe = new Swipe()
 
-      swipe.related('swiper').associate(swiper)
-      swipe.related('target').associate(target)
       swipe.direction = direction
+      await swipe.related('swiper').associate(swiper)
+      await swipe.related('target').associate(target)
 
-      swipe.save()
+      await swipe.save()
 
       const isCharacter: boolean = swiper.uid.isUUID()
 
       const reciprocalSwipe = await Swipe.query()
-        .where('target_id', target.id)
-        .where('swiper_id', swiper.id)
+        .where('target_id', swiper.id)
+        .where('swiper_id', target.id)
         .where('direction', 'right')
-        .whereNotExists((query) => {
-          query.from('matches').where('user_id', swiper_id).orWhere('user_id', target_id)
-        })
         .first()
 
-      if (isCharacter && reciprocalSwipe == null) {
-        const notification = new OneSignal.Notification()
-        notification.app_id = oneSignalAppId
-        notification.headings = {
-          en: this.getRandomNotification('en', 'like')!.title,
-          pt: this.getRandomNotification('pt', 'like')!.title,
-        }
-        notification.contents = {
-          en: this.getRandomNotification('en', 'like')!.content.replace('[name]', swiper.name),
-          pt: this.getRandomNotification('pt', 'like')!.content.replace('[name]', swiper.name),
-        }
-        notification.include_player_ids = [target.uid]
-        this.oneSignal.createNotification(notification)
-
+      if (isCharacter && !reciprocalSwipe) {
+        this.sendNotification('like', target.uid, swiper.name)
         return
       }
 
       if (reciprocalSwipe) {
-        await Match.create({
+        await Chat.create({
           userId: isCharacter ? target.id : swiper.id,
           characterId: isCharacter ? swiper.id : target.id,
         })
 
-        const notification = new OneSignal.Notification()
-        notification.app_id = oneSignalAppId
-        notification.headings = {
-          en: this.getRandomNotification('en', 'match')!.title,
-          pt: this.getRandomNotification('pt', 'match')!.title,
+        if (isCharacter) {
+          this.sendNotification('match', target.uid, swiper.name)
         }
-        notification.contents = {
-          en: this.getRandomNotification('en', 'match')!.content.replace(
-            '[name]',
-            isCharacter ? swiper.name : null
-          ),
-        }
-        notification.include_player_ids = isCharacter ? [] : [target.uid]
-        this.oneSignal.createNotification(notification)
 
         return
       }
@@ -118,9 +91,10 @@ export default class SwipesController {
 
       const user = await User.query().where('uid', uid).firstOrFail()
       const swipes = await Swipe.query()
+        .preload('target')
         .where('swiper_id', user.id)
         .if(searchQuery.direction, (query) => {
-          query.whereIn('direction', searchQuery.direction)
+          query.where('direction', searchQuery.direction)
         })
         .paginate(page, 40)
 
@@ -128,6 +102,21 @@ export default class SwipesController {
     } catch (error) {
       return ctx.response.status(400).json({ error: error.message })
     }
+  }
+
+  private sendNotification(type: string, userUid: string, characterName: string) {
+    const notification = new OneSignal.Notification()
+    notification.app_id = this.oneSignalAppId
+    notification.headings = {
+      en: this.getRandomNotification('en', type)!.title,
+      pt: this.getRandomNotification('pt', type)!.title,
+    }
+    notification.contents = {
+      en: this.getRandomNotification('en', type)!.content.replace('[name]', characterName),
+    }
+    notification.include_external_user_ids = [userUid]
+
+    this.oneSignal.createNotification(notification)
   }
 
   private getRandomElement(array: any[]) {
