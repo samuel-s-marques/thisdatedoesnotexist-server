@@ -31,12 +31,18 @@ export default class ComfyUiService {
     }
   }
 
-  public async getImage(history: {}, promptId: string, uid: string) {
+  public async getImages(history: {}, promptId: string, uid: string) {
     try {
-      const firstImage = history[promptId].outputs['9'].images[0]
+      const defaultImage = history[promptId].outputs['35'].images[0]
+      const upscaledImage = history[promptId].outputs['32'].images[0]
 
-      if (firstImage) {
-        const { filename, subfolder, type } = firstImage
+      for (const image of [defaultImage, upscaledImage]) {
+        const { filename, subfolder, type } = image
+        let resultFilename = uid
+
+        if (filename.includes('x2')) {
+          resultFilename += '_x2'
+        }
 
         const response = await axios.get(
           `${ComfyUiService.API_URL}/view?filename=${filename}&subfolder=${subfolder}&type=${type}`,
@@ -45,7 +51,7 @@ export default class ComfyUiService {
           }
         )
         const writer = fs.createWriteStream(
-          `${Application.publicPath('uploads/characters')}/${uid}.png`
+          `${Application.publicPath('uploads/characters')}/${resultFilename}.png`
         )
 
         response.data.pipe(writer)
@@ -74,7 +80,7 @@ export default class ComfyUiService {
         prompt: {
           '1': {
             inputs: {
-              ckpt_name: 'analogMadness_v70.safetensors',
+              ckpt_name: 'cyberrealistic_v41BackToBasics.safetensors',
             },
             class_type: 'CheckpointLoaderSimple',
           },
@@ -97,7 +103,7 @@ export default class ComfyUiService {
           },
           '4': {
             inputs: {
-              text: negativePrompt,
+              text: `embedding:CyberRealistic_Negative-neg, ${negativePrompt}`,
               clip: ['1', 1],
             },
             class_type: 'CLIPTextEncode',
@@ -128,16 +134,42 @@ export default class ComfyUiService {
           '7': {
             inputs: {
               samples: ['5', 0],
-              vae: ['1', 2],
+              vae: ['38', 0],
             },
             class_type: 'VAEDecode',
           },
-          '9': {
+          '26': {
+            inputs: {
+              model_name: 'BSRGANx2.pth',
+            },
+            class_type: 'UpscaleModelLoader',
+          },
+          '28': {
+            inputs: {
+              upscale_model: ['26', 0],
+              image: ['7', 0],
+            },
+            class_type: 'ImageUpscaleWithModel',
+          },
+          '32': {
+            inputs: {
+              filename_prefix: `${uid}_x2`,
+              images: ['28', 0],
+            },
+            class_type: 'SaveImage',
+          },
+          '35': {
             inputs: {
               filename_prefix: uid,
               images: ['7', 0],
             },
             class_type: 'SaveImage',
+          },
+          '38': {
+            inputs: {
+              vae_name: 'vae-ft-mse-840000-ema-pruned.safetensors',
+            },
+            class_type: 'VAELoader',
           },
         },
       }
@@ -149,7 +181,7 @@ export default class ComfyUiService {
 
         let history = {}
         let attempts = 0
-        const maxAttempts = 5
+        const maxAttempts = 10
 
         while (Object.keys(history).length === 0 && attempts < maxAttempts) {
           attempts++
@@ -162,7 +194,7 @@ export default class ComfyUiService {
 
         if (Object.keys(history).length !== 0) {
           Logger.info('Got history.')
-          await this.getImage(history, promptId, uid)
+          await this.getImages(history, promptId, uid)
         } else {
           Logger.error('Max attempts reached. Unable to retrieve non-empty history.')
         }
