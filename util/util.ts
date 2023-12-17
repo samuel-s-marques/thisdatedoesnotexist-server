@@ -1,9 +1,5 @@
-import sharp from 'sharp'
-import fs from 'fs'
-import { v4 as uuidv4 } from 'uuid'
 import { Character } from 'character-forge'
 import seedrandom from 'seedrandom'
-import Logger from '@ioc:Adonis/Core/Logger'
 
 /**
  * Extends the Array prototype with a new method called formattedJoin.
