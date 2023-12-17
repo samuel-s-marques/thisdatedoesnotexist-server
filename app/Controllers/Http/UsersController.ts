@@ -2,7 +2,6 @@ import Application from '@ioc:Adonis/Core/Application'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import BodyType from 'App/Models/BodyType'
 import HobbyModel from 'App/Models/HobbyModel'
-import Match from 'App/Models/Match'
 import PoliticalView from 'App/Models/PoliticalView'
 import Preference from 'App/Models/Preference'
 import RelationshipGoal from 'App/Models/RelationshipGoal'
@@ -16,6 +15,7 @@ import { AgesModule, CharacterForge } from 'character-forge'
 import PersonalityTraitModel from 'App/Models/PersonalityTraitModel'
 import PronounsModel from 'App/Models/PronounsModel'
 import ComfyUiService from 'Service/ComfyUiService'
+import Chat from 'App/Models/Chat'
 
 export default class UsersController {
   public async index(ctx: HttpContextContract) {
@@ -56,7 +56,7 @@ export default class UsersController {
       .if(searchQuery.min_age && searchQuery.max_age, (query) => {
         query.whereBetween('age', [searchQuery.min_age, searchQuery.max_age])
       })
-      .paginate(page, 40)
+      .paginate(page, 20)
 
     return users
   }
@@ -405,8 +405,6 @@ export default class UsersController {
 
       Drive.delete(user.imageUrl)
       user.delete()
-      Match.query().where('user_id', user.uid).delete()
-      Swipe.query().where('swiper_id', user.uid).orWhere('target_id', user.uid).delete()
 
       return ctx.response.status(200).json({ message: 'User deleted.' })
     } catch (error) {
