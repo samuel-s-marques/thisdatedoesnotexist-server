@@ -62,8 +62,8 @@ export default class SwipesController {
 
       if (reciprocalSwipe) {
         await Chat.create({
-          userId: isCharacter ? target.id : swiper.id,
-          characterId: isCharacter ? swiper.id : target.id,
+          user_id: isCharacter ? target.id : swiper.id,
+          character_id: isCharacter ? swiper.id : target.id,
         })
 
         if (isCharacter) {
