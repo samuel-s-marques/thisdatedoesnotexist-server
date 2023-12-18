@@ -31,7 +31,6 @@ export default class extends BaseSchema {
       table.string('hair_style')
       table.string('body_type')
       table.string('skin_tone')
-      table.string('birthplace')
       table.string('ethnicity')
       table.string('sexuality')
       table.string('phobia')
