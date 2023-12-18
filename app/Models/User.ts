@@ -89,9 +89,6 @@ export default class User extends BaseModel {
   public skinTone: string
 
   @column()
-  public birthplace: string
-
-  @column()
   public ethnicity: string
 
   @column()
