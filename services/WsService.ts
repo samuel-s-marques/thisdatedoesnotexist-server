@@ -1,5 +1,4 @@
-import WebSocket, { WebSocketServer } from 'ws'
-import AdonisServer from '@ioc:Adonis/Core/Server'
+import { WebSocketServer } from 'ws'
 
 class WsService {
   public wss: WebSocketServer
