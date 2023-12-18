@@ -104,7 +104,8 @@ export function imagePromptBuilder(character: Character) {
   prompt += `${character.skinTone} skin ${character.ethnicity}, `
   prompt += `(${character.hairColor}) (${character.hairStyle} hairstyle), `
   prompt += `${character.eyeColor} eyes, `
-  prompt += `wearing ${character.clothings.upperbody}`
+  prompt += `wearing ${character.clothings.upperbody}, `
+  prompt += `wearing ${character.clothings.lowerbody}`
 
   if (character.clothings.accessories.length !== 0) {
     prompt += `, wearing ${character.clothings.accessories.formattedJoin()}`
