@@ -6,7 +6,6 @@ import PoliticalView from 'App/Models/PoliticalView'
 import Preference from 'App/Models/Preference'
 import RelationshipGoal from 'App/Models/RelationshipGoal'
 import Sex from 'App/Models/Sex'
-import Swipe from 'App/Models/Swipe'
 import User from 'App/Models/User'
 import admin from 'firebase-admin'
 import { v4 as uuidv4 } from 'uuid'
@@ -15,12 +14,13 @@ import { AgesModule, CharacterForge } from 'character-forge'
 import PersonalityTraitModel from 'App/Models/PersonalityTraitModel'
 import PronounsModel from 'App/Models/PronounsModel'
 import ComfyUiService from 'Service/ComfyUiService'
-import Chat from 'App/Models/Chat'
 
 export default class UsersController {
   public async index(ctx: HttpContextContract) {
     const page = ctx.request.input('page', 1)
     const searchQuery = ctx.request.qs()
+
+    const user = await User.query().where('uid', searchQuery.uid).firstOrFail()
 
     const users = await User.query()
       .preload('hobbies')
@@ -28,13 +28,10 @@ export default class UsersController {
       .preload('relationshipGoal')
       .preload('personalityTraits')
       .where('type', 'character')
-      // todo: check this
-      .whereNotExists((query) => {
-        query
-          .from('swipes')
-          .where('target_id', searchQuery.uid)
-          .andWhere('swiper_id', searchQuery.uid)
+      .whereNotIn('id', function (query) {
+        query.select('target_id').from('swipes').where('swiper_id', user.id)
       })
+      .andWhere('id', '<>', user.id)
       .if(searchQuery.sex, (query) => {
         query.whereIn('sex', searchQuery.sex.split(','))
       })
@@ -56,7 +53,7 @@ export default class UsersController {
       .if(searchQuery.min_age && searchQuery.max_age, (query) => {
         query.whereBetween('age', [searchQuery.min_age, searchQuery.max_age])
       })
-      .paginate(page, 20)
+      .paginate(page, searchQuery.per_page ?? 20)
 
     return users
   }
@@ -281,13 +278,13 @@ export default class UsersController {
     character.politicalView = forgedCharacter.politicalView
     character.phobia = forgedCharacter.phobia ? forgedCharacter.phobia : null
     character.type = 'character'
-    
+
     const pronouns = await PronounsModel.query().where('type', forgedCharacter.sex).firstOrFail()
     const relationshipGoals = await RelationshipGoal.query().orderByRaw('RAND()').firstOrFail()
-    
+
     await character.related('pronoun').associate(pronouns)
     await character.related('relationshipGoal').associate(relationshipGoals)
-    
+
     await new ComfyUiService().sendPrompt(forgedCharacter, character.uid)
     const createdCharacter = await character.save()
 
