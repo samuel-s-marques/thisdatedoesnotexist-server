@@ -8,10 +8,10 @@ export default class Chat extends BaseModel {
   public id: number
 
   @column({ columnName: 'user_id' })
-  public userId: number
+  public user_id: number
 
   @column({ columnName: 'character_id' })
-  public characterId: number
+  public character_id: number
 
   @belongsTo(() => User, { foreignKey: 'user_id' })
   public user: BelongsTo<typeof User>
