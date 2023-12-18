@@ -34,9 +34,8 @@ export default class ComfyUiService {
   public async getImages(history: {}, promptId: string, uid: string) {
     try {
       const defaultImage = history[promptId].outputs['35'].images[0]
-      const upscaledImage = history[promptId].outputs['32'].images[0]
 
-      for (const image of [defaultImage, upscaledImage]) {
+      for (const image of [defaultImage]) {
         const { filename, subfolder, type } = image
         let resultFilename = uid
 
@@ -80,7 +79,7 @@ export default class ComfyUiService {
         prompt: {
           '1': {
             inputs: {
-              ckpt_name: 'cyberrealistic_v41BackToBasics.safetensors',
+              ckpt_name: 'analogMadness_v70.safetensors',
             },
             class_type: 'CheckpointLoaderSimple',
           },
@@ -137,26 +136,6 @@ export default class ComfyUiService {
               vae: ['38', 0],
             },
             class_type: 'VAEDecode',
-          },
-          '26': {
-            inputs: {
-              model_name: 'BSRGANx2.pth',
-            },
-            class_type: 'UpscaleModelLoader',
-          },
-          '28': {
-            inputs: {
-              upscale_model: ['26', 0],
-              image: ['7', 0],
-            },
-            class_type: 'ImageUpscaleWithModel',
-          },
-          '32': {
-            inputs: {
-              filename_prefix: `${uid}_x2`,
-              images: ['28', 0],
-            },
-            class_type: 'SaveImage',
           },
           '35': {
             inputs: {
