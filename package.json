@@ -74,6 +74,10 @@
     "seedrandom": "^3.0.5",
     "sharp": "^0.32.6",
     "socket.io": "^4.7.2",
-    "source-map-support": "^0.5.21"
+    "source-map-support": "^0.5.21",
+    "ws": "^8.15.1"
+  },
+  "optionalDependencies": {
+    "utf-8-validate": "^5.0.10"
   }
 }
