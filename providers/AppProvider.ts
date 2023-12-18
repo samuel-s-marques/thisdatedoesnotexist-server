@@ -15,6 +15,7 @@ export default class AppProvider {
   public async ready() {
     const scheduler = Application.container.use('Adonis/Addons/Scheduler')
     scheduler.run()
+    await import('../start/socket')
   }
 
   public async shutdown() {
