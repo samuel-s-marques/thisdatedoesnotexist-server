@@ -269,7 +269,7 @@ export default class UsersController {
     character.skinTone = forgedCharacter.skinTone
     character.hairStyle = forgedCharacter.hairStyle
     character.occupation = forgedCharacter.occupation
-    character.birthplace = forgedCharacter.birthplace
+    character.country = forgedCharacter.birthplace
     character.ethnicity = forgedCharacter.ethnicity
     character.eyeColor = forgedCharacter.eyeColor
     character.hairColor = forgedCharacter.hairColor
