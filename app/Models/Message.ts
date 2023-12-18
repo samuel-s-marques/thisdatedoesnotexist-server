@@ -8,10 +8,10 @@ export default class Message extends BaseModel {
   public id: number
 
   @column({columnName: 'user_id'})
-  public userId: number
+  public user_id: number
 
   @column({columnName: 'chat_id'})
-  public chatId: number
+  public chat_id: number
 
   @column()
   public content: string
