@@ -1,3 +1,4 @@
+import User from 'App/Models/User'
 import { Character } from 'character-forge'
 import seedrandom from 'seedrandom'
 
@@ -160,7 +161,7 @@ export function negativeImagePromptBuilder(sex: string): string {
   return negativePrompts.join(', ')
 }
 
-export function promptBuilder(session: any): string {
+export function promptBuilder(session): string {
   let prompt: string = pListBuilder(session.character)
   let lastMessages = session.messages.slice(-5)
   let lastSender = 'character'
@@ -195,22 +196,22 @@ export function promptBuilder(session: any): string {
   return prompt
 }
 
-export function pListBuilder(character: Character): string {
-  let appearance = `${character.name}'s appearance: hair(${character.hairStyle}, ${character.hairColor}), eyes(${character.eyeColor}), body(${character.bodyType.type}), clothings(${character.clothings.upperbody}, ${character.clothings.lowerbody}), ethnicity(${character.ethnicity})`
+export function pListBuilder(character: User): string {
+  let appearance = `${character.name}'s appearance: hair(${character.hairStyle}, ${character.hairColor}), eyes(${character.eyeColor}), body(${character.bodyType}, ${character.height.toFixed(2)}m, ${character.weight.toFixed(2)}kg), ethnicity(${character.ethnicity}), country(${character.country}), skin(${character.skinTone}), age(${character.age})`
 
-  const tags = ['slice of life', 'real life']
-  const scenario = `Conversation between User and ${character.name}`
+  const tags = ['slice of life', 'dating app'].join(', ')
+  const scenario = `Conversation between User and ${character.name} in a dating app`
 
   const attributes = character.personalityTraits.map((trait) => trait.name).join(', ')
   const hobbies = character.hobbies.join(', ')
 
-  let persona = `${character.name}'s persona: ${attributes}, hobbies(${hobbies}), ${character.occupation}, ${character.pronouns.subjectPronoun}/${character.pronouns.objectPronoun}, sexuality(${character.sexuality.sexuality})`
+  let persona = `${character.name}'s persona: ${attributes}, hobbies(${hobbies}), ${character.occupation}, ${character.pronoun.subjectPronoun}/${character.pronoun.objectPronoun}, sexuality(${character.sexuality}), relationship goal(${character.relationshipGoal}), religion(${character.religion}), political view(${character.politicalView}), social class(${character.socialClass})`
 
   if (character.phobia !== undefined) {
     persona += `, fears(${character.phobia})`
   }
 
-  return `[${appearance};\nTags: ${tags.join(', ')};\n${scenario};\n${persona}]`
+  return `[${appearance};\nTags: ${tags};\nScenario: ${scenario};\n${persona}]`
 }
 
 export function generateRandomSeed(seed: string): number {
