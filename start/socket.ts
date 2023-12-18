@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 WsService.boot()
 
 WsService.wss.on('connection', (ws) => {
-  ws.id = uuidv4()
+  const id = uuidv4()
   ws.send('Hello from AdonisJS')
 
   ws.on('message', (data, isBinary) => {
