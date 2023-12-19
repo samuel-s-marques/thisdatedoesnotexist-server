@@ -7,6 +7,12 @@ export default class Chat extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
+  @column()
+  public last_message: string
+
+  @column()
+  public seen: boolean
+
   @column({ columnName: 'user_id' })
   public user_id: number
 
