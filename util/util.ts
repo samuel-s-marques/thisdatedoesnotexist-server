@@ -1,3 +1,4 @@
+import Message from 'App/Models/Message'
 import User from 'App/Models/User'
 import { Character } from 'character-forge'
 import seedrandom from 'seedrandom'
@@ -161,27 +162,27 @@ export function negativeImagePromptBuilder(sex: string): string {
   return negativePrompts.join(', ')
 }
 
-export function promptBuilder(session): string {
-  let prompt: string = pListBuilder(session.character)
-  let lastMessages = session.messages.slice(-5)
+export function promptBuilder(messages: Message[], character: User, user: User): string {
+  let prompt: string = pListBuilder(character, user)
   let lastSender = 'character'
+  prompt += '\n'
 
-  for (let message of lastMessages) {
-    if (message.from === 'user') {
+  for (let message of messages) {
+    if (message.user_id === user.id) {
       // Check if the last sender was the character and append accordingly
       if (lastSender === 'character') {
-        prompt += `\nUser:${message.message}`
+        prompt += `${user.name} ${user.surname}: ${message.content}\n`
       } else {
-        prompt += `${message.message}`
+        prompt += `${message.content}\n`
       }
       // Update the last sender to "user"
       lastSender = 'user'
     } else {
       // Check if the last sender was the user and append accordingly
       if (lastSender === 'user') {
-        prompt += `\n${session.character.name}:${message.message}`
+        prompt += `${character.name} ${character.surname}: ${message.content}\n`
       } else {
-        prompt += `${message.message}`
+        prompt += `${message.content}\n`
       }
       // Update the last sender to "character"
       lastSender = 'character'
@@ -189,29 +190,51 @@ export function promptBuilder(session): string {
   }
 
   // Ensure the last line ends with \ncharacter.name:
-  if (!prompt.endsWith(`\n${session.character.name}:`)) {
-    prompt += `\n${session.character.name}:`
+  if (!prompt.endsWith(`${character.name}: `)) {
+    prompt += `${character.name} ${character.surname}: `
   }
 
   return prompt
 }
 
-export function pListBuilder(character: User): string {
-  let appearance = `${character.name}'s appearance: hair(${character.hairStyle}, ${character.hairColor}), eyes(${character.eyeColor}), body(${character.bodyType}, ${character.height.toFixed(2)}m, ${character.weight.toFixed(2)}kg), ethnicity(${character.ethnicity}), country(${character.country}), skin(${character.skinTone}), age(${character.age})`
+export function pListBuilder(character: User, user: User): string {
+  let userData = ''
+  let characterData = ''
+
+  // Character data
+  let characterAppearance = `${character.name} ${character.surname}'s appearance: hair(${
+    character.hairStyle
+  }, ${character.hairColor}), eyes(${character.eyeColor}), body(${
+    character.bodyType
+  }, ${character.height.toFixed(2)}m, ${character.weight.toFixed(2)}kg), ethnicity(${
+    character.ethnicity
+  }), country(${character.country}), skin(${character.skinTone}), age(${character.age})`
+
+  const characterAttributes = character.personalityTraits.map((trait) => trait.name).join(', ')
+  const characterHobbies = character.hobbies.map((hobby) => hobby.name).join(', ')
+  const characterGoal = character.relationshipGoal.name
+
+  let characterPersona = `${character.name} ${character.surname}'s persona: ${characterAttributes}, hobbies(${characterHobbies}), occupation(${character.occupation}), ${character.pronoun.subjectPronoun}/${character.pronoun.objectPronoun}, sexuality(${character.sexuality}), relationship goal(${characterGoal}), religion(${character.religion}), political view(${character.politicalView}), social class(${character.socialClass})`
+
+  if (character.phobia !== null) {
+    characterPersona += `, fears(${character.phobia})`
+  }
+  characterData = `${characterAppearance};\n${characterPersona}`
+
+  // User data
+  let userAppearance = `${user.name} ${user.surname}'s appearance: body(${user.height.toFixed(
+    2
+  )}m, ${user.weight.toFixed(2)}kg), country(${user.country}), age(${user.age})`
+  const userHobbies = user.hobbies.map((hobby) => hobby.name).join(', ')
+  const userGoal = user.relationshipGoal.name
+  const userPersona = `${user.name} ${user.surname}'s persona: hobbies(${userHobbies}), occupation(${user.occupation}), ${user.pronoun.subjectPronoun}/${user.pronoun.objectPronoun}, relationship goal(${userGoal}), religion(${user.religion}), political view(${user.politicalView}), bio(${user.bio})`
+  userData = `${userAppearance};\n${userPersona}`
 
   const tags = ['slice of life', 'dating app'].join(', ')
-  const scenario = `Conversation between User and ${character.name} in a dating app`
+  const scenario = `Conversation between ${user.name} ${user.surname} and ${character.name} ${character.surname} in a dating app called "ThisDateDoesNotExist"`
+  const context = `If the ${user.name} ${user.surname} offends ${character.name} ${character.surname}, ${character.name} ${character.surname} can block by typing "/block"`
 
-  const attributes = character.personalityTraits.map((trait) => trait.name).join(', ')
-  const hobbies = character.hobbies.join(', ')
-
-  let persona = `${character.name}'s persona: ${attributes}, hobbies(${hobbies}), ${character.occupation}, ${character.pronoun.subjectPronoun}/${character.pronoun.objectPronoun}, sexuality(${character.sexuality}), relationship goal(${character.relationshipGoal}), religion(${character.religion}), political view(${character.politicalView}), social class(${character.socialClass})`
-
-  if (character.phobia !== undefined) {
-    persona += `, fears(${character.phobia})`
-  }
-
-  return `[${appearance};\nTags: ${tags};\nScenario: ${scenario};\n${persona}]`
+  return `[Tags: ${tags};\nScenario: ${scenario};\n${userData}\n${characterData}\nContext: ${context}]`
 }
 
 export function generateRandomSeed(seed: string): number {
