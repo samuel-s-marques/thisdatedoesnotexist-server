@@ -4,7 +4,7 @@ import Logger from '@ioc:Adonis/Core/Logger'
 import Message from 'App/Models/Message'
 import Chat from 'App/Models/Chat'
 import User from 'App/Models/User'
-import { pListBuilder, promptBuilder } from '../util/util'
+import { promptBuilder } from '../util/util'
 import OobaboogaService from 'Service/OobaboogaService'
 import KoboldService from 'Service/KoboldService'
 WsService.boot()
