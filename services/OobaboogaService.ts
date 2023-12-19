@@ -2,6 +2,7 @@ import Env from '@ioc:Adonis/Core/Env'
 import User from 'App/Models/User'
 import Logger from '@ioc:Adonis/Core/Logger'
 import axios, { AxiosRequestConfig } from 'axios'
+
 export default class OobaboogaService {
   private static instance: OobaboogaService
   private static readonly API_URL = Env.get('OOBABOOGA_API_URL')
@@ -14,7 +15,7 @@ export default class OobaboogaService {
     return OobaboogaService.instance
   }
 
-  public async sendMessage(message: string, character: User) {
+  public async sendMessage(message: string, character: User, user: User) {
     try {
       Logger.info('Sending message to Oobabooga.')
 
@@ -40,7 +41,14 @@ export default class OobaboogaService {
           sampler_order: [6, 0, 1, 3, 4, 2, 5],
           singleline: false,
           ban_eos_token: false,
-          stopping_strings: ['\nUser:', '\nYou:', '\n\n', `\n${character.name}:`],
+          stopping_strings: [
+            `\n${user.name}:`,
+            `\n${user.name} ${user.surname}:`,
+            '\nYou:',
+            '\n\n',
+            `\n${character.name}:`,
+            `\n${character.name} ${character.surname}:`,
+          ],
         },
       }
 
