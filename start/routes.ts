@@ -97,6 +97,10 @@ Route.group(() => {
   }).prefix('/chats')
 
   Route.group(() => {
+    Route.get('/', 'MessagesController.index')
+  }).prefix('/messages')
+
+  Route.group(() => {
     Route.get('/', 'OccupationsController.index')
     Route.get('/:id', 'OccupationsController.show')
   }).prefix('/occupations')
