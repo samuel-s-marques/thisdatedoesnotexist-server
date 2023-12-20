@@ -2,6 +2,7 @@ import Env from '@ioc:Adonis/Core/Env'
 import User from 'App/Models/User'
 import Logger from '@ioc:Adonis/Core/Logger'
 import axios, { AxiosRequestConfig } from 'axios'
+import instructionsJson from '../assets/json/instructions.json'
 
 export default class KoboldService {
   private static instance: KoboldService
@@ -15,9 +16,19 @@ export default class KoboldService {
     return KoboldService.instance
   }
 
-  public async sendMessage(message: string, character: User, user: User) {
+  public async sendMessage(message: string, character: User, user: User, instruction: string) {
     try {
       Logger.info('Sending message to Kobold AI.')
+      const instructions = instructionsJson[instruction]
+
+      const adaptedMessage = message
+        .replace(/\[input_sequence\]/g, instructions.input_sequence)
+        .replace(/\[output_sequence\]/g, instructions.output_sequence)
+        .replace(/\[separator_sequence\]/g, instructions.separator_sequence)
+      const prompt = `${instructions.input_sequence}Write ${character.name} ${character.surname}'s next reply in this fictional roleplay with ${user.name} ${user.surname}.\n${adaptedMessage}`
+
+      console.log(prompt)
+      // console.log(prompt)
 
       const requestOptions: AxiosRequestConfig = {
         method: 'POST',
@@ -26,7 +37,7 @@ export default class KoboldService {
           'Content-Type': 'application/json',
         },
         data: {
-          prompt: message,
+          prompt: prompt,
           use_story: false,
           use_memory: false,
           use_authors_note: false,
@@ -55,6 +66,9 @@ export default class KoboldService {
             '\n\n',
             `\n${character.name}:`,
             `\n${character.name} ${character.surname}:`,
+            instructions.input_sequence,
+            instructions.output_sequence,
+            instructions.separator_sequence,
           ],
         },
       }
