@@ -171,18 +171,18 @@ export function promptBuilder(messages: Message[], character: User, user: User):
     if (message.user_id === user.id) {
       // Check if the last sender was the character and append accordingly
       if (lastSender === 'character') {
-        prompt += `${user.name} ${user.surname}: ${message.content}\n`
+        prompt += `[input_sequence]${user.name} ${user.surname}: ${message.content}[separator_sequence]`
       } else {
-        prompt += `${message.content}\n`
+        prompt += `${message.content}[separator_sequence]`
       }
       // Update the last sender to "user"
       lastSender = 'user'
     } else {
       // Check if the last sender was the user and append accordingly
       if (lastSender === 'user') {
-        prompt += `${character.name} ${character.surname}: ${message.content}\n`
+        prompt += `[output_sequence][separator_sequence]${character.name} ${character.surname}: ${message.content}[separator_sequence]`
       } else {
-        prompt += `${message.content}\n`
+        prompt += `${message.content}[separator_sequence]`
       }
       // Update the last sender to "character"
       lastSender = 'character'
@@ -214,7 +214,7 @@ export function pListBuilder(character: User, user: User): string {
   const characterHobbies = character.hobbies.map((hobby) => hobby.name).join(', ')
   const characterGoal = character.relationshipGoal.name
 
-  let characterPersona = `${character.name} ${character.surname}'s persona: ${characterAttributes}, hobbies(${characterHobbies}), occupation(${character.occupation}), ${character.pronoun.subjectPronoun}/${character.pronoun.objectPronoun}, sexuality(${character.sexuality}), relationship goal(${characterGoal}), religion(${character.religion}), political view(${character.politicalView}), social class(${character.socialClass})`
+  let characterPersona = `${character.name} ${character.surname}'s profile: ${characterAttributes}, hobbies(${characterHobbies}), occupation(${character.occupation}), ${character.pronoun.subjectPronoun}/${character.pronoun.objectPronoun}, sexuality(${character.sexuality}), relationship goal(${characterGoal}), religion(${character.religion}), political view(${character.politicalView}), social class(${character.socialClass})`
 
   if (character.phobia !== null) {
     characterPersona += `, fears(${character.phobia})`
@@ -227,7 +227,7 @@ export function pListBuilder(character: User, user: User): string {
   )}m, ${user.weight.toFixed(2)}kg), country(${user.country}), age(${user.age})`
   const userHobbies = user.hobbies.map((hobby) => hobby.name).join(', ')
   const userGoal = user.relationshipGoal.name
-  const userPersona = `${user.name} ${user.surname}'s persona: hobbies(${userHobbies}), occupation(${user.occupation}), ${user.pronoun.subjectPronoun}/${user.pronoun.objectPronoun}, relationship goal(${userGoal}), religion(${user.religion}), political view(${user.politicalView}), bio(${user.bio})`
+  const userPersona = `${user.name} ${user.surname}'s profile: hobbies(${userHobbies}), occupation(${user.occupation}), ${user.pronoun.subjectPronoun}/${user.pronoun.objectPronoun}, relationship goal(${userGoal}), religion(${user.religion}), political view(${user.politicalView}), bio(${user.bio})`
   userData = `${userAppearance};\n${userPersona}`
 
   const tags = ['slice of life', 'dating app'].join(', ')
