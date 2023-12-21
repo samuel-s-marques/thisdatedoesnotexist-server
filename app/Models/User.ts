@@ -17,6 +17,7 @@ import PersonalityTraitModel from './PersonalityTraitModel'
 import RelationshipGoal from './RelationshipGoal'
 import PronounsModel from './PronounsModel'
 import Swipe from './Swipe'
+import BlockedUser from './BlockedUser'
 
 export default class User extends BaseModel {
   @column({ isPrimary: true })
@@ -152,6 +153,12 @@ export default class User extends BaseModel {
     localKey: 'id',
   })
   public swipes: HasMany<typeof Swipe>
+
+  @hasMany(() => BlockedUser, {
+    foreignKey: 'user_id',
+    localKey: 'id',
+  })
+  public blockedUsers: HasMany<typeof BlockedUser>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
