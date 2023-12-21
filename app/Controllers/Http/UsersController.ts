@@ -289,7 +289,7 @@ export default class UsersController {
     await character.related('relationshipGoal').associate(relationshipGoals)
 
     await new ComfyUiService().sendPrompt(forgedCharacter, character.uid)
-    const bio:string = await textGenApi.generateBio(
+    const bio: string = await textGenApi.generateBio(
       character,
       'mistral',
       forgedHobbies,
