@@ -160,7 +160,7 @@ export default class ComfyUiService {
 
         let history = {}
         let attempts = 0
-        const maxAttempts = 10
+        const maxAttempts = 20
 
         while (Object.keys(history).length === 0 && attempts < maxAttempts) {
           attempts++
