@@ -305,9 +305,6 @@ export default class UsersController {
     const hobbies = await HobbyModel.query().whereIn('name', forgedHobbies)
     const traits = await PersonalityTraitModel.query().whereIn('name', forgedPersonalityTraits)
 
-    // console.log(imagePromptBuilder(forgedCharacter))
-    // console.log(negativeImagePromptBuilder(forgedCharacter.sex))
-
     await createdCharacter.related('hobbies').attach(hobbies.map((hobby) => hobby.id))
     await createdCharacter.related('personalityTraits').attach(traits.map((trait) => trait.id))
 
