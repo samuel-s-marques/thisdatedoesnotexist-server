@@ -89,6 +89,15 @@ WsService.wss.on('connection', (ws) => {
     chat.last_message = finalMessage
     await chat.save()
 
+    if (finalMessage.match(/\/block/g)) {
+      ws.send(
+        JSON.stringify({
+          type: 'system',
+          text: `You have been blocked by ${character.name} ${character.surname}.`,
+        })
+      )
+    }
+
     ws.send(
       JSON.stringify({
         id: uuidv4(),
