@@ -14,6 +14,9 @@ import { AgesModule, CharacterForge } from 'character-forge'
 import PersonalityTraitModel from 'App/Models/PersonalityTraitModel'
 import PronounsModel from 'App/Models/PronounsModel'
 import ComfyUiService from 'Service/ComfyUiService'
+import KoboldService from 'Service/KoboldService'
+
+const textGenApi = new KoboldService()
 
 export default class UsersController {
   public async index(ctx: HttpContextContract) {
@@ -286,6 +289,16 @@ export default class UsersController {
     await character.related('relationshipGoal').associate(relationshipGoals)
 
     await new ComfyUiService().sendPrompt(forgedCharacter, character.uid)
+    const bio:string = await textGenApi.generateBio(
+      character,
+      'mistral',
+      forgedHobbies,
+      forgedPersonalityTraits
+    )
+    character.bio = bio.trim().replace(/^"|"$/g, '')
+
+    console.log(character.bio)
+
     const createdCharacter = await character.save()
 
     const hobbies = await HobbyModel.query().whereIn('name', forgedHobbies)
