@@ -52,7 +52,7 @@ export function imagePromptBuilder(character: Character) {
     'candid shot',
     'full body shot',
     'nighttime',
-    '(from behind)',
+    '(from behind looking at viewer)',
   ]
   const photoType = photoTypes[Math.floor(Math.random() * photoTypes.length)]
 
@@ -214,7 +214,7 @@ export function pListBuilder(character: User, user: User): string {
   const characterHobbies = character.hobbies.map((hobby) => hobby.name).join(', ')
   const characterGoal = character.relationshipGoal.name
 
-  let characterPersona = `${character.name} ${character.surname}'s profile: ${characterAttributes}, hobbies(${characterHobbies}), occupation(${character.occupation}), ${character.pronoun.subjectPronoun}/${character.pronoun.objectPronoun}, sexuality(${character.sexuality}), relationship goal(${characterGoal}), religion(${character.religion}), political view(${character.politicalView}), social class(${character.socialClass})`
+  let characterPersona = `${character.name} ${character.surname}'s profile: ${characterAttributes}, bio(${character.bio}), hobbies(${characterHobbies}), occupation(${character.occupation}), ${character.pronoun.subjectPronoun}/${character.pronoun.objectPronoun}, sexuality(${character.sexuality}), relationship goal(${characterGoal}), religion(${character.religion}), political view(${character.politicalView}), social class(${character.socialClass})`
 
   if (character.phobia !== null) {
     characterPersona += `, fears(${character.phobia})`
@@ -227,7 +227,7 @@ export function pListBuilder(character: User, user: User): string {
   )}m, ${user.weight.toFixed(2)}kg), country(${user.country}), age(${user.age})`
   const userHobbies = user.hobbies.map((hobby) => hobby.name).join(', ')
   const userGoal = user.relationshipGoal.name
-  const userPersona = `${user.name} ${user.surname}'s profile: hobbies(${userHobbies}), occupation(${user.occupation}), ${user.pronoun.subjectPronoun}/${user.pronoun.objectPronoun}, relationship goal(${userGoal}), religion(${user.religion}), political view(${user.politicalView}), bio(${user.bio})`
+  const userPersona = `${user.name} ${user.surname}'s profile: bio(${user.bio}), hobbies(${userHobbies}), occupation(${user.occupation}), ${user.pronoun.subjectPronoun}/${user.pronoun.objectPronoun}, relationship goal(${userGoal}), religion(${user.religion}), political view(${user.politicalView}), bio(${user.bio})`
   userData = `${userAppearance};\n${userPersona}`
 
   const tags = ['slice of life', 'dating app'].join(', ')
