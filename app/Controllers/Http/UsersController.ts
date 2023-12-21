@@ -15,6 +15,7 @@ import PersonalityTraitModel from 'App/Models/PersonalityTraitModel'
 import PronounsModel from 'App/Models/PronounsModel'
 import ComfyUiService from 'Service/ComfyUiService'
 import KoboldService from 'Service/KoboldService'
+import Env from '@ioc:Adonis/Core/Env';
 
 const textGenApi = new KoboldService()
 
@@ -291,7 +292,7 @@ export default class UsersController {
     await new ComfyUiService().sendPrompt(forgedCharacter, character.uid)
     const bio: string = await textGenApi.generateBio(
       character,
-      'mistral',
+      Env.get('MODEL_INSTRUCTIONS_TYPE'),
       forgedHobbies,
       forgedPersonalityTraits
     )
