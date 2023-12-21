@@ -8,6 +8,7 @@ import { promptBuilder } from '../util/util'
 import OobaboogaService from 'Service/OobaboogaService'
 import KoboldService from 'Service/KoboldService'
 import Env from '@ioc:Adonis/Core/Env'
+import BlockedUser from 'App/Models/BlockedUser'
 WsService.boot()
 
 const textGenApi = new KoboldService()
@@ -90,6 +91,11 @@ WsService.wss.on('connection', (ws) => {
     await chat.save()
 
     if (finalMessage.match(/\/block/g)) {
+      await character.related('blockedUsers').create({
+        blocked_user_id: user.id,
+        user_id: character.id,
+      })
+
       ws.send(
         JSON.stringify({
           type: 'system',
