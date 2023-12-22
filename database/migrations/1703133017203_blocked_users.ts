@@ -1,14 +1,13 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 
 export default class extends BaseSchema {
-  protected tableName = 'swipes'
+  protected tableName = 'blocked_users'
 
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      table.integer('swiper_id').unsigned().references('users.id').onDelete('CASCADE')
-      table.integer('target_id').unsigned().references('users.id').onDelete('CASCADE')
-      table.enum('direction', ['left', 'right']).notNullable()
+      table.integer('user_id').unsigned().references('users.id').onDelete('CASCADE')
+      table.integer('blocked_user_id').unsigned().references('users.id').onDelete('CASCADE')
 
       table.timestamps(true, true)
     })

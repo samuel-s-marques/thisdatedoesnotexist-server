@@ -1,0 +1,17 @@
+{
+  "mistral": {
+    "input_sequence": "[INST] ",
+    "output_sequence": " [/INST]",
+    "separator_sequence": "\n"
+  },
+  "alpaca": {
+    "input_sequence": "### Instruction:",
+    "output_sequence": "### Response:",
+    "separator_sequence": ""
+  },
+  "openchat": {
+    "input_sequence": "",
+    "output_sequence": "<|end_of_turn|>\n",
+    "separator_sequence": "<|end_of_turn|>\n"
+  }
+}
