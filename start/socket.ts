@@ -57,7 +57,15 @@ WsService.wss.on('connection', (ws) => {
       .first()
 
     if (blockedUsers) {
-      return;
+      ws.send(
+        JSON.stringify({
+          type: 'system',
+          status: 'error',
+          message: `You have been blocked by ${character.name} ${character.surname}. You cannot send messages to this character anymore.`,
+        })
+      )
+
+      return
     }
 
     let messageModel = new Message()
@@ -106,7 +114,8 @@ WsService.wss.on('connection', (ws) => {
       ws.send(
         JSON.stringify({
           type: 'system',
-          text: `You have been blocked by ${character.name} ${character.surname}.`,
+          status: 'error',
+          message: `You have been blocked by ${character.name} ${character.surname}. You cannot send messages to this character anymore.`,
         })
       )
     }
