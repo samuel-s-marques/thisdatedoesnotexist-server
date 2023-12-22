@@ -118,6 +118,8 @@ WsService.wss.on('connection', (ws) => {
           message: `You have been blocked by ${character.name} ${character.surname}. You cannot send messages to this character anymore.`,
         })
       )
+
+      return;
     }
 
     ws.send(
