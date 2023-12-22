@@ -9,6 +9,7 @@ import OobaboogaService from 'Service/OobaboogaService'
 import KoboldService from 'Service/KoboldService'
 import Env from '@ioc:Adonis/Core/Env'
 import BlockedUser from 'App/Models/BlockedUser'
+import { WebSocket } from 'ws'
 WsService.boot()
 
 const textGenApi = new KoboldService()
@@ -35,102 +36,116 @@ WsService.wss.on('connection', (ws) => {
   })
 
   ws.on('message', async (data, isBinary) => {
-    const message = isBinary ? data : JSON.parse(data.toString())
-
-    const character = await User.query()
-      .where('uid', message.roomId)
-      .preload('hobbies')
-      .preload('personalityTraits')
-      .preload('pronoun')
-      .preload('relationshipGoal')
-      .firstOrFail()
-    const chat = await Chat.query().where('character_id', character.id).firstOrFail()
-    const user = await User.query()
-      .where('uid', message.author.id)
-      .preload('hobbies')
-      .preload('pronoun')
-      .preload('relationshipGoal')
-      .firstOrFail()
-    const blockedUsers = await BlockedUser.query()
-      .where('user_id', character.id)
-      .andWhere('blocked_user_id', user.id)
-      .first()
-
-    if (blockedUsers) {
+    try {
+      const message = isBinary ? data : JSON.parse(data.toString())
+      await processMessage(ws, message)
+    } catch (error) {
+      Logger.error(`Client ${id} error: ${error}`)
       ws.send(
         JSON.stringify({
           type: 'system',
           status: 'error',
-          message: `You have been blocked by ${character.name} ${character.surname}. You cannot send messages to this character anymore.`,
+          message: 'Something went wrong. Please try again.',
         })
       )
-
-      return
     }
+  })
+})
 
-    let messageModel = new Message()
-    await messageModel.related('chat').associate(chat)
-    await messageModel.related('user').associate(user)
-    messageModel.content = message.text
-    await messageModel.save()
+async function processMessage(ws: WebSocket, message: any) {
+  const character = await User.query()
+    .where('uid', message.roomId)
+    .preload('hobbies')
+    .preload('personalityTraits')
+    .preload('pronoun')
+    .preload('relationshipGoal')
+    .firstOrFail()
+  const chat = await Chat.query().where('character_id', character.id).firstOrFail()
+  const user = await User.query()
+    .where('uid', message.author.id)
+    .preload('hobbies')
+    .preload('pronoun')
+    .preload('relationshipGoal')
+    .firstOrFail()
+  const blockedUsers = await BlockedUser.query()
+    .where('user_id', character.id)
+    .andWhere('blocked_user_id', user.id)
+    .first()
 
-    chat.last_message = message.text
-    await chat.save()
-
-    const messagesCountQuery = await Message.query().count('* as total').where('chat_id', chat.id)
-    const messagesCount = messagesCountQuery[0].$extras.total
-    const offset = Math.max(messagesCount - 5, 0)
-
-    const messages = await Message.query()
-      .where('chat_id', chat.id)
-      .preload('user')
-      .orderBy('id', 'asc')
-      .offset(offset)
-      .limit(5)
-    const prompt = promptBuilder(messages, character, user)
-    const aiResponse = await textGenApi.sendMessage(
-      prompt,
-      character,
-      user,
-      Env.get('MODEL_INSTRUCTIONS_TYPE')
-    )
-    const finalMessage = messageCleaner(aiResponse!.trim(), character, user)
-
-    messageModel = new Message()
-    await messageModel.related('chat').associate(chat)
-    await messageModel.related('user').associate(character)
-    messageModel.content = finalMessage
-    await messageModel.save()
-
-    chat.last_message = finalMessage
-    await chat.save()
-
-    if (finalMessage.match(/\/block/g)) {
-      await character.related('blockedUsers').create({
-        blocked_user_id: user.id,
-        user_id: character.id,
+  if (blockedUsers) {
+    ws.send(
+      JSON.stringify({
+        type: 'system',
+        status: 'error',
+        message: `You have been blocked by ${character.name} ${character.surname}. You cannot send messages to this character anymore.`,
       })
+    )
 
-      ws.send(
-        JSON.stringify({
-          type: 'system',
-          status: 'error',
-          message: `You have been blocked by ${character.name} ${character.surname}. You cannot send messages to this character anymore.`,
-        })
-      )
+    return
+  }
 
-      return;
-    }
+  let messageModel = new Message()
+  await messageModel.related('chat').associate(chat)
+  await messageModel.related('user').associate(user)
+  messageModel.content = message.text
+  await messageModel.save()
+
+  chat.last_message = message.text
+  await chat.save()
+
+  const messagesCountQuery = await Message.query().count('* as total').where('chat_id', chat.id)
+  const { total: messagesCount } = messagesCountQuery[0].$extras
+  const offset = Math.max(messagesCount - 5, 0)
+
+  const messages = await Message.query()
+    .where('chat_id', chat.id)
+    .preload('user')
+    .orderBy('id', 'asc')
+    .offset(offset)
+    .limit(5)
+  const prompt = promptBuilder(messages, character, user)
+  const aiResponse = await textGenApi.sendMessage(
+    prompt,
+    character,
+    user,
+    Env.get('MODEL_INSTRUCTIONS_TYPE')
+  )
+  const finalMessage = messageCleaner(aiResponse!.trim(), character, user)
+
+  messageModel = new Message()
+  await messageModel.related('chat').associate(chat)
+  await messageModel.related('user').associate(character)
+  messageModel.content = finalMessage
+  await messageModel.save()
+
+  chat.last_message = finalMessage
+  await chat.save()
+
+  if (finalMessage.match(/\/block/g)) {
+    await character.related('blockedUsers').create({
+      blocked_user_id: user.id,
+      user_id: character.id,
+    })
 
     ws.send(
       JSON.stringify({
-        id: uuidv4(),
-        type: 'text',
-        text: finalMessage,
-        createdAt: new Date().getTime(),
-        updatedAt: new Date().getTime(),
-        author: { id: character.uid },
+        type: 'system',
+        status: 'error',
+        message: `You have been blocked by ${character.name} ${character.surname}. You cannot send messages to this character anymore.`,
       })
     )
-  })
-})
+
+    return
+  }
+
+  ws.send(
+    JSON.stringify({
+      id: uuidv4(),
+      type: 'text',
+      text: finalMessage,
+      createdAt: new Date().getTime(),
+      updatedAt: new Date().getTime(),
+      author: { id: character.uid },
+    })
+  )
+}
