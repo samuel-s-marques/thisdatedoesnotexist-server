@@ -36,7 +36,6 @@ WsService.wss.on('connection', (ws) => {
 
   ws.on('message', async (data, isBinary) => {
     const message = isBinary ? data : JSON.parse(data.toString())
-    Logger.info(`Client ${id} sent: ${message}`)
 
     const character = await User.query()
       .where('uid', message.roomId)
@@ -52,6 +51,14 @@ WsService.wss.on('connection', (ws) => {
       .preload('pronoun')
       .preload('relationshipGoal')
       .firstOrFail()
+    const blockedUsers = await BlockedUser.query()
+      .where('user_id', character.id)
+      .andWhere('blocked_user_id', user.id)
+      .first()
+
+    if (blockedUsers) {
+      return;
+    }
 
     let messageModel = new Message()
     await messageModel.related('chat').associate(chat)
