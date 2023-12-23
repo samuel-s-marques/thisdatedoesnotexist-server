@@ -16,6 +16,8 @@ import PronounsModel from 'App/Models/PronounsModel'
 import ComfyUiService from 'Service/ComfyUiService'
 import KoboldService from 'Service/KoboldService'
 import Env from '@ioc:Adonis/Core/Env';
+import NSFWDetectionService from 'Service/NSFWDetectionService'
+import fs from 'fs';
 
 const textGenApi = new KoboldService()
 
@@ -418,5 +420,41 @@ export default class UsersController {
     } catch (error) {
       return ctx.response.status(400).json({ error: 'Error deleting user' })
     }
+  }
+
+  public async checkNsfwDetection({ request, response }: HttpContextContract) {
+    const nsfwService = await NSFWDetectionService.getInstance()
+
+    const profileImage = request.file('profile_image', {
+      size: '2mb',
+      extnames: ['jpg', 'png', 'jpeg'],
+    })
+
+    if (!profileImage) {
+      return response.status(400).json({ error: 'No file provided' })
+    }
+
+    if (!profileImage.isValid) {
+      return response.status(400).json({ error: profileImage.errors })
+    }
+
+    const imageName = uuidv4() + '.' + profileImage.extname
+    await profileImage.move(Application.tmpPath('uploads'), {
+      name: imageName,
+      overwrite: true,
+    })
+
+    const imagePath = Application.tmpPath('uploads', imageName)
+    const predictions = await nsfwService.classify(imagePath)
+    const isNsfw = predictions.find(
+      (prediction) => prediction.className === 'Porn' && prediction.probability > 0.6
+    )
+    fs.unlinkSync(imagePath)
+
+    if (isNsfw) {
+      return response.status(400).json({ error: 'NSFW image' })
+    }
+
+    return response.send({ success: true })
   }
 }
