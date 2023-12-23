@@ -105,9 +105,7 @@ Route.group(() => {
     Route.get('/:id', 'OccupationsController.show')
   }).prefix('/occupations')
 
-  Route.group(() => {
-    Route.post('/', 'ImagesController.store')
-  }).prefix('/uploads')
+  Route.post('/users/upload', 'UsersController.checkNsfwDetection')
 }).prefix('/api')
 
 Route.get('/uploads/:filename', 'UploadsController.show')
