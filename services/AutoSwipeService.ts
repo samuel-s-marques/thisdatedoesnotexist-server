@@ -63,7 +63,7 @@ export default class AutoSwipeService {
     return await axios(requestOptions)
   }
 
-  public async likeProfiles() {
+  public async swipeProfiles() {
     try {
       const users: User[] = await this.getUserProfilesFromDatabase()
       const characters: User[] = await this.getCharacterProfilesFromDatabase()
