@@ -45,7 +45,7 @@ export default class AutoSwipeService {
             .from('swipes')
             .where('target_id', user_id)
             .where('direction', 'right')
-            .where('direction', 'left')
+            .orWhere('direction', 'left')
         })
 
       return characters
