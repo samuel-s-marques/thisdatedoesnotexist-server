@@ -123,7 +123,7 @@ export default class AutoSwipeService {
             .where('target_id', user.id)
             .first()
           if (swipeExists) {
-            Logger.info('Swipe already exists. Skipping.')
+            Logger.info(`Swipe from ${id} to ${user.id} already exists. Skipping.`)
             continue
           }
 
@@ -140,7 +140,7 @@ export default class AutoSwipeService {
             notificationService.sendNotification('like', user.uid, character.name)
           }
           Logger.info(
-            `${character.name} swiped ${swipe.direction} on ${user.name}. Their score: ${score}`
+            `${character.name} (${character.uid}) swiped ${swipe.direction} on ${user.name}. Their score: ${score}`
           )
         }
       }
