@@ -47,6 +47,22 @@ export default class AutoSwipeService {
     }
   }
 
+  private async makeApiRequest(user: User, profilesJson: any) {
+    const requestOptions: AxiosRequestConfig = {
+      method: 'POST',
+      url: `${AutoSwipeService.API_URL}/find-similar-profiles`,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: {
+        user: user,
+        profiles: profilesJson,
+      },
+    }
+
+    return await axios(requestOptions)
+  }
+
   public async likeProfiles() {
     try {
       const users: User[] = await this.getUserProfilesFromDatabase()
@@ -64,22 +80,14 @@ export default class AutoSwipeService {
 
       const charactersJson = characters.map((character) => character.toJSON())
 
-      for (let index = 0; index <= users.length; index++) {
-        const user: User = users[index]
+      const responses = await Promise.all(
+        users.map(async (user) => {
+          const response = await this.makeApiRequest(user, charactersJson)
+          return { user, response }
+        })
+      )
 
-        const requestOptions: AxiosRequestConfig = {
-          method: 'POST',
-          url: `${AutoSwipeService.API_URL}/find-similar-profiles`,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          data: {
-            user: user,
-            profiles: charactersJson,
-          },
-        }
-
-        const response = await axios(requestOptions)
+      for (const { user, response } of responses) {
         Logger.info('Got response from Profile Suggester API.')
         const suggestedProfiles = response.data.suggested_profiles
 
