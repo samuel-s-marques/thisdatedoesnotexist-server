@@ -85,7 +85,7 @@ export default class AutoSwipeService {
 
         if (!suggestedProfiles || suggestedProfiles.length === 0) {
           Logger.info('No suggested profiles found.')
-          break
+          continue
         }
 
         Logger.info('Profiles found.')
@@ -97,8 +97,16 @@ export default class AutoSwipeService {
         ) {
           const { id, score } = suggestedProfiles[profile_index]
 
-          const character: User = await User.findByOrFail('id', id)
+          const swipeExists = await Swipe.query()
+            .where('swiper_id', id)
+            .where('target_id', user.id)
+            .first()
+          if (swipeExists) {
+            Logger.info('Swipe already exists. Skipping.')
+            continue
+          }
 
+          const character: User = await User.findByOrFail('id', id)
           const swipe = new Swipe()
 
           swipe.direction = score > 0.5 ? 'right' : 'left'
@@ -109,7 +117,9 @@ export default class AutoSwipeService {
           if (swipe.direction === 'right') {
             notificationService.sendNotification('like', user.uid, character.name)
           }
-          Logger.info(`${character.name} swiped ${swipe.direction} on ${user.name}. Their score: ${score}`)
+          Logger.info(
+            `${character.name} swiped ${swipe.direction} on ${user.name}. Their score: ${score}`
+          )
         }
       }
     } catch (error) {
