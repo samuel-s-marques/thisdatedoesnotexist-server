@@ -90,6 +90,7 @@ Route.group(() => {
   Route.group(() => {
     Route.post('/', 'SwipesController.store')
     Route.get('/', 'SwipesController.index')
+    Route.get('/user', 'SwipesController.indexSwipes')
   }).prefix('/swipes')
 
   Route.group(() => {
