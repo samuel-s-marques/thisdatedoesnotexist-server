@@ -81,9 +81,7 @@ export default class AutoSwipeService {
 
         const response = await axios(requestOptions)
         Logger.info('Got response from Profile Suggester API.')
-        // todo: fix this
         const suggestedProfiles = response.data.suggested_profiles
-        console.log(suggestedProfiles)
 
         if (!suggestedProfiles || suggestedProfiles.length === 0) {
           Logger.info('No suggested profiles found.')
