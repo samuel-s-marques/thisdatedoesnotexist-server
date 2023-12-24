@@ -21,7 +21,11 @@ export default class AutoSwipeService {
 
   private async getUserProfilesFromDatabase(): Promise<User[]> {
     try {
-      const users: User[] = await User.query().where('type', 'user')
+      const users: User[] = await User.query()
+        .where('type', 'user')
+        .preload('hobbies')
+        .preload('relationshipGoal')
+
       return users
     } catch (error) {
       Logger.error('Error getting user profiles from Database: ', error)
@@ -31,7 +35,11 @@ export default class AutoSwipeService {
 
   private async getCharacterProfilesFromDatabase(): Promise<User[]> {
     try {
-      const users: User[] = await User.query().where('type', 'character')
+      const users: User[] = await User.query()
+        .where('type', 'character')
+        .preload('hobbies')
+        .preload('relationshipGoal')
+
       return users
     } catch (error) {
       Logger.error('Error getting character profiles from Database: ', error)
@@ -43,10 +51,18 @@ export default class AutoSwipeService {
     try {
       const users: User[] = await this.getUserProfilesFromDatabase()
       const characters: User[] = await this.getCharacterProfilesFromDatabase()
+
       if (users.length === 0) {
         Logger.error('No users found in database.')
         return
       }
+
+      if (characters.length === 0) {
+        Logger.error('No characters found in database.')
+        return
+      }
+
+      const charactersJson = characters.map((character) => character.toJSON())
 
       for (let index = 0; index <= users.length; index++) {
         const user: User = users[index]
@@ -59,17 +75,18 @@ export default class AutoSwipeService {
           },
           data: {
             user: user,
-            profiles: characters,
+            profiles: charactersJson,
           },
         }
 
         const response = await axios(requestOptions)
         Logger.info('Got response from Profile Suggester API.')
-        const parsedJson = JSON.parse(response.data)
-        const suggestedProfiles = parsedJson.suggestedProfiles
+        // todo: fix this
+        const suggestedProfiles = response.data.suggested_profiles
+        console.log(suggestedProfiles)
 
-        if (suggestedProfiles.length === 0) {
-          Logger.info('No profiles found.')
+        if (!suggestedProfiles || suggestedProfiles.length === 0) {
+          Logger.info('No suggested profiles found.')
           break
         }
 
@@ -77,12 +94,13 @@ export default class AutoSwipeService {
 
         for (
           let profile_index = 0;
-          profile_index < Math.min(3, suggestedProfiles.length);
+          profile_index < Math.min(10, suggestedProfiles.length);
           profile_index++
         ) {
           const { id, score } = suggestedProfiles[profile_index]
 
           const character: User = await User.findByOrFail('id', id)
+
           const swipe = new Swipe()
 
           swipe.direction = score > 0.5 ? 'right' : 'left'
@@ -93,11 +111,11 @@ export default class AutoSwipeService {
           if (swipe.direction === 'right') {
             notificationService.sendNotification('like', user.uid, character.name)
           }
-
-          Logger.info(`${character.name} swiped ${swipe.direction} on ${user.name}.`)
+          Logger.info(`${character.name} swiped ${swipe.direction} on ${user.name}. Their score: ${score}`)
         }
       }
     } catch (error) {
+      console.log(error)
       Logger.error('Error liking profiles: ', error)
     }
   }
