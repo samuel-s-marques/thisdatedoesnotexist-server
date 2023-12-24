@@ -2,7 +2,7 @@ import Env from '@ioc:Adonis/Core/Env'
 import Logger from '@ioc:Adonis/Core/Logger'
 import Swipe from 'App/Models/Swipe'
 import User from 'App/Models/User'
-import axios, { AxiosRequestConfig } from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import NotificationService from './NotificationService'
 
 const notificationService: NotificationService = new NotificationService()
@@ -33,15 +33,24 @@ export default class AutoSwipeService {
     }
   }
 
-  private async getCharacterProfilesFromDatabase(): Promise<User[]> {
+  private async getCharacterProfilesFromDatabase(user_id: number): Promise<User[]> {
     try {
-      const users: User[] = await User.query()
+      const characters: User[] = await User.query()
         .where('type', 'character')
         .preload('hobbies')
         .preload('relationshipGoal')
+        .whereNotIn('id', (query) => {
+          query
+            .select('swiper_id')
+            .from('swipes')
+            .where('target_id', user_id)
+            .where('direction', 'right')
+            .where('direction', 'left')
+        })
 
-      return users
+      return characters
     } catch (error) {
+      console.log(error)
       Logger.error('Error getting character profiles from Database: ', error)
       return []
     }
@@ -66,28 +75,32 @@ export default class AutoSwipeService {
   public async swipeProfiles() {
     try {
       const users: User[] = await this.getUserProfilesFromDatabase()
-      const characters: User[] = await this.getCharacterProfilesFromDatabase()
 
       if (users.length === 0) {
         Logger.error('No users found in database.')
         return
       }
 
-      if (characters.length === 0) {
-        Logger.error('No characters found in database.')
-        return
-      }
-
-      const charactersJson = characters.map((character) => character.toJSON())
-
       const responses = await Promise.all(
         users.map(async (user) => {
+          const characters: User[] = await this.getCharacterProfilesFromDatabase(user.id)
+
+          if (characters.length === 0) {
+            Logger.error(`No characters found in database for user ${user.name}.`)
+            return
+          }
+
+          const charactersJson = characters.map((character) => character.toJSON())
           const response = await this.makeApiRequest(user, charactersJson)
           return { user, response }
         })
       )
 
-      for (const { user, response } of responses) {
+      const validResponses = responses.filter(
+        (response): response is { user: User; response: AxiosResponse } => response !== undefined
+      )
+
+      for (const { user, response } of validResponses) {
         Logger.info('Got response from Profile Suggester API.')
         const suggestedProfiles = response.data.suggested_profiles
 
@@ -116,8 +129,9 @@ export default class AutoSwipeService {
 
           const character: User = await User.findByOrFail('id', id)
           const swipe = new Swipe()
+          const randomScoreThreshold = 0.4 + Math.random() * 0.2
 
-          swipe.direction = score > 0.5 ? 'right' : 'left'
+          swipe.direction = score > randomScoreThreshold ? 'right' : 'left'
           await swipe.related('swiper').associate(character)
           await swipe.related('target').associate(user)
           await swipe.save()
