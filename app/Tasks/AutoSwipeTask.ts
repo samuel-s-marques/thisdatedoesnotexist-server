@@ -6,7 +6,7 @@ export default class AutoSwipeTask extends BaseTask {
 
   public static get schedule() {
     // Use CronTimeV2 generator:
-    return CronTimeV2.everyWeek()
+    return CronTimeV2.everyHour()
     // or just use return cron-style string (simple cron editor: crontab.guru)
   }
   /**
@@ -20,7 +20,7 @@ export default class AutoSwipeTask extends BaseTask {
   public async handle() {
     this.autoSwipeService = new AutoSwipeService()
     await new Promise(() => {
-      this.autoSwipeService.likeProfiles()
+      this.autoSwipeService.swipeProfiles()
       this.logger.info('AutoSwipe completed.')
     })
   }
