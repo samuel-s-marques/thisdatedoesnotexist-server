@@ -94,11 +94,13 @@ export default class KoboldService {
       instructions.output_sequence
     }${instructions.separator_sequence}${
       instructions.input_sequence
-    } User: Generate a first-person short Tinder bio for a ${character.sex} ${
+    } User: Write a Tinder bio for ${character.name}.\n${character.name} is a ${
       character.occupation
-    } who is ${personality_traits.formattedJoin()} and loves ${hobbies.formattedJoin()}. Name is ${
+    }. ${character.name}'s hobbies are: ${hobbies.formattedJoin()}.\n${
       character.name
-    } ${character.surname}. ${instructions.output_sequence}${
+    }'s personality traits are: ${personality_traits.formattedJoin()}.\n\nYou can be informal. You can use emojis. You can use internet language. You must act like ${
+      character.name
+    } and use the personality traits to write the bio. ${instructions.output_sequence}${
       instructions.separator_sequence
     }Assistant:`
 
