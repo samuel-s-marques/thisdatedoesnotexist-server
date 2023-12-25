@@ -19,14 +19,14 @@ export default class NotificationService {
     return NotificationService.instance
   }
 
-  public async sendNotification(type: string, userUid: string, characterName: string) {
+  public async sendNotification(type: string, userUid: string, character: User) {
     const notification = new OneSignal.Notification()
     notification.app_id = this.oneSignalAppId
     notification.headings = {
       en: this.getRandomNotification('en', type)!.title,
     }
     notification.contents = {
-      en: this.getRandomNotification('en', type)!.content.replace('[name]', characterName),
+      en: this.getRandomNotification('en', type)!.content.replace('[name]', character.name),
     }
     notification.include_external_user_ids = [userUid]
 
@@ -37,6 +37,7 @@ export default class NotificationService {
     await createdNotification.related('user').associate(user)
     createdNotification.title = notification.headings.en!
     createdNotification.subtitle = notification.contents.en!
+    createdNotification.image = `characters/${character.uid}.png`
     await createdNotification.save()
   }
 
