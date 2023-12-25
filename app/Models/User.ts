@@ -18,6 +18,7 @@ import RelationshipGoal from './RelationshipGoal'
 import PronounsModel from './PronounsModel'
 import Swipe from './Swipe'
 import BlockedUser from './BlockedUser'
+import Notification from './Notification'
 
 export default class User extends BaseModel {
   @column({ isPrimary: true })
@@ -153,6 +154,9 @@ export default class User extends BaseModel {
     localKey: 'id',
   })
   public swipes: HasMany<typeof Swipe>
+
+  @hasMany(() => Notification, { foreignKey: 'user_id', localKey: 'id' })
+  public notifications: HasMany<typeof Notification>
 
   @hasMany(() => BlockedUser, {
     foreignKey: 'user_id',
