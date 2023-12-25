@@ -46,7 +46,7 @@ export default class SwipesController {
         })
 
         if (isCharacter) {
-          notificationService.sendNotification('match', target.uid, swiper.name)
+          await notificationService.sendNotification('match', target.uid, swiper.name)
         }
 
         return
