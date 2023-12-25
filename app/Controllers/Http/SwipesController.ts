@@ -82,27 +82,4 @@ export default class SwipesController {
       return ctx.response.status(400).json({ error: error.message })
     }
   }
-
-  public async indexSwipes(ctx: HttpContextContract) {
-    try {
-      const page = ctx.request.input('page', 1)
-      const searchQuery = ctx.request.qs()
-      const uid = searchQuery.uid
-
-      if (!uid) {
-        return ctx.response.status(400).json({ error: 'User ID is required.' })
-      }
-
-      const user = await User.query().where('uid', uid).firstOrFail()
-      const swipes = await Swipe.query()
-        .where('target_id', user.id)
-        .where('direction', 'right')
-        .preload('swiper')
-        .paginate(page, 40)
-
-      return swipes
-    } catch (error) {
-      return ctx.response.status(400).json({ error: error.message })
-    }
-  }
 }
