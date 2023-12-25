@@ -3,6 +3,8 @@ import Env from '@ioc:Adonis/Core/Env'
 import Application from '@ioc:Adonis/Core/Application'
 import Logger from '@ioc:Adonis/Core/Logger'
 import notificationsJson from '../assets/json/notifications.json'
+import Notification from 'App/Models/Notification'
+import User from 'App/Models/User'
 
 export default class NotificationService {
   private static instance: NotificationService
@@ -17,12 +19,11 @@ export default class NotificationService {
     return NotificationService.instance
   }
 
-  public sendNotification(type: string, userUid: string, characterName: string) {
+  public async sendNotification(type: string, userUid: string, characterName: string) {
     const notification = new OneSignal.Notification()
     notification.app_id = this.oneSignalAppId
     notification.headings = {
       en: this.getRandomNotification('en', type)!.title,
-      pt: this.getRandomNotification('pt', type)!.title,
     }
     notification.contents = {
       en: this.getRandomNotification('en', type)!.content.replace('[name]', characterName),
@@ -30,6 +31,13 @@ export default class NotificationService {
     notification.include_external_user_ids = [userUid]
 
     this.oneSignal.createNotification(notification)
+    const user: User = await User.findByOrFail('uid', userUid)
+
+    const createdNotification = new Notification()
+    await createdNotification.related('user').associate(user)
+    createdNotification.title = notification.headings.en!
+    createdNotification.subtitle = notification.contents.en!
+    await createdNotification.save()
   }
 
   private getRandomElement(array: any[]) {
