@@ -137,7 +137,7 @@ export default class AutoSwipeService {
           await swipe.save()
 
           if (swipe.direction === 'right') {
-            notificationService.sendNotification('like', user.uid, character.name)
+            await notificationService.sendNotification('like', user.uid, character.name)
           }
           Logger.info(
             `${character.name} (${character.uid}) swiped ${swipe.direction} on ${user.name}. Their score: ${score}`
