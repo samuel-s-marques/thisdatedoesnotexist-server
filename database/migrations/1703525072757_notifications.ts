@@ -9,6 +9,7 @@ export default class extends BaseSchema {
       table.integer('user_id').unsigned().references('users.id').onDelete('CASCADE')
       table.string('title').notNullable()
       table.string('subtitle').notNullable()
+      table.string('image').nullable()
 
       table.timestamps(true, true)
     })
