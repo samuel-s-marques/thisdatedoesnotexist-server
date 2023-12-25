@@ -1,4 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Chat from 'App/Models/Chat'
 import Swipe from 'App/Models/Swipe'
 import User from 'App/Models/User'
 
@@ -17,6 +18,21 @@ export default class SwipesController {
 
       if (existingSwipe) {
         return response.status(400).json({ error: 'Swipe already exists.' })
+      }
+
+      const reciprocalSwipe = await Swipe.query()
+        .where('target_id', swiper.id)
+        .where('swiper_id', target.id)
+        .where('direction', 'right')
+        .first()
+
+      if (reciprocalSwipe) {
+        await Chat.create({
+          user_id: swiper.id,
+          character_id: target.id,
+        })
+
+        return
       }
 
       const swipe = new Swipe()
