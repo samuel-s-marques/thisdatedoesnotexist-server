@@ -1,9 +1,11 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Notification from 'App/Models/Notification'
 import User from 'App/Models/User'
 
 export default class NotificationsController {
   public async index({ request, response }: HttpContextContract) {
     try {
+      const page = request.input('page', 1)
       const searchQuery = request.qs()
       const uid = searchQuery.uid
 
@@ -12,11 +14,7 @@ export default class NotificationsController {
       }
 
       const user = await User.findByOrFail('uid', uid)
-      const notifications = await user
-        .related('notifications')
-        .query()
-        .orderBy('created_at', 'desc')
-        .paginate(40)
+      const notifications = await Notification.query().where('user_id', user.id).paginate(page, 40)
 
       return notifications
     } catch (error) {
