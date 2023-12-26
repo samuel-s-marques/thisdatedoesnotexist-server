@@ -4,6 +4,7 @@ import Swipe from 'App/Models/Swipe'
 import User from 'App/Models/User'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import NotificationService from './NotificationService'
+import Chat from 'App/Models/Chat'
 
 const notificationService: NotificationService = new NotificationService()
 
@@ -117,17 +118,36 @@ export default class AutoSwipeService {
           profile_index++
         ) {
           const { id, score } = suggestedProfiles[profile_index]
+          const character: User = await User.findByOrFail('id', id)
 
           const swipeExists = await Swipe.query()
-            .where('swiper_id', id)
+            .where('swiper_id', character.id)
             .where('target_id', user.id)
             .first()
           if (swipeExists) {
-            Logger.info(`Swipe from ${id} to ${user.id} already exists. Skipping.`)
+            Logger.info(`Swipe from ${character.id} to ${user.id} already exists. Skipping.`)
             continue
           }
 
-          const character: User = await User.findByOrFail('id', id)
+          const reciprocalSwipe = await Swipe.query()
+            .where('target_id', user.id)
+            .where('swiper_id', id)
+            .where('direction', 'right')
+            .first()
+
+          if (reciprocalSwipe) {
+            await Chat.create({
+              user_id: user.id,
+              character_id: id,
+            })
+
+            await notificationService.sendNotification('match', user.uid, character)
+            Logger.info(
+              `${character.name} (${character.uid}) and ${user.name} (${user.uid}) matched.`
+            )
+            continue
+          }
+
           const swipe = new Swipe()
           const randomScoreThreshold = 0.4 + Math.random() * 0.2
 
@@ -137,7 +157,7 @@ export default class AutoSwipeService {
           await swipe.save()
 
           if (swipe.direction === 'right') {
-            await notificationService.sendNotification('like', user.uid, character.name)
+            await notificationService.sendNotification('like', user.uid, character)
           }
           Logger.info(
             `${character.name} (${character.uid}) swiped ${swipe.direction} on ${user.name}. Their score: ${score}`
