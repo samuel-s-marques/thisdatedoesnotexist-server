@@ -1,10 +1,7 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Chat from 'App/Models/Chat'
 import Swipe from 'App/Models/Swipe'
 import User from 'App/Models/User'
-import Chat from 'App/Models/Chat'
-import NotificationService from 'Service/NotificationService'
-
-const notificationService: NotificationService = new NotificationService()
 
 export default class SwipesController {
   public async store({ request, response }: HttpContextContract) {
@@ -23,16 +20,6 @@ export default class SwipesController {
         return response.status(400).json({ error: 'Swipe already exists.' })
       }
 
-      const swipe = new Swipe()
-
-      swipe.direction = direction
-      await swipe.related('swiper').associate(swiper)
-      await swipe.related('target').associate(target)
-
-      await swipe.save()
-
-      const isCharacter: boolean = swiper.type == 'character'
-
       const reciprocalSwipe = await Swipe.query()
         .where('target_id', swiper.id)
         .where('swiper_id', target.id)
@@ -41,16 +28,20 @@ export default class SwipesController {
 
       if (reciprocalSwipe) {
         await Chat.create({
-          user_id: isCharacter ? target.id : swiper.id,
-          character_id: isCharacter ? swiper.id : target.id,
+          user_id: swiper.id,
+          character_id: target.id,
         })
-
-        if (isCharacter) {
-          notificationService.sendNotification('match', target.uid, swiper.name)
-        }
 
         return
       }
+
+      const swipe = new Swipe()
+
+      swipe.direction = direction
+      await swipe.related('swiper').associate(swiper)
+      await swipe.related('target').associate(target)
+
+      await swipe.save()
 
       return swipe
     } catch (error) {

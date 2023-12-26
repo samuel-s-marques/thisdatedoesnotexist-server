@@ -102,6 +102,10 @@ Route.group(() => {
   }).prefix('/messages')
 
   Route.group(() => {
+    Route.get('/', 'NotificationsController.index')
+  }).prefix('/notifications')
+
+  Route.group(() => {
     Route.get('/', 'OccupationsController.index')
     Route.get('/:id', 'OccupationsController.show')
   }).prefix('/occupations')
