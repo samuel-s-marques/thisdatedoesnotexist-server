@@ -9,7 +9,7 @@ import User from 'App/Models/User'
 export default class NotificationService {
   private static instance: NotificationService
   private readonly oneSignalAppId = Env.get('ONESIGNAL_APP_ID')
-  private oneSignal = Application.container.use('Adonis/Addons/OneSignal')
+  private oneSignal: OneSignal.DefaultApi = Application.container.use('Adonis/Addons/OneSignal')
 
   public static getInstance(): NotificationService {
     if (!NotificationService.instance) {
