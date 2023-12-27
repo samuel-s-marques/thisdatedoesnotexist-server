@@ -1,16 +1,16 @@
-import Env from '@ioc:Adonis/Core/Env'
 import Logger from '@ioc:Adonis/Core/Logger'
 import Swipe from 'App/Models/Swipe'
 import User from 'App/Models/User'
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
+import { AxiosResponse } from 'axios'
 import NotificationService from './NotificationService'
 import Chat from 'App/Models/Chat'
+import ProfileSuggesterService from './ProfileSuggesterService'
 
 const notificationService: NotificationService = new NotificationService()
+const profileSuggesterService: ProfileSuggesterService = new ProfileSuggesterService()
 
 export default class AutoSwipeService {
   private static instance: AutoSwipeService
-  private static readonly API_URL = Env.get('PROFILE_SUGGESTER_API_URL')
 
   public static getInstance(): AutoSwipeService {
     if (!AutoSwipeService.instance) {
@@ -57,22 +57,6 @@ export default class AutoSwipeService {
     }
   }
 
-  private async makeApiRequest(user: User, profilesJson: any) {
-    const requestOptions: AxiosRequestConfig = {
-      method: 'POST',
-      url: `${AutoSwipeService.API_URL}/find-similar-profiles`,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      data: {
-        user: user,
-        profiles: profilesJson,
-      },
-    }
-
-    return await axios(requestOptions)
-  }
-
   public async swipeProfiles() {
     try {
       const users: User[] = await this.getUserProfilesFromDatabase()
@@ -92,7 +76,7 @@ export default class AutoSwipeService {
           }
 
           const charactersJson = characters.map((character) => character.toJSON())
-          const response = await this.makeApiRequest(user, charactersJson)
+          const response = await profileSuggesterService.getProfilesFromApi(user, charactersJson)
           return { user, response }
         })
       )
