@@ -6,7 +6,7 @@ export default class AutoSwipeTask extends BaseTask {
 
   public static get schedule() {
     // Use CronTimeV2 generator:
-    return CronTimeV2.everyHour()
+    return CronTimeV2.everyDay()
     // or just use return cron-style string (simple cron editor: crontab.guru)
   }
   /**

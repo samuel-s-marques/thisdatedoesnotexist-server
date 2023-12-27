@@ -15,20 +15,26 @@ import PersonalityTraitModel from 'App/Models/PersonalityTraitModel'
 import PronounsModel from 'App/Models/PronounsModel'
 import ComfyUiService from 'Service/ComfyUiService'
 import KoboldService from 'Service/KoboldService'
-import Env from '@ioc:Adonis/Core/Env';
+import Env from '@ioc:Adonis/Core/Env'
 import NSFWDetectionService from 'Service/NSFWDetectionService'
-import fs from 'fs';
+import fs from 'fs'
+import ProfileSuggesterService from 'Service/ProfileSuggesterService'
 
 const textGenApi = new KoboldService()
+const profileSuggesterService = new ProfileSuggesterService()
 
 export default class UsersController {
   public async index(ctx: HttpContextContract) {
     const page = ctx.request.input('page', 1)
     const searchQuery = ctx.request.qs()
 
-    const user = await User.query().where('uid', searchQuery.uid).firstOrFail()
+    const user = await User.query()
+      .where('uid', searchQuery.uid)
+      .preload('hobbies')
+      .preload('relationshipGoal')
+      .firstOrFail()
 
-    const users = await User.query()
+    const characters = await User.query()
       .preload('hobbies')
       .preload('pronoun')
       .preload('relationshipGoal')
@@ -61,7 +67,29 @@ export default class UsersController {
       })
       .paginate(page, searchQuery.per_page ?? 20)
 
-    return users
+    const charactersJson = characters.toJSON()
+    const response = await profileSuggesterService.getProfilesFromApi(user, charactersJson.data)
+
+    if (response.status != 200) {
+      return ctx.response.status(400).json({ error: 'Error getting profiles from API' })
+    }
+
+    const profiles = response.data.suggested_profiles
+
+    return {
+      meta: {
+        total: characters.total,
+        per_page: searchQuery.per_page ?? 20,
+        current_page: page,
+        last_page: characters.lastPage,
+        first_page: characters.firstPage,
+        first_page_url: `/?page=1`,
+        last_page_url: `/?page=${characters.lastPage}`,
+        next_page_url: characters.getNextPageUrl(),
+        previous_page_url: characters.getPreviousPageUrl(),
+      },
+      data: profiles,
+    }
   }
 
   public async show(ctx: HttpContextContract) {
