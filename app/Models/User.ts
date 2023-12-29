@@ -19,6 +19,7 @@ import PronounsModel from './PronounsModel'
 import Swipe from './Swipe'
 import BlockedUser from './BlockedUser'
 import Notification from './Notification'
+import Report from './Report'
 
 export default class User extends BaseModel {
   @column({ isPrimary: true })
@@ -163,6 +164,9 @@ export default class User extends BaseModel {
     localKey: 'id',
   })
   public blockedUsers: HasMany<typeof BlockedUser>
+
+  @hasMany(() => Report, { foreignKey: 'user_id' })
+  public reports: HasMany<typeof Report>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
