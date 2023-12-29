@@ -320,13 +320,17 @@ export default class UsersController {
     await character.related('relationshipGoal').associate(relationshipGoals)
 
     await new ComfyUiService().sendPrompt(forgedCharacter, character.uid)
-    const bio: string = await textGenApi.generateBio(
+    const bio = await textGenApi.generateBio(
       character,
       Env.get('MODEL_INSTRUCTIONS_TYPE'),
       forgedHobbies,
       forgedPersonalityTraits
     )
-    character.bio = bio.trim().replace(/^"|"$/g, '')
+
+    if (bio != null || bio != undefined) {
+      character.bio = bio.trim().replace(/^"|"$/g, '')
+    }
+    
 
     console.log(character.bio)
 
