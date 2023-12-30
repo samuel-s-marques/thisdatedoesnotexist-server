@@ -40,6 +40,8 @@ export default class extends BaseSchema {
       table.enum('type', ['user', 'character'])
       table.timestamp('last_swipe').nullable()
       table.integer('available_swipes').defaultTo(20)
+      table.integer('reports_count').defaultTo(0)
+      table.string('status_reason').nullable()
       table.boolean('active').defaultTo(false)
 
       table.timestamps(true, true)
