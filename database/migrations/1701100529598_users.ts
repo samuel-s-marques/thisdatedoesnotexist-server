@@ -36,6 +36,7 @@ export default class extends BaseSchema {
       table.string('phobia')
       table.string('social_class')
       table.string('political_view')
+      table.enum('status', ['normal', 'banned', 'suspended'])
       table.enum('type', ['user', 'character'])
       table.timestamp('last_swipe').nullable()
       table.integer('available_swipes').defaultTo(20)
