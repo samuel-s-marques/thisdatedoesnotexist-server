@@ -24,4 +24,24 @@ export default class ReportsController {
 
     return report
   }
+
+  public async store({ request, response }: HttpContextContract) {
+    try {
+      const { user_uid, character_uid, description, type } = request.all()
+
+      const user = await User.findByOrFail('uid', user_uid)
+      const character = await User.findByOrFail('uid', character_uid)
+      const report = new Report()
+      report.type = type
+      report.description = description
+      await report.related('user').associate(user)
+      await report.related('character').associate(character)
+
+      await report.save()
+
+      return report
+    } catch (error) {
+      return response.status(400).json({ error: error.message })
+    }
+  }
 }
