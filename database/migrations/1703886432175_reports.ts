@@ -10,7 +10,7 @@ export default class extends BaseSchema {
       table.enum('status', ['pending', 'resolved', 'rejected'])
       table.text('description').nullable()
       table.integer('user_id').unsigned().references('users.id').onDelete('CASCADE')
-      table.integer('character_id').unsigned().references('characters.id').onDelete('CASCADE')
+      table.integer('character_id').unsigned().references('users.id').onDelete('CASCADE')
 
       table.timestamps(true, true)
     })
