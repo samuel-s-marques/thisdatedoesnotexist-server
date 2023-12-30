@@ -168,6 +168,9 @@ export default class User extends BaseModel {
   @hasMany(() => Report, { foreignKey: 'user_id' })
   public reports: HasMany<typeof Report>
 
+  @column()
+  public status: string
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
