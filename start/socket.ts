@@ -84,11 +84,11 @@ async function processMessage(ws: WebSocket, message: any) {
     return
   }
 
-  let messageModel = new Message()
-  await messageModel.related('chat').associate(chat)
-  await messageModel.related('user').associate(user)
-  messageModel.content = message.text
-  await messageModel.save()
+  let userMessage = new Message()
+  await userMessage.related('chat').associate(chat)
+  await userMessage.related('user').associate(user)
+  userMessage.content = message.text
+  await userMessage.save()
 
   chat.last_message = message.text
   await chat.save()
@@ -112,11 +112,11 @@ async function processMessage(ws: WebSocket, message: any) {
   )
   const finalMessage = messageCleaner(aiResponse!.trim(), character, user)
 
-  messageModel = new Message()
-  await messageModel.related('chat').associate(chat)
-  await messageModel.related('user').associate(character)
-  messageModel.content = finalMessage
-  await messageModel.save()
+  let characterMessage = new Message()
+  await characterMessage.related('chat').associate(chat)
+  await characterMessage.related('user').associate(character)
+  characterMessage.content = finalMessage
+  await characterMessage.save()
 
   chat.last_message = finalMessage
   await chat.save()
@@ -126,6 +126,25 @@ async function processMessage(ws: WebSocket, message: any) {
       blocked_user_id: user.id,
       user_id: character.id,
     })
+    user.reportsCount++
+
+    if (user.reportsCount >= 10 && user.status !== 'suspended') {
+      user.status = 'suspended'
+      user.statusReason = 'Inappropriate content'
+      await user.save()
+
+      userMessage.reported = true
+      await userMessage.save()
+    }
+
+    if (user.reportsCount >= 20 && user.status !== 'banned') {
+      user.status = 'banned'
+      user.statusReason = 'Inappropriate content'
+      await user.save()
+
+      userMessage.reported = true
+      await userMessage.save()
+    }
 
     ws.send(
       JSON.stringify({
