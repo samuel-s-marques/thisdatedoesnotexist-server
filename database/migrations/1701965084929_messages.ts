@@ -8,6 +8,7 @@ export default class extends BaseSchema {
       table.increments('id')
       table.integer('user_id').unsigned().references('users.id').onDelete('CASCADE')
       table.integer('chat_id').unsigned().references('chats.id').onDelete('CASCADE')
+      table.boolean('reported').defaultTo(false)
       table.text('content').notNullable()
 
       table.timestamps(true, true)
