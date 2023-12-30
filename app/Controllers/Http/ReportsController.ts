@@ -2,6 +2,7 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Report from 'App/Models/Report'
 import User from 'App/Models/User'
 import { findMostCommonString } from 'Util/util'
+import { DateTime } from 'luxon'
 
 export default class ReportsController {
   public async index({ request, response }: HttpContextContract) {
@@ -52,13 +53,23 @@ export default class ReportsController {
       character.reportsCount++
       await character.save()
 
-      if (character.reportsCount >= 10 && character.status !== 'suspended') {
+      if (
+        character.reportsCount >= 10 &&
+        character.reportsCount < 20 &&
+        character.status !== 'suspended' &&
+        character.status !== 'banned'
+      ) {
         const reports = await Report.query().where('character_id', character.id)
         const types = reports.map((report) => report.type)
         const commonReason = findMostCommonString(types)
 
         character.status = 'suspended'
         character.statusReason = commonReason!
+
+        if (character.statusUntil === null) {
+          character.statusUntil = DateTime.now().plus({ days: 5 })
+        }
+
         await character.save()
       }
 
