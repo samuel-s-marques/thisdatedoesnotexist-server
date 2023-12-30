@@ -312,6 +312,7 @@ export default class UsersController {
     character.politicalView = forgedCharacter.politicalView
     character.phobia = forgedCharacter.phobia ? forgedCharacter.phobia : null
     character.type = 'character'
+    character.status = 'normal'
 
     const pronouns = await PronounsModel.query().where('type', forgedCharacter.sex).firstOrFail()
     const relationshipGoals = await RelationshipGoal.query().orderByRaw('RAND()').firstOrFail()
