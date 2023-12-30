@@ -10,6 +10,7 @@ import KoboldService from 'Service/KoboldService'
 import Env from '@ioc:Adonis/Core/Env'
 import BlockedUser from 'App/Models/BlockedUser'
 import { WebSocket } from 'ws'
+import { DateTime } from 'luxon'
 WsService.boot()
 
 const textGenApi = new KoboldService()
@@ -128,9 +129,19 @@ async function processMessage(ws: WebSocket, message: any) {
     })
     user.reportsCount++
 
-    if (user.reportsCount >= 10 && user.status !== 'suspended') {
+    if (
+      user.reportsCount >= 10 &&
+      user.reportsCount < 20 &&
+      user.status !== 'suspended' &&
+      user.status !== 'banned'
+    ) {
       user.status = 'suspended'
       user.statusReason = 'Inappropriate content'
+
+      if (user.statusUntil === null) {
+        user.statusUntil = DateTime.now().plus({ days: 5 })
+      }
+
       await user.save()
 
       userMessage.reported = true
