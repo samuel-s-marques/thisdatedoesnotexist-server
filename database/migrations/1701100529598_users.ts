@@ -43,6 +43,7 @@ export default class extends BaseSchema {
       table.integer('reports_count').defaultTo(0)
       table.string('status_reason').nullable()
       table.boolean('active').defaultTo(false)
+      table.dateTime('status_until').nullable()
 
       table.timestamps(true, true)
     })
