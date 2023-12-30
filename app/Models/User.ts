@@ -177,6 +177,9 @@ export default class User extends BaseModel {
   @column()
   public reportsCount: number
 
+  @column()
+  public statusUntil: DateTime | null
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
