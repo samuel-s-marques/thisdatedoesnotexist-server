@@ -171,6 +171,12 @@ export default class User extends BaseModel {
   @column()
   public status: string
 
+  @column()
+  public suspensionReason: string | null
+
+  @column()
+  public reportsCount: number
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
