@@ -172,7 +172,7 @@ export default class User extends BaseModel {
   public status: string
 
   @column()
-  public suspensionReason: string | null
+  public statusReason: string | null
 
   @column()
   public reportsCount: number
