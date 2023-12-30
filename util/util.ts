@@ -244,3 +244,23 @@ export function generateRandomSeed(seed: string): number {
   const randomInteger = Math.floor(randomValue * 10000) + 1
   return Math.abs(randomInteger)
 }
+
+export function findMostCommonString(strings: string[]): string | undefined {
+  const frequencyMap: { [key: string]: number } = {}
+
+  for (const str of strings) {
+    frequencyMap[str] = (frequencyMap[str] || 0) + 1
+  }
+
+  let mostCommonString: string | undefined
+  let highestFrequency = 0
+
+  for (const str in frequencyMap) {
+    if (frequencyMap[str] > highestFrequency) {
+      highestFrequency = frequencyMap[str]
+      mostCommonString = str
+    }
+  }
+
+  return mostCommonString
+}
