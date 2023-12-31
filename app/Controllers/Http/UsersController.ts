@@ -44,6 +44,7 @@ export default class UsersController {
         query.select('target_id').from('swipes').where('swiper_id', user.id)
       })
       .andWhere('id', '<>', user.id)
+      .andWhere('status', 'normal')
       .if(searchQuery.sex, (query) => {
         query.whereIn('sex', searchQuery.sex.split(','))
       })
