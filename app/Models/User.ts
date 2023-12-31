@@ -174,7 +174,7 @@ export default class User extends BaseModel {
   @column()
   public statusReason: string | null
 
-  @column()
+  @column(({ serializeAs: null }))
   public reportsCount: number
 
   @column.dateTime()
