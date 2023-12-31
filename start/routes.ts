@@ -110,6 +110,12 @@ Route.group(() => {
     Route.get('/:id', 'OccupationsController.show')
   }).prefix('/occupations')
 
+  Route.group(() => {
+    Route.get('/', 'ReportsController.index')
+    Route.get('/:id', 'ReportsController.show')
+    Route.post('/', 'ReportsController.store')
+  }).prefix('/reports')
+
   Route.post('/users/upload', 'UsersController.checkNsfwDetection')
 }).prefix('/api')
 
