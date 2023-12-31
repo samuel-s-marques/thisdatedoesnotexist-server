@@ -204,6 +204,7 @@ export default class UsersController {
         uid: decodedToken.uid,
         imageUrl: `/uploads/${imageName}`,
         type: 'user',
+        status: 'normal',
         ...filteredData,
       })
 
