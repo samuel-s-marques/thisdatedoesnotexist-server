@@ -45,6 +45,7 @@ export default class NotificationService {
     await createdNotification.related('user').associate(user)
     createdNotification.title = notification.headings.en!
     createdNotification.subtitle = notification.contents.en!
+    createdNotification.type = type
 
     if (character) {
       createdNotification.image = `characters/${character.uid}.png`
