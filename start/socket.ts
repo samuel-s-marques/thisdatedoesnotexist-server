@@ -85,6 +85,24 @@ async function processMessage(ws: WebSocket, message: any) {
     return
   }
 
+  if (user.status !== 'normal') {
+    let message = 'You cannot send message to this character.'
+
+    if (user.status === 'suspended') {
+      message = `You have been suspended until ${user.statusUntil!.toFormat('dd/MM/yyyy')}.`
+    }
+
+    ws.send(
+      JSON.stringify({
+        type: 'system',
+        status: 'error',
+        message: message,
+      })
+    )
+
+    return
+  }
+
   let userMessage = new Message()
   await userMessage.related('chat').associate(chat)
   await userMessage.related('user').associate(user)
@@ -129,12 +147,7 @@ async function processMessage(ws: WebSocket, message: any) {
     })
     user.reportsCount++
 
-    if (
-      user.reportsCount >= 10 &&
-      user.reportsCount < 20 &&
-      user.status !== 'suspended' &&
-      user.status !== 'banned'
-    ) {
+    if (user.reportsCount >= 10 && user.reportsCount < 20) {
       user.status = 'suspended'
       user.statusReason = 'Inappropriate content'
 
