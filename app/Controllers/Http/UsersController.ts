@@ -493,11 +493,9 @@ export default class UsersController {
     return response.send({ success: true })
   }
 
-  public async status({ request, response }: HttpContextContract) {
+  public async status({ response, params }: HttpContextContract) {
     try {
-      const searchQuery = request.qs()
-      const uid = searchQuery.uid
-      console.log(`UID: ${uid}`)
+      const uid = params.uid
 
       if (!uid) {
         return response.status(400).json({ error: 'User ID is required.' })
