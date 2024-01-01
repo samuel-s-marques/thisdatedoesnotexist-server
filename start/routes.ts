@@ -117,7 +117,8 @@ Route.group(() => {
   }).prefix('/reports')
 
   Route.group(() => {
-    Route.get('/account', 'UsersController.status')
+    // todo: replace with token auth
+    Route.get('/account/:uid', 'UsersController.status')
   }).prefix('/status')
 
   Route.post('/users/upload', 'UsersController.checkNsfwDetection')
