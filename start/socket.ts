@@ -89,7 +89,9 @@ async function processMessage(ws: WebSocket, message: any) {
     let message = 'You cannot send message to this character.'
 
     if (user.status === 'suspended') {
-      message = `You have been suspended until ${user.statusUntil!.toFormat('dd/MM/yyyy')}.`
+      message += ` You have been suspended until ${user.statusUntil!.toFormat('dd/MM/yyyy')}.`
+    } else {
+      message += ` You have been banned.`
     }
 
     ws.send(
