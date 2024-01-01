@@ -16,7 +16,7 @@ export default class ReportsController {
     const user = await User.findByOrFail('uid', uid)
     const reports = await Report.query()
       .where('user_id', user.id)
-      .preload('user')
+      .preload('character')
       .paginate(page, 40)
     return reports
   }
@@ -46,6 +46,7 @@ export default class ReportsController {
       const report = new Report()
       report.type = type
       report.description = description
+      report.status = 'pending'
       await report.related('user').associate(user)
       await report.related('character').associate(character)
       await report.save()
