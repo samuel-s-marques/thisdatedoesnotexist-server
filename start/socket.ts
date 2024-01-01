@@ -12,6 +12,7 @@ import BlockedUser from 'App/Models/BlockedUser'
 import { WebSocket } from 'ws'
 import { DateTime } from 'luxon'
 import NotificationService from 'Service/NotificationService'
+import BannedUser from 'App/Models/BannedUser'
 WsService.boot()
 
 const textGenApi = new KoboldService()
@@ -174,6 +175,13 @@ async function processMessage(ws: WebSocket, message: any) {
 
       userMessage.reported = true
       await userMessage.save()
+
+      await new BannedUser()
+        .fill({
+          uid: user.uid,
+          email: user.email,
+        })
+        .save()
 
       notificationService.sendNotification('banned', user.uid)
     }
