@@ -11,9 +11,11 @@ import Env from '@ioc:Adonis/Core/Env'
 import BlockedUser from 'App/Models/BlockedUser'
 import { WebSocket } from 'ws'
 import { DateTime } from 'luxon'
+import NotificationService from 'Service/NotificationService'
 WsService.boot()
 
 const textGenApi = new KoboldService()
+const notificationService = new NotificationService()
 
 function messageCleaner(message: string, character: User, user: User): string {
   const characterPrefix = `${character.name} ${character.surname}:`
@@ -161,6 +163,8 @@ async function processMessage(ws: WebSocket, message: any) {
 
       userMessage.reported = true
       await userMessage.save()
+
+      notificationService.sendNotification('suspended', user.uid)
     }
 
     if (user.reportsCount >= 20 && user.status !== 'banned') {
@@ -170,6 +174,8 @@ async function processMessage(ws: WebSocket, message: any) {
 
       userMessage.reported = true
       await userMessage.save()
+
+      notificationService.sendNotification('banned', user.uid)
     }
 
     ws.send(
