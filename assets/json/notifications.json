@@ -36,6 +36,30 @@
         "Hold on to your hat! [name] has sent a like your way. Time to explore the potential for a meaningful connection. Get ready for a new chapter!",
         "Knock, knock! [name] has expressed interest in you. Open the door to a world of possibilities and see what kind of connection awaits."
       ]
+    },
+    "suspended": {
+      "titles": [
+        "Your Account Has Been Suspended! 😢",
+        "Important Account Notice: Suspension Alert!",
+        "Critical Update: Your Access Temporarily Suspended",
+        "Account Status Update: Suspension Notification",
+        "Emergency Notice: Your Account has been Suspended"
+      ],
+      "contents": [
+        "We regret to inform you that your account has been suspended due to a violation of our community guidelines. Click here to learn more.",
+        "We regret to inform you that your account has been suspended due to a breach of our user policies. Click here to learn more.",
+        "We regret to inform you that your account has been suspended due to a violation of our terms of service. Click here to learn more.",
+        "We regret to inform you that your account has been suspended due to a breach of our terms of use. Click here to learn more."
+      ]
+    },
+    "banned": {
+      "titles": [
+        "Account Ban Notification: Important Update",
+        "Emergency: Your Account has been Banned Permanently"
+      ],
+      "contents": [
+        "We regret to inform you that your account has been banned due to a violation of our community guidelines. Click here to learn more."
+      ]
     }
   },
   "pt": {
