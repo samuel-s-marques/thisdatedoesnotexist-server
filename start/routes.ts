@@ -114,8 +114,11 @@ Route.group(() => {
     Route.get('/', 'ReportsController.index')
     Route.get('/:id', 'ReportsController.show')
     Route.post('/', 'ReportsController.store')
-    Route.get('/status', 'ReportsController.status')
   }).prefix('/reports')
+
+  Route.group(() => {
+    Route.get('/account', 'UsersController.status')
+  }).prefix('/status')
 
   Route.post('/users/upload', 'UsersController.checkNsfwDetection')
 }).prefix('/api')
