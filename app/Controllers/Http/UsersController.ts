@@ -20,6 +20,7 @@ import NSFWDetectionService from 'Service/NSFWDetectionService'
 import fs from 'fs'
 import ProfileSuggesterService from 'Service/ProfileSuggesterService'
 import Message from 'App/Models/Message'
+import BannedUser from 'App/Models/BannedUser'
 
 const textGenApi = new KoboldService()
 const profileSuggesterService = new ProfileSuggesterService()
@@ -186,6 +187,10 @@ export default class UsersController {
 
       if (!filteredData.email) {
         filteredData.email = decodedToken.email
+      }
+
+      if (await BannedUser.findBy('email', filteredData.email)) {
+        return response.status(400).json({ error: 'You have been banned.' })
       }
 
       filteredData.active = true
