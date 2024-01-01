@@ -40,6 +40,7 @@ export default class AutoSwipeService {
         .where('type', 'character')
         .preload('hobbies')
         .preload('relationshipGoal')
+        .where('status', 'normal')
         .whereNotIn('id', (query) => {
           query
             .select('swiper_id')
