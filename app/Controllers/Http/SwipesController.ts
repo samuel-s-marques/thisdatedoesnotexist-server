@@ -20,6 +20,18 @@ export default class SwipesController {
         return response.status(400).json({ error: 'Swipe already exists.' })
       }
 
+      if (swiper.status !== 'normal') {
+        let message = 'You cannot swipe this character.'
+
+        if (swiper.status === 'suspended') {
+          message += ` You have been suspended until ${swiper.statusUntil!.toFormat('dd/MM/yyyy')}.`
+        } else {
+          message += ` You have been banned.`
+        }
+
+        return response.status(400).json({ error: message })
+      }
+
       const reciprocalSwipe = await Swipe.query()
         .where('target_id', swiper.id)
         .where('swiper_id', target.id)
