@@ -55,6 +55,9 @@ export default class SwipesController {
 
       await swipe.save()
 
+      swiper.availableSwipes--
+      await swiper.save();
+
       return swipe
     } catch (error) {
       return response.status(400).json({ error: error.message })
