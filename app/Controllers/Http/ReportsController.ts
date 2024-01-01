@@ -1,5 +1,4 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import Message from 'App/Models/Message'
 import Report from 'App/Models/Report'
 import User from 'App/Models/User'
 import { findMostCommonString } from 'Util/util'
@@ -85,24 +84,6 @@ export default class ReportsController {
       }
 
       return report
-    } catch (error) {
-      return response.status(400).json({ error: error.message })
-    }
-  }
-
-  public async status({ request, response }: HttpContextContract) {
-    try {
-      const uid = request.input('uid')
-
-      if (!uid) {
-        return response.status(400).json({ error: 'User ID is required.' })
-      }
-
-      console.log(uid)
-      const user = await User.findByOrFail('uid', uid)
-      const messages = await Message.query().where('user_id', user.id).where('reported', true)
-
-      return { status: user.status, statusReason: user.statusReason, messages: messages }
     } catch (error) {
       return response.status(400).json({ error: error.message })
     }
