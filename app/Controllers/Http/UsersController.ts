@@ -19,6 +19,7 @@ import Env from '@ioc:Adonis/Core/Env'
 import NSFWDetectionService from 'Service/NSFWDetectionService'
 import fs from 'fs'
 import ProfileSuggesterService from 'Service/ProfileSuggesterService'
+import Message from 'App/Models/Message'
 
 const textGenApi = new KoboldService()
 const profileSuggesterService = new ProfileSuggesterService()
@@ -333,7 +334,6 @@ export default class UsersController {
     if (bio != null || bio != undefined) {
       character.bio = bio.trim().replace(/^"|"$/g, '')
     }
-    
 
     console.log(character.bio)
 
@@ -491,5 +491,24 @@ export default class UsersController {
     }
 
     return response.send({ success: true })
+  }
+
+  public async status({ request, response }: HttpContextContract) {
+    try {
+      const searchQuery = request.qs()
+      const uid = searchQuery.uid
+      console.log(`UID: ${uid}`)
+
+      if (!uid) {
+        return response.status(400).json({ error: 'User ID is required.' })
+      }
+
+      const user = await User.findByOrFail('uid', uid)
+      const messages = await Message.query().where('user_id', user.id).where('reported', true)
+
+      return { status: user.status, statusReason: user.statusReason, messages: messages }
+    } catch (error) {
+      return response.status(400).json({ error: error.message })
+    }
   }
 }
