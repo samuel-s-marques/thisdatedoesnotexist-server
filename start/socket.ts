@@ -153,7 +153,7 @@ async function processMessage(ws: WebSocket, message: any) {
 
     if (user.reportsCount >= 10 && user.reportsCount < 20) {
       user.status = 'suspended'
-      user.statusReason = 'Inappropriate content'
+      user.statusReason = 'inappropriate content'
 
       if (user.statusUntil === null) {
         user.statusUntil = DateTime.now().plus({ days: 5 })
@@ -169,7 +169,7 @@ async function processMessage(ws: WebSocket, message: any) {
 
     if (user.reportsCount >= 20 && user.status !== 'banned') {
       user.status = 'banned'
-      user.statusReason = 'Inappropriate content'
+      user.statusReason = 'inappropriate content'
       await user.save()
 
       userMessage.reported = true
