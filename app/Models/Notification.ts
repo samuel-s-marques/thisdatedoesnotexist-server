@@ -15,6 +15,9 @@ export default class Notification extends BaseModel {
   @column()
   public image: string
 
+  @column()
+  public type: string
+
   @column({ columnName: 'user_id' })
   public user_id: number
 
