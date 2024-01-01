@@ -504,7 +504,12 @@ export default class UsersController {
       const user = await User.findByOrFail('uid', uid)
       const messages = await Message.query().where('user_id', user.id).where('reported', true)
 
-      return { status: user.status, statusReason: user.statusReason, messages: messages }
+      return {
+        status: user.status,
+        status_reason: user.statusReason,
+        status_until: user.statusUntil,
+        messages: messages,
+      }
     } catch (error) {
       return response.status(400).json({ error: error.message })
     }
