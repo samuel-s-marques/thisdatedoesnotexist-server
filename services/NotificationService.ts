@@ -20,12 +20,12 @@ export default class NotificationService {
   }
 
   public async sendNotification(type: string, userUid: string, character?: User) {
-    const heading = this.getRandomNotification('en', type)!.title
-    const content = this.getRandomNotification('en', type)!.content
+    let heading = this.getRandomNotification('en', type)!.title
+    let content = this.getRandomNotification('en', type)!.content
 
     if (character) {
-      heading.replace('[name]', character.name)
-      content.replace('[name]', character.name)
+      heading = heading.replace('[name]', character.name)
+      content = content.replace('[name]', character.name)
     }
 
     const notification = new OneSignal.Notification()
