@@ -44,8 +44,6 @@ export default class SwipesController {
           user_id: swiper.id,
           character_id: target.id,
         })
-
-        return
       }
 
       const swipe = new Swipe()
