@@ -151,8 +151,9 @@ async function processMessage(ws: WebSocket, message: any) {
       user_id: character.id,
     })
     user.reportsCount++
+    await user.save()
 
-    if (user.reportsCount >= 10 && user.reportsCount < 20) {
+    if (user.reportsCount >= 5 && user.reportsCount < 20) {
       user.status = 'suspended'
       user.statusReason = 'inappropriate content'
 
