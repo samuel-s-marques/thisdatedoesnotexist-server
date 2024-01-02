@@ -40,7 +40,7 @@ export default class SwipesController {
         .first()
 
       if (reciprocalSwipe && direction === 'right') {
-        await Chat.create({
+        await Chat.firstOrCreate({
           user_id: swiper.id,
           character_id: target.id,
         })
