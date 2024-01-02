@@ -42,14 +42,14 @@ export default class OobaboogaService {
 
       const requestOptions: AxiosRequestConfig = {
         method: 'POST',
-        url: `${OobaboogaService.API_URL}/api/v1/generate`,
+        url: `${OobaboogaService.API_URL}/v1/completions`,
         headers: {
           'Content-Type': 'application/json',
         },
         data: {
           prompt: prompt,
           max_context_length: 2048,
-          max_length: 300,
+          max_tokens: 300,
           repetition_penalty: 1.2,
           repetition_penalty_range: 1024,
           repetition_penalty_slope: 0.7,
@@ -62,14 +62,15 @@ export default class OobaboogaService {
           sampler_order: [6, 0, 1, 3, 4, 2, 5],
           singleline: false,
           ban_eos_token: false,
-          stopping_strings: stopping_strings,
+          stop: stopping_strings,
         },
       }
 
       const response = await axios(requestOptions)
       Logger.info('Got response from Oobabooga.')
-      return response.data.results[0].text
+      return response.data.choices[0].text
     } catch (error) {
+      console.log(error)
       Logger.error('Error sending message to Oobabooga: ', error)
     }
   }
