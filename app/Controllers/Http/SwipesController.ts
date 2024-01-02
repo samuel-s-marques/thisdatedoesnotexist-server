@@ -2,6 +2,7 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Chat from 'App/Models/Chat'
 import Swipe from 'App/Models/Swipe'
 import User from 'App/Models/User'
+import { DateTime } from 'luxon'
 
 export default class SwipesController {
   public async store({ request, response }: HttpContextContract) {
@@ -56,6 +57,7 @@ export default class SwipesController {
       await swipe.save()
 
       swiper.availableSwipes--
+      swiper.lastSwipe = DateTime.now()
       await swiper.save();
 
       return swipe
