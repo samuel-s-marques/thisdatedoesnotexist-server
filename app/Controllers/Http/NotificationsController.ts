@@ -14,7 +14,7 @@ export default class NotificationsController {
       }
 
       const user = await User.findByOrFail('uid', uid)
-      const notifications = await Notification.query().where('user_id', user.id).paginate(page, 40)
+      const notifications = await Notification.query().where('user_id', user.id).orderBy('updatedAt', 'desc').paginate(page, 40)
 
       return notifications
     } catch (error) {
