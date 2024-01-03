@@ -1,10 +1,18 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Preference from 'App/Models/Preference'
 import User from 'App/Models/User'
+import CacheService from 'Service/CacheService'
 
 export default class PreferencesController {
-  public async show(ctx: HttpContextContract) {
-    const user = await User.findByOrFail('uid', ctx.params.id)
+  public async show({ params }: HttpContextContract) {
+    const uid = params.uid
+    const user = await User.findByOrFail('uid', uid)
+
+    const cache = CacheService.getInstance()
+    if (cache.get(`preferences-${uid}`)) {
+      return cache.get(`preferences-${uid}`)
+    }
+
     const preference = await Preference.query()
       .where('user_id', user.id)
       .preload('body_types')
@@ -13,6 +21,8 @@ export default class PreferencesController {
       .preload('sexes')
       .preload('religions')
       .firstOrFail()
+
+    cache.set(`preferences-${uid}`, preference)
 
     return preference
   }
@@ -68,6 +78,9 @@ export default class PreferencesController {
         .related('religions')
         .sync(requestData.religions.map((religion: { id: number; name: string }) => religion.id))
     }
+
+    const cache = CacheService.getInstance()
+    cache.set(`preferences-${user.uid}`, preference)
 
     return preference
   }
