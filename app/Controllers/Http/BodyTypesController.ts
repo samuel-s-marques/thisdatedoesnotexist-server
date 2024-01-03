@@ -1,11 +1,18 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import BodyType from 'App/Models/BodyType'
+import CacheService from 'Service/CacheService'
 
 export default class BodyTypesController {
   public async index(ctx: HttpContextContract) {
-    const page = ctx.request.input('page', 1)
+    const cache = CacheService.getInstance()
+    if (cache.get('bodyTypes')) {
+      return cache.get('bodyTypes')
+    }
 
+    const page = ctx.request.input('page', 1)
     const bodyTypes = await BodyType.query().paginate(page, 70)
+    cache.set('bodyTypes', bodyTypes)
+
     return bodyTypes
   }
 
