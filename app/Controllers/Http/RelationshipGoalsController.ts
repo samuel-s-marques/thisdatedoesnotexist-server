@@ -1,8 +1,15 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import RelationshipGoal from 'App/Models/RelationshipGoal'
+import CacheService from 'Service/CacheService'
 
 export default class RelationshipGoalsController {
   public async index(ctx: HttpContextContract) {
+    const cache = CacheService.getInstance()
+
+    if (cache.get('relationshipGoals')) {
+      return cache.get('relationshipGoals')
+    }
+
     const page = ctx.request.input('page', 1)
     const query = ctx.request.input('query')
     const value = ctx.request.input('value')
@@ -16,6 +23,8 @@ export default class RelationshipGoalsController {
     }
 
     const relationshipGoals = await RelationshipGoal.query().paginate(page, 20)
+    cache.set('relationshipGoals', relationshipGoals)
+
     return relationshipGoals
   }
 
