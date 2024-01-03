@@ -5,7 +5,6 @@ import CacheService from 'Service/CacheService'
 export default class RelationshipGoalsController {
   public async index(ctx: HttpContextContract) {
     const cache = CacheService.getInstance()
-
     if (cache.get('relationshipGoals')) {
       return cache.get('relationshipGoals')
     }
