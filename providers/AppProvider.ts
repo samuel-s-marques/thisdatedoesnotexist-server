@@ -1,6 +1,7 @@
 import type { ApplicationContract } from '@ioc:Adonis/Core/Application'
 import Application from '@ioc:Adonis/Core/Application'
 import NSFWDetectionService from 'Service/NSFWDetectionService'
+import CacheService from 'Service/CacheService'
 
 export default class AppProvider {
   constructor(protected app: ApplicationContract) {}
@@ -18,6 +19,7 @@ export default class AppProvider {
     scheduler.run()
     await import('../start/socket')
     await NSFWDetectionService.getInstance()
+    CacheService.getInstance()
   }
 
   public async shutdown() {
