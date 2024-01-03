@@ -83,8 +83,8 @@ Route.group(() => {
 
   Route.group(() => {
     Route.post('/', 'PreferencesController.store')
-    Route.put('/:id', 'PreferencesController.update')
-    Route.get('/:id', 'PreferencesController.show')
+    Route.put('/:uid', 'PreferencesController.update')
+    Route.get('/:uid', 'PreferencesController.show')
   }).prefix('/preferences')
 
   Route.group(() => {
