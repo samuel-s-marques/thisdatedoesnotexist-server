@@ -19,6 +19,8 @@ import Env from '@ioc:Adonis/Core/Env'
 import NSFWDetectionService from 'Service/NSFWDetectionService'
 import fs from 'fs'
 import ProfileSuggesterService from 'Service/ProfileSuggesterService'
+import Message from 'App/Models/Message'
+import BannedUser from 'App/Models/BannedUser'
 
 const textGenApi = new KoboldService()
 const profileSuggesterService = new ProfileSuggesterService()
@@ -44,6 +46,7 @@ export default class UsersController {
         query.select('target_id').from('swipes').where('swiper_id', user.id)
       })
       .andWhere('id', '<>', user.id)
+      .andWhere('status', 'normal')
       .if(searchQuery.sex, (query) => {
         query.whereIn('sex', searchQuery.sex.split(','))
       })
@@ -186,6 +189,10 @@ export default class UsersController {
         filteredData.email = decodedToken.email
       }
 
+      if (await BannedUser.findBy('email', filteredData.email)) {
+        return response.status(400).json({ error: 'You have been banned.' })
+      }
+
       filteredData.active = true
 
       const pronoun = await PronounsModel.findOrFail(filteredData.pronoun.id)
@@ -203,6 +210,7 @@ export default class UsersController {
         uid: decodedToken.uid,
         imageUrl: `/uploads/${imageName}`,
         type: 'user',
+        status: 'normal',
         ...filteredData,
       })
 
@@ -312,6 +320,7 @@ export default class UsersController {
     character.politicalView = forgedCharacter.politicalView
     character.phobia = forgedCharacter.phobia ? forgedCharacter.phobia : null
     character.type = 'character'
+    character.status = 'normal'
 
     const pronouns = await PronounsModel.query().where('type', forgedCharacter.sex).firstOrFail()
     const relationshipGoals = await RelationshipGoal.query().orderByRaw('RAND()').firstOrFail()
@@ -320,13 +329,16 @@ export default class UsersController {
     await character.related('relationshipGoal').associate(relationshipGoals)
 
     await new ComfyUiService().sendPrompt(forgedCharacter, character.uid)
-    const bio: string = await textGenApi.generateBio(
+    const bio = await textGenApi.generateBio(
       character,
       Env.get('MODEL_INSTRUCTIONS_TYPE'),
       forgedHobbies,
       forgedPersonalityTraits
     )
-    character.bio = bio.trim().replace(/^"|"$/g, '')
+
+    if (bio != null || bio != undefined) {
+      character.bio = bio.trim().replace(/^"|"$/g, '')
+    }
 
     console.log(character.bio)
 
@@ -484,5 +496,27 @@ export default class UsersController {
     }
 
     return response.send({ success: true })
+  }
+
+  public async status({ response, params }: HttpContextContract) {
+    try {
+      const uid = params.uid
+
+      if (!uid) {
+        return response.status(400).json({ error: 'User ID is required.' })
+      }
+
+      const user = await User.findByOrFail('uid', uid)
+      const messages = await Message.query().where('user_id', user.id).where('reported', true)
+
+      return {
+        status: user.status,
+        status_reason: user.statusReason,
+        status_until: user.statusUntil,
+        messages: messages,
+      }
+    } catch (error) {
+      return response.status(400).json({ error: error.message })
+    }
   }
 }

@@ -40,6 +40,7 @@ export default class AutoSwipeService {
         .where('type', 'character')
         .preload('hobbies')
         .preload('relationshipGoal')
+        .where('status', 'normal')
         .whereNotIn('id', (query) => {
           query
             .select('swiper_id')
@@ -98,7 +99,7 @@ export default class AutoSwipeService {
 
         for (
           let profile_index = 0;
-          profile_index < Math.min(10, suggestedProfiles.length);
+          profile_index < Math.min(20, suggestedProfiles.length);
           profile_index++
         ) {
           const { id, score } = suggestedProfiles[profile_index]
@@ -113,14 +114,17 @@ export default class AutoSwipeService {
             continue
           }
 
+          const randomScoreThreshold = 0.1
+          let direction = score > randomScoreThreshold ? 'right' : 'left'
+
           const reciprocalSwipe = await Swipe.query()
-            .where('target_id', user.id)
-            .where('swiper_id', id)
+            .where('target_id', id)
+            .where('swiper_id', user.id)
             .where('direction', 'right')
             .first()
 
-          if (reciprocalSwipe) {
-            await Chat.create({
+          if (reciprocalSwipe && direction === 'right') {
+            await Chat.firstOrCreate({
               user_id: user.id,
               character_id: id,
             })
@@ -133,9 +137,8 @@ export default class AutoSwipeService {
           }
 
           const swipe = new Swipe()
-          const randomScoreThreshold = 0.4 + Math.random() * 0.2
 
-          swipe.direction = score > randomScoreThreshold ? 'right' : 'left'
+          swipe.direction = direction
           await swipe.related('swiper').associate(character)
           await swipe.related('target').associate(user)
           await swipe.save()

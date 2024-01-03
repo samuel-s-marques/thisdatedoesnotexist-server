@@ -94,7 +94,7 @@ export default class KoboldService {
       instructions.output_sequence
     }${instructions.separator_sequence}${
       instructions.input_sequence
-    } User: Write a Tinder bio for ${character.name}.\n${character.name} is a ${
+    } User: Write a Tinder bio, no more than two lines, for ${character.name}.\n${character.name} is a ${
       character.occupation
     }. ${character.name}'s hobbies are: ${hobbies.formattedJoin()}.\n${
       character.name

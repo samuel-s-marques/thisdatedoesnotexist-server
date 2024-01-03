@@ -1,15 +1,13 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 
 export default class extends BaseSchema {
-  protected tableName = 'messages'
+  protected tableName = 'banned_users'
 
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      table.integer('user_id').unsigned().references('users.id').onDelete('CASCADE')
-      table.integer('chat_id').unsigned().references('chats.id').onDelete('CASCADE')
-      table.boolean('reported').defaultTo(false)
-      table.text('content').notNullable()
+      table.string('uid').notNullable()
+      table.string('email').notNullable()
 
       table.timestamps(true, true)
     })

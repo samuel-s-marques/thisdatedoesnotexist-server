@@ -110,6 +110,17 @@ Route.group(() => {
     Route.get('/:id', 'OccupationsController.show')
   }).prefix('/occupations')
 
+  Route.group(() => {
+    Route.get('/', 'ReportsController.index')
+    Route.get('/:id', 'ReportsController.show')
+    Route.post('/', 'ReportsController.store')
+  }).prefix('/reports')
+
+  Route.group(() => {
+    // todo: replace with token auth
+    Route.get('/account/:uid', 'UsersController.status')
+  }).prefix('/status')
+
   Route.post('/users/upload', 'UsersController.checkNsfwDetection')
 }).prefix('/api')
 

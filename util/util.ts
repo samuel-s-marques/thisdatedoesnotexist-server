@@ -214,7 +214,7 @@ export function pListBuilder(character: User, user: User): string {
   const characterHobbies = character.hobbies.map((hobby) => hobby.name).join(', ')
   const characterGoal = character.relationshipGoal.name
 
-  let characterPersona = `${character.name} ${character.surname}'s profile: ${characterAttributes}, bio(${character.bio}), hobbies(${characterHobbies}), occupation(${character.occupation}), ${character.pronoun.subjectPronoun}/${character.pronoun.objectPronoun}, sexuality(${character.sexuality}), relationship goal(${characterGoal}), religion(${character.religion}), political view(${character.politicalView}), social class(${character.socialClass})`
+  let characterPersona = `${character.name} ${character.surname}'s profile: ${characterAttributes}, hobbies(${characterHobbies}), occupation(${character.occupation}), ${character.pronoun.subjectPronoun}/${character.pronoun.objectPronoun}, sexuality(${character.sexuality}), relationship goal(${characterGoal}), religion(${character.religion}), political view(${character.politicalView}), social class(${character.socialClass})`
 
   if (character.phobia !== null) {
     characterPersona += `, fears(${character.phobia})`
@@ -232,7 +232,7 @@ export function pListBuilder(character: User, user: User): string {
 
   const tags = ['slice of life', 'dating app'].join(', ')
   const scenario = `Conversation between ${user.name} ${user.surname} and ${character.name} ${character.surname} in a dating app called "ThisDateDoesNotExist"`
-  const context = `If the ${user.name} ${user.surname} offends ${character.name} ${character.surname}, ${character.name} ${character.surname} can block by typing "/block"`
+  const context = `If ${user.name} ${user.surname} offends ${character.name} ${character.surname}, ${character.name} ${character.surname} can block by typing "/block".`
 
   return `[Tags: ${tags};\nScenario: ${scenario};\n${userData}\n${characterData}\nContext: ${context}]`
 }
@@ -243,4 +243,24 @@ export function generateRandomSeed(seed: string): number {
 
   const randomInteger = Math.floor(randomValue * 10000) + 1
   return Math.abs(randomInteger)
+}
+
+export function findMostCommonString(strings: string[]): string | undefined {
+  const frequencyMap: { [key: string]: number } = {}
+
+  for (const str of strings) {
+    frequencyMap[str] = (frequencyMap[str] || 0) + 1
+  }
+
+  let mostCommonString: string | undefined
+  let highestFrequency = 0
+
+  for (const str in frequencyMap) {
+    if (frequencyMap[str] > highestFrequency) {
+      highestFrequency = frequencyMap[str]
+      mostCommonString = str
+    }
+  }
+
+  return mostCommonString
 }

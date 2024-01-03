@@ -10,6 +10,7 @@ export default class extends BaseSchema {
       table.string('title').notNullable()
       table.string('subtitle').notNullable()
       table.string('image').nullable()
+      table.string('type').notNullable()
 
       table.timestamps(true, true)
     })
