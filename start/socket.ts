@@ -7,12 +7,12 @@ import User from 'App/Models/User'
 import { promptBuilder } from '../util/util'
 import OobaboogaService from 'Service/OobaboogaService'
 import KoboldService from 'Service/KoboldService'
-import Env from '@ioc:Adonis/Core/Env'
 import BlockedUser from 'App/Models/BlockedUser'
 import { WebSocket } from 'ws'
 import { DateTime } from 'luxon'
 import NotificationService from 'Service/NotificationService'
 import BannedUser from 'App/Models/BannedUser'
+import Config from '@ioc:Adonis/Core/Config';
 WsService.boot()
 
 const textGenApi = new KoboldService()
@@ -132,7 +132,7 @@ async function processMessage(ws: WebSocket, message: any) {
     prompt,
     character,
     user,
-    Env.get('MODEL_INSTRUCTIONS_TYPE')
+    Config.get('llm.modelInstructions')
   )
   const finalMessage = messageCleaner(aiResponse!.trim(), character, user)
 
