@@ -13,5 +13,15 @@
     "input_sequence": "",
     "output_sequence": "<|end_of_turn|>\n",
     "separator_sequence": "<|end_of_turn|>\n"
+  },
+  "metharme": {
+    "input_sequence": "<|user|>",
+    "output_sequence": "<|model|>",
+    "separator_sequence": ""
+  },
+  "chatml": {
+    "input_sequence": "<|im_start|>",
+    "output_sequence": "<|im_end|>",
+    "separator_sequence": "\n"
   }
 }

@@ -43,7 +43,7 @@ export default class PreferencesController {
       'political_views',
       'religions',
     ])
-    const user = await User.findByOrFail('uid', params.id)
+    const user = await User.findByOrFail('uid', params.uid)
     const preference = await Preference.query().where('user_id', user.id).firstOrFail()
 
     preference.merge(request.body())

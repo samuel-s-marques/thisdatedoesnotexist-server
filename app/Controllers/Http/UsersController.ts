@@ -40,7 +40,6 @@ export default class UsersController {
       .preload('hobbies')
       .preload('pronoun')
       .preload('relationshipGoal')
-      .preload('personalityTraits')
       .where('type', 'character')
       .whereNotIn('id', function (query) {
         query.select('target_id').from('swipes').where('swiper_id', user.id)
@@ -63,12 +62,14 @@ export default class UsersController {
         query.whereIn('religion', searchQuery.religion.split(','))
       })
       .if(searchQuery.relationship_goal, (query) => {
-        query.whereIn('relationship_goal', searchQuery.relationship_goal.split(','))
+        query.whereHas('relationshipGoal', (relation) => {
+          relation.whereIn('name', searchQuery.relationship_goal.split(','))
+        })
       })
       .if(searchQuery.min_age && searchQuery.max_age, (query) => {
         query.whereBetween('age', [searchQuery.min_age, searchQuery.max_age])
       })
-      .paginate(page, searchQuery.per_page ?? 20)
+      .paginate(page, 10)
 
     const charactersJson = characters.toJSON()
     const response = await profileSuggesterService.getProfilesFromApi(user, charactersJson.data)
@@ -82,7 +83,7 @@ export default class UsersController {
     return {
       meta: {
         total: characters.total,
-        per_page: searchQuery.per_page ?? 20,
+        per_page: characters.perPage,
         current_page: page,
         last_page: characters.lastPage,
         first_page: characters.firstPage,

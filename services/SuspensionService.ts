@@ -35,6 +35,7 @@ export default class SuspensionService {
 
         Logger.info(`User ${user.uid} has been unsuspended.`)
         user.status = 'normal'
+        user.statusReason = null
         user.statusUntil = null
         await user.save()
       }
