@@ -15,12 +15,12 @@ import PersonalityTraitModel from 'App/Models/PersonalityTraitModel'
 import PronounsModel from 'App/Models/PronounsModel'
 import ComfyUiService from 'Service/ComfyUiService'
 import KoboldService from 'Service/KoboldService'
-import Env from '@ioc:Adonis/Core/Env'
 import NSFWDetectionService from 'Service/NSFWDetectionService'
 import fs from 'fs'
 import ProfileSuggesterService from 'Service/ProfileSuggesterService'
 import Message from 'App/Models/Message'
 import BannedUser from 'App/Models/BannedUser'
+import Config from '@ioc:Adonis/Core/Config'
 
 const textGenApi = new KoboldService()
 const profileSuggesterService = new ProfileSuggesterService()
@@ -332,7 +332,7 @@ export default class UsersController {
     await new ComfyUiService().sendPrompt(forgedCharacter, character.uid)
     const bio = await textGenApi.generateBio(
       character,
-      Env.get('MODEL_INSTRUCTIONS_TYPE'),
+      Config.get('llm.modelInstructions'),
       forgedHobbies,
       forgedPersonalityTraits
     )
