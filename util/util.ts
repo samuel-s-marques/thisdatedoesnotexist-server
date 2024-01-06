@@ -231,10 +231,9 @@ export function pListBuilder(character: User, user: User): string {
   userData = `${userAppearance};\n${userPersona}`
 
   const tags = ['slice of life', 'dating app'].join(', ')
-  const scenario = `Conversation between ${user.name} ${user.surname} and ${character.name} ${character.surname} in a dating app called "ThisDateDoesNotExist"`
   const context = `If ${user.name} ${user.surname} offends ${character.name} ${character.surname}, ${character.name} ${character.surname} can block by typing "/block".`
 
-  return `[Tags: ${tags};\nScenario: ${scenario};\n${userData}\n${characterData}\nContext: ${context}]`
+  return `[Tags: ${tags};\n${userData}\n${characterData}\nContext: ${context}]`
 }
 
 export function generateRandomSeed(seed: string): number {
