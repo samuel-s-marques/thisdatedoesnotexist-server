@@ -132,7 +132,7 @@ async function processMessage(ws: WebSocket, message: any) {
     prompt,
     character,
     user,
-    Config.get('app.llm.modelInstructions')
+    Config.get('llm.modelInstructions')
   )
   const finalMessage = messageCleaner(aiResponse!.trim(), character, user)
 
