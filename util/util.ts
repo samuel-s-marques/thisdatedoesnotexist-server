@@ -2,6 +2,8 @@ import Message from 'App/Models/Message'
 import User from 'App/Models/User'
 import { Character } from 'character-forge'
 import seedrandom from 'seedrandom'
+import instructionsJson from '../assets/json/instructions.json'
+import Config from '@ioc:Adonis/Core/Config'
 
 /**
  * Extends the Array prototype with a new method called formattedJoin.
@@ -262,4 +264,28 @@ export function findMostCommonString(strings: string[]): string | undefined {
   }
 
   return mostCommonString
+}
+
+export function replaceMacros(content: string, user: string, character: string): string {
+  const instructions = instructionsJson[Config.get('app.llm.modelInstructions')]
+
+  const replacements = {
+    '[user]': user,
+    '[character]': character,
+    '[system_prompt]': instructions.system_prompt,
+    '[input_sequence]': instructions.input_sequence,
+    '[output_sequence]': instructions.output_sequence,
+    '[separator_sequence]': instructions.separator_sequence,
+    '[first_output_sequence]': instructions.first_output_sequence,
+    '[system_sequence_prefix]': instructions.system_sequence_prefix,
+    '[system_sequence_suffix]': instructions.system_sequence_suffix,
+    '[stop_sequence]': instructions.stop_sequence,
+  }
+
+  Object.keys(replacements).forEach((key) => {
+    const regex = new RegExp(key, 'g')
+    content = content.replace(regex, replacements[key])
+  })
+
+  return content
 }
