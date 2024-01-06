@@ -332,7 +332,7 @@ export default class UsersController {
     await new ComfyUiService().sendPrompt(forgedCharacter, character.uid)
     const bio = await textGenApi.generateBio(
       character,
-      Config.get('llm.modelInstructions'),
+      Config.get('app.llm.modelInstructions'),
       forgedHobbies,
       forgedPersonalityTraits
     )
