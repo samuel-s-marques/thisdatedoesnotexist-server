@@ -266,11 +266,11 @@ export function findMostCommonString(strings: string[]): string | undefined {
   return mostCommonString
 }
 
-export function replaceMacros(content: string, user: string, character: string): string {
+export function replaceMacros(content: string, character: string, user?: string): string {
   const instructions = instructionsJson[Config.get('llm.modelInstructions')]
 
   const replacements = {
-    '[user]': user,
+    '[user]': user || '',
     '[character]': character,
     '[system_prompt]': instructions.system_prompt,
     '[input_sequence]': instructions.input_sequence,
