@@ -8,7 +8,7 @@ type LlmConfig = {
 | Large Language Model Configuration
 |--------------------------------------------------------------------------
 */
-const llm: LlmConfig = {
+export const llm: LlmConfig = {
   modelInstructions: 'chatml',
   api: 'kobold',
 }
