@@ -22,6 +22,6 @@
   "chatml": {
     "input_sequence": "<|im_start|>",
     "output_sequence": "<|im_end|>",
-    "separator_sequence": "\n"
+    "separator_sequence": ""
   }
 }
