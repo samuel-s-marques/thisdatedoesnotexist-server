@@ -11,7 +11,6 @@ import type { ServerConfig } from '@ioc:Adonis/Core/Server'
 import type { LoggerConfig } from '@ioc:Adonis/Core/Logger'
 import type { ProfilerConfig } from '@ioc:Adonis/Core/Profiler'
 import type { ValidatorConfig } from '@ioc:Adonis/Core/Validator'
-import { LlmConfig } from './llm'
 
 /*
 |--------------------------------------------------------------------------
@@ -233,12 +232,3 @@ export const profiler: ProfilerConfig = {
 |
 */
 export const validator: ValidatorConfig = {}
-
-/*
-|--------------------------------------------------------------------------
-| Large Language Model Configuration
-|--------------------------------------------------------------------------
-*/
-export const llm: LlmConfig = {
-  modelInstructions: 'chatml'
-}
