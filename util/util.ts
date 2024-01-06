@@ -267,7 +267,7 @@ export function findMostCommonString(strings: string[]): string | undefined {
 }
 
 export function replaceMacros(content: string, user: string, character: string): string {
-  const instructions = instructionsJson[Config.get('app.llm.modelInstructions')]
+  const instructions = instructionsJson[Config.get('llm.modelInstructions')]
 
   const replacements = {
     '[user]': user,
