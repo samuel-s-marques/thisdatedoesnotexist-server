@@ -240,5 +240,5 @@ export const validator: ValidatorConfig = {}
 |--------------------------------------------------------------------------
 */
 export const llm: LlmConfig = {
-  modelInstructions: 'metharme'
+  modelInstructions: 'chatml'
 }
