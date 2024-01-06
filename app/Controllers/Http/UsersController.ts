@@ -20,6 +20,7 @@ import ProfileSuggesterService from 'Service/ProfileSuggesterService'
 import Message from 'App/Models/Message'
 import BannedUser from 'App/Models/BannedUser'
 import TextGenerationService from 'Service/TextGenerationService'
+import { replaceMacros } from 'Util/util'
 
 const textGenApi = new TextGenerationService()
 const profileSuggesterService = new ProfileSuggesterService()
@@ -525,6 +526,6 @@ export default class UsersController {
       character.country
     }. You can use internet language and be informal. You must write a Tinder bio with no more than two lines. You can write it freely and explicitly.`
 
-    return await textGenApi.sendPrompt(prompt)
+    return await textGenApi.sendPrompt(replaceMacros(prompt, character.name))
   }
 }
