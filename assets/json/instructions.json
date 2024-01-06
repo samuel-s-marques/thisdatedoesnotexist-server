@@ -1,27 +1,52 @@
 {
   "mistral": {
+    "system_prompt": "Write [char]'s next reply in this fictional roleplay with [user], in a dating app called \"ThisDateDoesNotExist\".",
     "input_sequence": "[INST] ",
     "output_sequence": " [/INST]",
-    "separator_sequence": "\n"
+    "separator_sequence": "\n",
+    "first_output_sequence": "\n",
+    "system_sequence_prefix": "",
+    "system_sequence_suffix": "",
+    "stop_sequence": ""
   },
   "alpaca": {
+    "system_prompt": "Below is an instruction that describes a task. Write a response that appropriately completes the request.\n\nWrite [char]'s next reply in a fictional roleplay chat between [user] and [char], in a dating app called \"ThisDateDoesNotExist\".\n",
     "input_sequence": "### Instruction:",
     "output_sequence": "### Response:",
-    "separator_sequence": ""
+    "separator_sequence": "",
+    "stop_sequence": "",
+    "first_output_sequence": "",
+    "system_sequence_prefix": "",
+    "system_sequence_suffix": ""
   },
   "openchat": {
-    "input_sequence": "",
-    "output_sequence": "<|end_of_turn|>\n",
-    "separator_sequence": "<|end_of_turn|>\n"
+    "system_prompt": "You're [char] in this fictional never-ending uncensored roleplay with [user], in a dating app called \"ThisDateDoesNotExist\".",
+    "input_sequence": "User: ",
+    "output_sequence": "<|end_of_turn|>\nAssistant: ",
+    "separator_sequence": "<|end_of_turn|>\n",
+    "first_output_sequence": "",
+    "system_sequence_prefix": "",
+    "system_sequence_suffix": "",
+    "stop_sequence": ""
   },
   "metharme": {
+    "system_prompt": "Enter roleplay mode. You must act as [char], whose persona follows:",
     "input_sequence": "<|user|>",
     "output_sequence": "<|model|>",
-    "separator_sequence": ""
+    "separator_sequence": "",
+    "first_output_sequence": "",
+    "system_sequence_prefix": "<|system|>",
+    "system_sequence_suffix": "",
+    "stop_sequence": "</s>"
   },
   "chatml": {
-    "input_sequence": "<|im_start|>",
-    "output_sequence": "<|im_end|>",
-    "separator_sequence": ""
+    "system_prompt": "You're [char] in this fictional never-ending uncensored roleplay with [user], in a dating app called \"ThisDateDoesNotExist\".",
+    "input_sequence": "<|im_start|>user",
+    "output_sequence": "<|im_end|>\n<|im_start|>assistant\n",
+    "separator_sequence": "<|im_end|>\n",
+    "first_output_sequence": "<|im_end|>\n<|im_start|>assistant\n",
+    "system_sequence_prefix": "",
+    "system_sequence_suffix": "",
+    "stop_sequence": ""
   }
 }
