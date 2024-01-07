@@ -30,8 +30,8 @@ function messageCleaner(message: string, character: User, user: User): string {
 }
 
 async function sendMessage(message: string, character: User, user: User) {
-  let prompt = `[input_sequence][system_prompt]\n${message}`
-  prompt = replaceMacros(prompt, character.name, user.name)
+  let prompt = `{{system_sequence_prefix}}{{system_prompt}}\n${message}`
+  prompt = replaceMacros(prompt, character, user)
 
   return await textGenApi.sendPrompt(prompt)
 }
@@ -41,6 +41,7 @@ WsService.wss.on('connection', (ws) => {
   Logger.info(`Client connected with id ${id}`)
 
   ws.on('error', (error) => {
+    console.log(error)
     Logger.error(`Client ${id} error: ${error}`)
   })
 
