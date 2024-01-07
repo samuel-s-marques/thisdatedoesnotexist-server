@@ -14,7 +14,11 @@ export default class ChatsController {
       }
 
       const user = await User.query().where('uid', uid).firstOrFail()
-      const chats = await Chat.query().where('user_id', user.id).orderBy('updatedAt', 'desc').preload('character').paginate(page, 40)
+      const chats = await Chat.query()
+        .where('user_id', user.id)
+        .orderBy('updatedAt', 'desc')
+        .preload('character')
+        .paginate(page, 40)
 
       return chats
     } catch (error) {
