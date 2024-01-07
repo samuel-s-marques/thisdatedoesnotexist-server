@@ -3,6 +3,7 @@ import User from 'App/Models/User'
 import { Character } from 'character-forge'
 import seedrandom from 'seedrandom'
 import instructionsJson from '../assets/json/instructions.json'
+import generalInstructionsJson from '../assets/json/general_instructions.json'
 import Config from '@ioc:Adonis/Core/Config'
 
 /**
@@ -167,24 +168,24 @@ export function negativeImagePromptBuilder(sex: string): string {
 export function promptBuilder(messages: Message[], character: User, user: User): string {
   let prompt: string = pListBuilder(character, user)
   let lastSender = 'character'
-  prompt += '\n'
+  prompt += '{{separator_sequence}}'
 
   for (let message of messages) {
     if (message.user_id === user.id) {
       // Check if the last sender was the character and append accordingly
       if (lastSender === 'character') {
-        prompt += `[input_sequence]${user.name} ${user.surname}: ${message.content}[separator_sequence]`
+        prompt += `{{input_sequence}}${user.name} ${user.surname}: ${message.content}{{output_sequence}}`
       } else {
-        prompt += `${message.content}[separator_sequence]`
+        prompt += `${message.content}{{output_sequence}}`
       }
       // Update the last sender to "user"
       lastSender = 'user'
     } else {
       // Check if the last sender was the user and append accordingly
       if (lastSender === 'user') {
-        prompt += `[output_sequence][separator_sequence]${character.name} ${character.surname}: ${message.content}[separator_sequence]`
+        prompt += `{{output_sequence}}{{separator_sequence}}${character.name} ${character.surname}: ${message.content}{{separator_sequence}}`
       } else {
-        prompt += `${message.content}[separator_sequence]`
+        prompt += `${message.content}{{separator_sequence}}`
       }
       // Update the last sender to "character"
       lastSender = 'character'
@@ -201,27 +202,15 @@ export function promptBuilder(messages: Message[], character: User, user: User):
 
 export function pListBuilder(character: User, user: User): string {
   let userData = ''
-  let characterData = ''
 
   // Character data
-  let characterAppearance = `${character.name} ${character.surname}'s appearance: hair(${
-    character.hairStyle
-  }, ${character.hairColor}), eyes(${character.eyeColor}), body(${
-    character.bodyType
-  }, ${character.height.toFixed(2)}m, ${character.weight.toFixed(2)}kg), ethnicity(${
-    character.ethnicity
-  }), country(${character.country}), skin(${character.skinTone}), age(${character.age})`
-
-  const characterAttributes = character.personalityTraits.map((trait) => trait.name).join(', ')
-  const characterHobbies = character.hobbies.map((hobby) => hobby.name).join(', ')
-  const characterGoal = character.relationshipGoal.name
-
-  let characterPersona = `${character.name} ${character.surname}'s profile: ${characterAttributes}, hobbies(${characterHobbies}), occupation(${character.occupation}), ${character.pronoun.subjectPronoun}/${character.pronoun.objectPronoun}, sexuality(${character.sexuality}), relationship goal(${characterGoal}), religion(${character.religion}), political view(${character.politicalView}), social class(${character.socialClass})`
+  let characterAppearance = `${character.name} ${character.surname}'s appearance: {{appearance}}`
+  let characterPersona = `${character.name} ${character.surname}'s profile: {{details}}`
 
   if (character.phobia !== null) {
     characterPersona += `, fears(${character.phobia})`
   }
-  characterData = `${characterAppearance};\n${characterPersona}`
+  const characterData = `${characterAppearance};\n${characterPersona}`
 
   // User data
   let userAppearance = `${user.name} ${user.surname}'s appearance: body(${user.height.toFixed(
@@ -232,10 +221,7 @@ export function pListBuilder(character: User, user: User): string {
   const userPersona = `${user.name} ${user.surname}'s profile: bio(${user.bio}), hobbies(${userHobbies}), occupation(${user.occupation}), ${user.pronoun.subjectPronoun}/${user.pronoun.objectPronoun}, relationship goal(${userGoal}), religion(${user.religion}), political view(${user.politicalView}), bio(${user.bio})`
   userData = `${userAppearance};\n${userPersona}`
 
-  const tags = ['slice of life', 'dating app'].join(', ')
-  const context = `If ${user.name} ${user.surname} offends ${character.name} ${character.surname}, ${character.name} ${character.surname} can block by typing "/block".`
-
-  return `[Tags: ${tags};\n${userData}\n${characterData}\nContext: ${context}]`
+  return `Tags: {{tags}}\n${userData}\n${characterData}\nContext: {{context}}\nScenario: {{scenario}}\n`
 }
 
 export function generateRandomSeed(seed: string): number {
@@ -266,26 +252,61 @@ export function findMostCommonString(strings: string[]): string | undefined {
   return mostCommonString
 }
 
-export function replaceMacros(content: string, character: string, user?: string): string {
-  const instructions = instructionsJson[Config.get('llm.modelInstructions')]
-
-  const replacements = {
-    '[user]': user || '',
-    '[character]': character,
-    '[system_prompt]': instructions.system_prompt,
-    '[input_sequence]': instructions.input_sequence,
-    '[output_sequence]': instructions.output_sequence,
-    '[separator_sequence]': instructions.separator_sequence,
-    '[first_output_sequence]': instructions.first_output_sequence,
-    '[system_sequence_prefix]': instructions.system_sequence_prefix,
-    '[system_sequence_suffix]': instructions.system_sequence_suffix,
-    '[stop_sequence]': instructions.stop_sequence,
-  }
-
+function replaceFunction(content: string, replacements: any) {
   Object.keys(replacements).forEach((key) => {
     const regex = new RegExp(key, 'g')
-    content = content.replace(regex, replacements[key])
+    content = content.replace(regex, replacements[key] || '')
   })
+
+  return content
+}
+
+export function replaceMacros(content: string, character: User, user?: User): string {
+  const instructions = instructionsJson[Config.get('llm.llm.modelInstructions')]
+
+  const generalReplacements = {
+    '{{user}}': user != null ? `${user.name} ${user.surname}` : '',
+    '{{char}}': `${character.name} ${character.surname}`,
+    '{{hairstyle}}': character.hairStyle,
+    '{{hair_color}}': character.hairColor,
+    '{{eyecolor}}': character.eyeColor,
+    '{{body_type}}': character.bodyType,
+    '{{height}}': character.height.toFixed(2),
+    '{{weight}}': character.weight.toFixed(2),
+    '{{ethnicity}}': character.ethnicity,
+    '{{country}}': character.country,
+    '{{skin}}': character.skinTone,
+    '{{age}}': character.age.toString(),
+    '{{pronouns}}': `${character.pronoun.subjectPronoun}/${character.pronoun.objectPronoun}`,
+    '{{hobbies}}': character.hobbies.map((hobby) => hobby.name).join(', '),
+    '{{occupation}}': character.occupation,
+    '{{sexuality}}': character.sexuality,
+    '{{relationship_goal}}': character.relationshipGoal.name,
+    '{{religion}}': character.religion,
+    '{{political_view}}': character.politicalView,
+    '{{social_class}}': character.socialClass,
+    '{{traits}}': character.personalityTraits.map((trait) => trait.name).join(', '),
+  }
+
+  const replacements = {
+    '{{system_prompt}}': replaceFunction(instructions.system_prompt, generalReplacements),
+    '{{input_sequence}}': instructions.input_sequence,
+    '{{output_sequence}}': instructions.output_sequence,
+    '{{separator_sequence}}': instructions.separator_sequence,
+    '{{first_output_sequence}}': instructions.first_output_sequence,
+    '{{system_sequence_prefix}}': instructions.system_sequence_prefix,
+    '{{system_sequence_suffix}}': instructions.system_sequence_suffix,
+    '{{stop_sequence}}': instructions.stop_sequence,
+    '{{scenario}}': replaceFunction(generalInstructionsJson.scenario, generalReplacements),
+    '{{context}}': replaceFunction(generalInstructionsJson.context, generalReplacements),
+    '{{details}}': replaceFunction(generalInstructionsJson.details, generalReplacements),
+    '{{appearance}}': replaceFunction(generalInstructionsJson.appearance, generalReplacements),
+    '{{tags}}': generalInstructionsJson.tags,
+  }
+
+  content = replaceFunction(content, replacements)
+
+  console.log(content)
 
   return content
 }
