@@ -45,7 +45,7 @@
     "output_sequence": "<|im_end|>\n<|im_start|>assistant\n",
     "separator_sequence": "<|im_end|>\n",
     "first_output_sequence": "<|im_start|>assistant\n",
-    "system_sequence_prefix": "",
+    "system_sequence_prefix": "<|im_start|>system\n",
     "system_sequence_suffix": "",
     "stop_sequence": ""
   }
