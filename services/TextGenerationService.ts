@@ -18,7 +18,7 @@ export default class TextGenerationService {
   public async sendPrompt(prompt: string) {
     try {
       Logger.info('Sending prompt to Text Generation AI.')
-      const api = Config.get('llm.api')
+      const api = Config.get('llm.llm.api')
       let data = {}
       let apiRoute = ''
 
