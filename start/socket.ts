@@ -4,18 +4,16 @@ import Logger from '@ioc:Adonis/Core/Logger'
 import Message from 'App/Models/Message'
 import Chat from 'App/Models/Chat'
 import User from 'App/Models/User'
-import { promptBuilder } from '../util/util'
-import OobaboogaService from 'Service/OobaboogaService'
-import KoboldService from 'Service/KoboldService'
+import { promptBuilder, replaceMacros } from '../util/util'
 import BlockedUser from 'App/Models/BlockedUser'
 import { WebSocket } from 'ws'
 import { DateTime } from 'luxon'
 import NotificationService from 'Service/NotificationService'
 import BannedUser from 'App/Models/BannedUser'
-import Config from '@ioc:Adonis/Core/Config';
+import TextGenerationService from 'Service/TextGenerationService'
 WsService.boot()
 
-const textGenApi = new KoboldService()
+const textGenApi = new TextGenerationService()
 const notificationService = new NotificationService()
 
 function messageCleaner(message: string, character: User, user: User): string {
@@ -31,11 +29,19 @@ function messageCleaner(message: string, character: User, user: User): string {
   return message
 }
 
+async function sendMessage(message: string, character: User, user: User) {
+  let prompt = `{{system_sequence_prefix}}{{system_prompt}}\n${message}`
+  prompt = replaceMacros(prompt, character, user)
+
+  return await textGenApi.sendPrompt(prompt)
+}
+
 WsService.wss.on('connection', (ws) => {
   const id = uuidv4()
   Logger.info(`Client connected with id ${id}`)
 
   ws.on('error', (error) => {
+    console.log(error)
     Logger.error(`Client ${id} error: ${error}`)
   })
 
@@ -128,11 +134,10 @@ async function processMessage(ws: WebSocket, message: any) {
     .offset(offset)
     .limit(5)
   const prompt = promptBuilder(messages, character, user)
-  const aiResponse = await textGenApi.sendMessage(
+  const aiResponse = await sendMessage(
     prompt,
     character,
     user,
-    Config.get('llm.modelInstructions')
   )
   const finalMessage = messageCleaner(aiResponse!.trim(), character, user)
 

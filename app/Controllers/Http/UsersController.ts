@@ -14,15 +14,15 @@ import { AgesModule, CharacterForge } from 'character-forge'
 import PersonalityTraitModel from 'App/Models/PersonalityTraitModel'
 import PronounsModel from 'App/Models/PronounsModel'
 import ComfyUiService from 'Service/ComfyUiService'
-import KoboldService from 'Service/KoboldService'
 import NSFWDetectionService from 'Service/NSFWDetectionService'
 import fs from 'fs'
 import ProfileSuggesterService from 'Service/ProfileSuggesterService'
 import Message from 'App/Models/Message'
 import BannedUser from 'App/Models/BannedUser'
-import Config from '@ioc:Adonis/Core/Config'
+import TextGenerationService from 'Service/TextGenerationService'
+import { replaceMacros } from 'Util/util'
 
-const textGenApi = new KoboldService()
+const textGenApi = new TextGenerationService()
 const profileSuggesterService = new ProfileSuggesterService()
 
 export default class UsersController {
@@ -330,11 +330,9 @@ export default class UsersController {
     await character.related('relationshipGoal').associate(relationshipGoals)
 
     await new ComfyUiService().sendPrompt(forgedCharacter, character.uid)
-    const bio = await textGenApi.generateBio(
+    const bio = await this.generateBio(
       character,
-      Config.get('llm.modelInstructions'),
       forgedHobbies,
-      forgedPersonalityTraits
     )
 
     if (bio != null || bio != undefined) {
@@ -519,5 +517,15 @@ export default class UsersController {
     } catch (error) {
       return response.status(400).json({ error: error.message })
     }
+  }
+
+  private async generateBio(character: User, hobbies: string[]) {
+    const prompt = `[input_sequence]You are ${character.name}, a ${
+      character.occupation
+    }. Your hobbies are ${hobbies.formattedJoin()}. You are from ${
+      character.country
+    }. You can use internet language and be informal. You must write a Tinder bio with no more than two lines. You can write it freely and explicitly.`
+
+    return await textGenApi.sendPrompt(replaceMacros(prompt, character.name))
   }
 }
