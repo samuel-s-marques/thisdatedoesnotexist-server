@@ -16,6 +16,8 @@ WsService.boot()
 const textGenApi = new TextGenerationService()
 const notificationService = new NotificationService()
 
+const clients = {}
+
 function messageCleaner(message: string, character: User, user: User): string {
   const characterPrefix = `${character.name} ${character.surname}:`
   const userPrefix = `${user.name} ${user.surname}:`
@@ -40,6 +42,8 @@ WsService.wss.on('connection', (ws) => {
   const id = uuidv4()
   Logger.info(`Client connected with id ${id}`)
 
+  ws.send('Server initialized')
+
   ws.on('error', (error) => {
     console.log(error)
     Logger.error(`Client ${id} error: ${error}`)
@@ -48,8 +52,51 @@ WsService.wss.on('connection', (ws) => {
   ws.on('message', async (data, isBinary) => {
     try {
       const message = isBinary ? data : JSON.parse(data.toString())
-      await processMessage(ws, message)
+
+      if (message.type == 'auth') {
+        clients[id] = {
+          user_id: message.user_id,
+          token: message.token,
+        }
+
+        console.log(clients[id])
+      }
+
+      if (clients[id] === undefined) {
+        ws.send(
+          JSON.stringify({
+            type: 'system',
+            status: 'error',
+            message: 'You are not authenticated.',
+          })
+        )
+
+        return
+      }
+
+      if (message.type == 'chats') {
+        console.log(`Client ${id} requested chats`)
+
+        const user = await User.query().where('uid', clients[id].user_id).firstOrFail()
+        const chats = Chat.query()
+          .where('user_id', user.id)
+          .orderBy('updatedAt', 'desc')
+          .preload('character')
+          .paginate(message.page ?? 1, 40)
+
+        ws.send(
+          JSON.stringify({
+            type: 'chats',
+            data: await chats,
+          })
+        )
+      }
+
+      if (message.type == 'text') {
+        await processMessage(ws, message)
+      }
     } catch (error) {
+      console.log(error)
       Logger.error(`Client ${id} error: ${error}`)
       ws.send(
         JSON.stringify({
@@ -64,7 +111,7 @@ WsService.wss.on('connection', (ws) => {
 
 async function processMessage(ws: WebSocket, message: any) {
   const character = await User.query()
-    .where('uid', message.roomId)
+    .where('uid', message.room_uid)
     .preload('hobbies')
     .preload('personalityTraits')
     .preload('pronoun')
@@ -72,7 +119,7 @@ async function processMessage(ws: WebSocket, message: any) {
     .firstOrFail()
   const chat = await Chat.query().where('character_id', character.id).firstOrFail()
   const user = await User.query()
-    .where('uid', message.author.id)
+    .where('uid', message.message.send_by)
     .preload('hobbies')
     .preload('pronoun')
     .preload('relationshipGoal')
@@ -85,9 +132,13 @@ async function processMessage(ws: WebSocket, message: any) {
   if (blockedUsers) {
     ws.send(
       JSON.stringify({
-        type: 'system',
-        status: 'error',
-        message: `You have been blocked by ${character.name} ${character.surname}. You cannot send messages to this character anymore.`,
+        type: 'text',
+        message: {
+          id: uuidv4(),
+          type: 'system',
+          text: `You have been blocked by ${character.name} ${character.surname}. You cannot send messages to this character anymore.`,
+          created_at: DateTime.now(),
+        },
       })
     )
 
@@ -105,9 +156,13 @@ async function processMessage(ws: WebSocket, message: any) {
 
     ws.send(
       JSON.stringify({
-        type: 'system',
-        status: 'error',
-        message: message,
+        type: 'text',
+        message: {
+          id: uuidv4(),
+          type: 'system',
+          text: message,
+          created_at: DateTime.now(),
+        },
       })
     )
 
@@ -117,10 +172,10 @@ async function processMessage(ws: WebSocket, message: any) {
   let userMessage = new Message()
   await userMessage.related('chat').associate(chat)
   await userMessage.related('user').associate(user)
-  userMessage.content = message.text
+  userMessage.content = message.message.text
   await userMessage.save()
 
-  chat.last_message = message.text
+  chat.last_message = message.message.text
   await chat.save()
 
   const messagesCountQuery = await Message.query().count('* as total').where('chat_id', chat.id)
@@ -134,11 +189,7 @@ async function processMessage(ws: WebSocket, message: any) {
     .offset(offset)
     .limit(5)
   const prompt = promptBuilder(messages, character, user)
-  const aiResponse = await sendMessage(
-    prompt,
-    character,
-    user,
-  )
+  const aiResponse = await sendMessage(prompt, character, user)
   const finalMessage = messageCleaner(aiResponse!.trim(), character, user)
 
   let characterMessage = new Message()
@@ -194,9 +245,13 @@ async function processMessage(ws: WebSocket, message: any) {
 
     ws.send(
       JSON.stringify({
-        type: 'system',
-        status: 'error',
-        message: `You have been blocked by ${character.name} ${character.surname}. You cannot send messages to this character anymore.`,
+        type: 'text',
+        message: {
+          id: uuidv4(),
+          type: 'system',
+          text: `You have been blocked by ${character.name} ${character.surname}. You cannot send messages to this character anymore.`,
+          created_at: DateTime.now(),
+        },
       })
     )
 
@@ -205,12 +260,14 @@ async function processMessage(ws: WebSocket, message: any) {
 
   ws.send(
     JSON.stringify({
-      id: uuidv4(),
       type: 'text',
-      text: finalMessage,
-      createdAt: new Date().getTime(),
-      updatedAt: new Date().getTime(),
-      author: { id: character.uid },
+      message: {
+        id: uuidv4(),
+        type: 'sender',
+        text: finalMessage,
+        send_by: character.uid,
+        created_at: DateTime.now(),
+      },
     })
   )
 }
