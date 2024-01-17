@@ -42,7 +42,13 @@ WsService.wss.on('connection', (ws) => {
   const id = uuidv4()
   Logger.info(`Client connected with id ${id}`)
 
-  ws.send('Server initialized')
+  ws.send(
+    JSON.stringify({
+      type: 'system',
+      status: 'success',
+      message: 'Connected.',
+    })
+  )
 
   ws.on('error', (error) => {
     console.log(error)
@@ -67,7 +73,7 @@ WsService.wss.on('connection', (ws) => {
           JSON.stringify({
             type: 'system',
             status: 'error',
-            message: 'You are not authenticated.',
+            message: 'Unauthorized.',
           })
         )
 
@@ -120,6 +126,11 @@ WsService.wss.on('connection', (ws) => {
         })
       )
     }
+  })
+
+  ws.on('close', (code, reason) => {
+    Logger.info(`Client ${id} disconnected with code ${code} and reason ${reason}`)
+    delete clients[id]
   })
 })
 
