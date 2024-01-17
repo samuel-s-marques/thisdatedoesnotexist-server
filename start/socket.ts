@@ -78,16 +78,30 @@ WsService.wss.on('connection', (ws) => {
         console.log(`Client ${id} requested chats`)
 
         const user = await User.query().where('uid', clients[id].user_id).firstOrFail()
-        const chats = Chat.query()
+        let chatsQuery = Chat.query()
           .where('user_id', user.id)
           .orderBy('updatedAt', 'desc')
           .preload('character')
-          .paginate(message.page ?? 1, 40)
+
+        if (
+          message.search != null &&
+          message.search != '' &&
+          message.search != undefined &&
+          message.searching == true
+        ) {
+          chatsQuery = chatsQuery.whereHas('character', (query) => {
+            query
+              .where('name', 'like', `%${message.search}%`)
+              .orWhere('surname', 'like', `%${message.search}%`)
+          })
+        }
+
+        const chats = await chatsQuery.paginate(message.page ?? 1, 40)
 
         ws.send(
           JSON.stringify({
             type: 'chats',
-            data: await chats,
+            data: chats,
           })
         )
       }
