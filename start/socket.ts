@@ -11,6 +11,7 @@ import { DateTime } from 'luxon'
 import NotificationService from 'Service/NotificationService'
 import BannedUser from 'App/Models/BannedUser'
 import TextGenerationService from 'Service/TextGenerationService'
+import admin from 'Config/firebase_database'
 WsService.boot()
 
 const textGenApi = new TextGenerationService()
@@ -38,6 +39,17 @@ async function sendMessage(message: string, character: User, user: User) {
   return await textGenApi.sendPrompt(prompt)
 }
 
+function sendUnauthorizedError(ws, show = false, message = 'Unauthorized.') {
+  ws.send(
+    JSON.stringify({
+      type: 'system',
+      status: 'error',
+      show: show,
+      message: message,
+    })
+  )
+}
+
 WsService.wss.on('connection', (ws) => {
   const id = uuidv4()
   Logger.info(`Client connected with id ${id}`)
@@ -51,7 +63,6 @@ WsService.wss.on('connection', (ws) => {
   )
 
   ws.on('error', (error) => {
-    console.log(error)
     Logger.error(`Client ${id} error: ${error}`)
   })
 
@@ -59,31 +70,41 @@ WsService.wss.on('connection', (ws) => {
     try {
       const message = isBinary ? data : JSON.parse(data.toString())
 
+      // todo: check if user is authorized with firebase
       if (message.type == 'auth') {
-        clients[id] = {
-          user_id: message.user_id,
-          token: message.token,
+        let userId = message.user_id
+        let token = message.token
+
+        if (!userId || !token) {
+          Logger.error(`Client ${id} error: missing user_id or token`)
+          sendUnauthorizedError(ws, true)
+          return
         }
 
-        console.log(clients[id])
+        try {
+          await admin.auth().verifyIdToken(token)
+          clients[id] = userId
+
+          Logger.info(`Client ${id} authorized with user_id ${userId}`)
+        } catch (error) {
+          Logger.error(`Unauthorized: Token verification failed. ${error}`)
+          sendUnauthorizedError(ws, true)
+
+          return
+        }
       }
 
       if (clients[id] === undefined) {
-        ws.send(
-          JSON.stringify({
-            type: 'system',
-            status: 'error',
-            message: 'Unauthorized.',
-          })
-        )
+        Logger.error(`Unauthorized: Client ${id} is not authorized.`)
+        sendUnauthorizedError(ws, false)
 
         return
       }
 
       if (message.type == 'chats') {
-        console.log(`Client ${id} requested chats`)
+        Logger.info(`Client ${id} requested chats`)
 
-        const user = await User.query().where('uid', clients[id].user_id).firstOrFail()
+        const user = await User.query().where('uid', clients[id]).firstOrFail()
         let chatsQuery = Chat.query()
           .where('user_id', user.id)
           .orderBy('updatedAt', 'desc')
@@ -116,7 +137,6 @@ WsService.wss.on('connection', (ws) => {
         await processMessage(ws, message)
       }
     } catch (error) {
-      console.log(error)
       Logger.error(`Client ${id} error: ${error}`)
       ws.send(
         JSON.stringify({
