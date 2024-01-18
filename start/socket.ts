@@ -70,7 +70,6 @@ WsService.wss.on('connection', (ws) => {
     try {
       const message = isBinary ? data : JSON.parse(data.toString())
 
-      // todo: check if user is authorized with firebase
       if (message.type == 'auth') {
         let userId = message.user_id
         let token = message.token
