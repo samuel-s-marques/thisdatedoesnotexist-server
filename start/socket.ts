@@ -72,6 +72,7 @@ WsService.wss.on('connection', (ws) => {
   ws.on('message', async (data, isBinary) => {
     try {
       const message = isBinary ? data : JSON.parse(data.toString())
+      console.log(message)
 
       if (message.type == 'auth') {
         let userId = message.user_id
@@ -105,7 +106,6 @@ WsService.wss.on('connection', (ws) => {
       }
 
       if (message.type == 'chats') {
-        Logger.info(`Client ${id} requested chats`)
         await processChat(ws, message, id)
       }
 
@@ -222,6 +222,7 @@ async function processMessage(ws: WebSocket, message: any, id: string) {
 
   chat.last_message = finalMessage
   await chat.save()
+  await processChat(ws, message, id)
 
   if (finalMessage.match(/\/block/g)) {
     await character.related('blockedUsers').create({
@@ -280,7 +281,7 @@ async function processMessage(ws: WebSocket, message: any, id: string) {
     return
   }
 
-  processChat(ws, message, id)
+  await processChat(ws, message, id)
 
   ws.send(
     JSON.stringify({
@@ -297,6 +298,8 @@ async function processMessage(ws: WebSocket, message: any, id: string) {
 }
 
 async function processChat(ws: WebSocket, message: any, id: string) {
+  Logger.info(`Client ${id} requested chats`)
+
   const user = await User.query().where('uid', clients[id]).firstOrFail()
   let chatsQuery = Chat.query()
     .where('user_id', user.id)
@@ -317,7 +320,7 @@ async function processChat(ws: WebSocket, message: any, id: string) {
     Logger.info(`Client ${id} searched for ${message.search}`)
   }
 
-  const chats = await chatsQuery.paginate(message.page ?? 1, 40)
+  const chats = await chatsQuery.paginate(1, 40 * (message.page ?? 1))
 
   ws.send(
     JSON.stringify({
