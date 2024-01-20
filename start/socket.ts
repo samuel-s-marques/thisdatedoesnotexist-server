@@ -314,6 +314,7 @@ async function processChat(ws: WebSocket, message: any, id: string) {
         .where('name', 'like', `%${message.search}%`)
         .orWhere('surname', 'like', `%${message.search}%`)
     })
+    Logger.info(`Client ${id} searched for ${message.search}`)
   }
 
   const chats = await chatsQuery.paginate(message.page ?? 1, 40)
