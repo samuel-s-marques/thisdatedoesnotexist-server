@@ -39,11 +39,11 @@ async function sendMessage(message: string, character: User, user: User) {
   return await textGenApi.sendPrompt(prompt)
 }
 
-function sendUnauthorizedError(ws, show = false, message = 'Unauthorized.') {
+function sendSystemMessage(ws: WebSocket, message: string, show = false, status = 'success') {
   ws.send(
     JSON.stringify({
       type: 'system',
-      status: 'error',
+      status: status,
       show: show,
       message: message,
     })
@@ -54,13 +54,16 @@ WsService.wss.on('connection', (ws) => {
   const id = uuidv4()
   Logger.info(`Client connected with id ${id}`)
 
-  ws.send(
-    JSON.stringify({
-      type: 'system',
-      status: 'success',
-      message: 'Connected.',
-    })
-  )
+  if (ws.readyState === WebSocket.OPEN) {
+    ws.send(
+      JSON.stringify({
+        type: 'system',
+        status: 'success',
+        show: false,
+        message: 'Connected.',
+      })
+    )
+  }
 
   ws.on('error', (error) => {
     Logger.error(`Client ${id} error: ${error}`)
@@ -69,6 +72,7 @@ WsService.wss.on('connection', (ws) => {
   ws.on('message', async (data, isBinary) => {
     try {
       const message = isBinary ? data : JSON.parse(data.toString())
+      console.log(message)
 
       if (message.type == 'auth') {
         let userId = message.user_id
@@ -76,7 +80,7 @@ WsService.wss.on('connection', (ws) => {
 
         if (!userId || !token) {
           Logger.error(`Client ${id} error: missing user_id or token`)
-          sendUnauthorizedError(ws, true)
+          sendSystemMessage(ws, 'Unauthorized.', true, 'error')
           return
         }
 
@@ -85,9 +89,10 @@ WsService.wss.on('connection', (ws) => {
           clients[id] = userId
 
           Logger.info(`Client ${id} authorized with user_id ${userId}`)
+          sendSystemMessage(ws, 'Authorized.', false, 'success')
         } catch (error) {
           Logger.error(`Unauthorized: Token verification failed. ${error}`)
-          sendUnauthorizedError(ws, true)
+          sendSystemMessage(ws, 'Unauthorized.', true, 'error')
 
           return
         }
@@ -95,45 +100,17 @@ WsService.wss.on('connection', (ws) => {
 
       if (clients[id] === undefined) {
         Logger.error(`Unauthorized: Client ${id} is not authorized.`)
-        sendUnauthorizedError(ws, false)
+        sendSystemMessage(ws, 'Unauthorized.', false, 'error')
 
         return
       }
 
       if (message.type == 'chats') {
-        Logger.info(`Client ${id} requested chats`)
-
-        const user = await User.query().where('uid', clients[id]).firstOrFail()
-        let chatsQuery = Chat.query()
-          .where('user_id', user.id)
-          .orderBy('updatedAt', 'desc')
-          .preload('character')
-
-        if (
-          message.search != null &&
-          message.search != '' &&
-          message.search != undefined &&
-          message.searching == true
-        ) {
-          chatsQuery = chatsQuery.whereHas('character', (query) => {
-            query
-              .where('name', 'like', `%${message.search}%`)
-              .orWhere('surname', 'like', `%${message.search}%`)
-          })
-        }
-
-        const chats = await chatsQuery.paginate(message.page ?? 1, 40)
-
-        ws.send(
-          JSON.stringify({
-            type: 'chats',
-            data: chats,
-          })
-        )
+        await processChat(ws, message, id)
       }
 
       if (message.type == 'text') {
-        await processMessage(ws, message)
+        await processMessage(ws, message, id)
       }
     } catch (error) {
       Logger.error(`Client ${id} error: ${error}`)
@@ -153,7 +130,7 @@ WsService.wss.on('connection', (ws) => {
   })
 })
 
-async function processMessage(ws: WebSocket, message: any) {
+async function processMessage(ws: WebSocket, message: any, id: string) {
   const character = await User.query()
     .where('uid', message.room_uid)
     .preload('hobbies')
@@ -221,6 +198,7 @@ async function processMessage(ws: WebSocket, message: any) {
 
   chat.last_message = message.message.text
   await chat.save()
+  await processChat(ws, message, id)
 
   const messagesCountQuery = await Message.query().count('* as total').where('chat_id', chat.id)
   const { total: messagesCount } = messagesCountQuery[0].$extras
@@ -244,6 +222,7 @@ async function processMessage(ws: WebSocket, message: any) {
 
   chat.last_message = finalMessage
   await chat.save()
+  await processChat(ws, message, id)
 
   if (finalMessage.match(/\/block/g)) {
     await character.related('blockedUsers').create({
@@ -302,6 +281,8 @@ async function processMessage(ws: WebSocket, message: any) {
     return
   }
 
+  await processChat(ws, message, id)
+
   ws.send(
     JSON.stringify({
       type: 'text',
@@ -312,6 +293,39 @@ async function processMessage(ws: WebSocket, message: any) {
         send_by: character.uid,
         created_at: DateTime.now(),
       },
+    })
+  )
+}
+
+async function processChat(ws: WebSocket, message: any, id: string) {
+  Logger.info(`Client ${id} requested chats`)
+
+  const user = await User.query().where('uid', clients[id]).firstOrFail()
+  let chatsQuery = Chat.query()
+    .where('user_id', user.id)
+    .orderBy('updatedAt', 'desc')
+    .preload('character')
+
+  if (
+    message.search != null &&
+    message.search != '' &&
+    message.search != undefined &&
+    message.searching == true
+  ) {
+    chatsQuery = chatsQuery.whereHas('character', (query) => {
+      query
+        .where('name', 'like', `%${message.search}%`)
+        .orWhere('surname', 'like', `%${message.search}%`)
+    })
+    Logger.info(`Client ${id} searched for ${message.search}`)
+  }
+
+  const chats = await chatsQuery.paginate(1, 40 * (message.page ?? 1))
+
+  ws.send(
+    JSON.stringify({
+      type: 'chats',
+      data: chats,
     })
   )
 }
