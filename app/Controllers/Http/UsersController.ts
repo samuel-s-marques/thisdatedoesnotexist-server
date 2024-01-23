@@ -330,10 +330,13 @@ export default class UsersController {
     await character.related('relationshipGoal').associate(relationshipGoals)
 
     await new ComfyUiService().sendPrompt(forgedCharacter, character.uid)
-    const bio = await this.generateBio(
-      character,
-      forgedHobbies,
-    )
+    const characterJson = character.toJSON()
+    characterJson.pronoun = pronouns.toObject()
+    characterJson.relationshipGoal = relationshipGoals.toJSON()
+    characterJson.hobbies = forgedHobbies.map((hobby) => ({ name: hobby }))
+    characterJson.personalityTraits = forgedPersonalityTraits.map((trait) => ({ name: trait }))
+
+    const bio = await this.generateBio(characterJson)
 
     if (bio != null || bio != undefined) {
       character.bio = bio.trim().replace(/^"|"$/g, '')
@@ -519,13 +522,9 @@ export default class UsersController {
     }
   }
 
-  private async generateBio(character: User, hobbies: string[]) {
-    const prompt = `[input_sequence]You are ${character.name}, a ${
-      character.occupation
-    }. Your hobbies are ${hobbies.formattedJoin()}. You are from ${
-      character.country
-    }. You can use internet language and be informal. You must write a Tinder bio with no more than two lines. You can write it freely and explicitly.`
+  private async generateBio(character: object) {
+    const prompt = `{{input_sequence}}You are {{char}}, a {{occupation}}. Your hobbies are {{hobbies}}. You are from {{country}}. You can use internet language and be informal. You must write a Tinder bio with no more than two lines. You can write it freely and explicitly.{{output_sequence}}`
 
-    return await textGenApi.sendPrompt(replaceMacros(prompt, character.name))
+    return await textGenApi.sendPrompt(replaceMacros(prompt, character))
   }
 }
