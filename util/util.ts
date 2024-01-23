@@ -261,31 +261,31 @@ function replaceFunction(content: string, replacements: any) {
   return content
 }
 
-export function replaceMacros(content: string, character: User, user?: User): string {
+export function replaceMacros(content: string, character: object, user?: User): string {
   const instructions = instructionsJson[Config.get('llm.llm.modelInstructions')]
 
   const generalReplacements = {
     '{{user}}': user != null ? `${user.name} ${user.surname}` : '',
-    '{{char}}': `${character.name} ${character.surname}`,
-    '{{hairstyle}}': character.hairStyle,
-    '{{hair_color}}': character.hairColor,
-    '{{eyecolor}}': character.eyeColor,
-    '{{body_type}}': character.bodyType,
-    '{{height}}': character.height.toFixed(2),
-    '{{weight}}': character.weight.toFixed(2),
-    '{{ethnicity}}': character.ethnicity,
-    '{{country}}': character.country,
-    '{{skin}}': character.skinTone,
-    '{{age}}': character.age.toString(),
-    '{{pronouns}}': `${character.pronoun.subjectPronoun}/${character.pronoun.objectPronoun}`,
-    '{{hobbies}}': character.hobbies.map((hobby) => hobby.name).join(', '),
-    '{{occupation}}': character.occupation,
-    '{{sexuality}}': character.sexuality,
-    '{{relationship_goal}}': character.relationshipGoal.name,
-    '{{religion}}': character.religion,
-    '{{political_view}}': character.politicalView,
-    '{{social_class}}': character.socialClass,
-    '{{traits}}': character.personalityTraits.map((trait) => trait.name).join(', '),
+    '{{char}}': `${character['name']} ${character['surname']}`,
+    '{{hairstyle}}': character['hairStyle'],
+    '{{hair_color}}': character['hairColor'],
+    '{{eyecolor}}': character['eyeColor'],
+    '{{body_type}}': character['bodyType'],
+    '{{height}}': character['height'].toFixed(2),
+    '{{weight}}': character['weight'].toFixed(2),
+    '{{ethnicity}}': character['ethnicity'],
+    '{{country}}': character['country'],
+    '{{skin}}': character['skinTone'],
+    '{{age}}': character['age'].toString(),
+    '{{pronouns}}': `${character['pronoun']['subjectPronoun']}/${character['pronoun']['objectPronoun']}`,
+    '{{hobbies}}': character['hobbies'].map((hobby) => hobby.name).join(', '),
+    '{{occupation}}': character['occupation'],
+    '{{sexuality}}': character['sexuality'],
+    '{{relationship_goal}}': character['relationshipGoal']['name'],
+    '{{religion}}': character['religion'],
+    '{{political_view}}': character['politicalView'],
+    '{{social_class}}': character['socialClass'],
+    '{{traits}}': character['personalityTraits'].map((trait) => trait.name).join(', '),
   }
 
   const replacements = {
@@ -304,6 +304,7 @@ export function replaceMacros(content: string, character: User, user?: User): st
     '{{tags}}': generalInstructionsJson.tags,
   }
 
+  content = replaceFunction(content, generalReplacements)
   content = replaceFunction(content, replacements)
 
   console.log(content)
