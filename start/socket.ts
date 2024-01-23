@@ -34,7 +34,7 @@ function messageCleaner(message: string, character: User, user: User): string {
 
 async function sendMessage(message: string, character: User, user: User) {
   let prompt = `{{system_sequence_prefix}}{{system_prompt}}\n${message}`
-  prompt = replaceMacros(prompt, character, user)
+  prompt = replaceMacros(prompt, character.toObject(), user)
 
   return await textGenApi.sendPrompt(prompt)
 }
@@ -194,7 +194,18 @@ async function processMessage(ws: WebSocket, message: any, id: string) {
   await userMessage.related('chat').associate(chat)
   await userMessage.related('user').associate(user)
   userMessage.content = message.message.text
+  userMessage.status = 'sent'
   await userMessage.save()
+
+  ws.send(
+    JSON.stringify({
+      type: 'message-status',
+      message: {
+        id: message.message.id,
+        status: 'sent',
+      },
+    })
+  )
 
   chat.last_message = message.message.text
   await chat.save()
@@ -219,6 +230,19 @@ async function processMessage(ws: WebSocket, message: any, id: string) {
   await characterMessage.related('user').associate(character)
   characterMessage.content = finalMessage
   await characterMessage.save()
+
+  userMessage.status = 'read'
+  await userMessage.save()
+
+  ws.send(
+    JSON.stringify({
+      type: 'message-status',
+      message: {
+        id: message.message.id,
+        status: 'read',
+      },
+    })
+  )
 
   chat.last_message = finalMessage
   await chat.save()
