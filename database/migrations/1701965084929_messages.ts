@@ -10,6 +10,7 @@ export default class extends BaseSchema {
       table.integer('chat_id').unsigned().references('chats.id').onDelete('CASCADE')
       table.boolean('reported').defaultTo(false)
       table.enum('status', ['sending', 'sent', 'read', 'failed']).defaultTo('sending')
+      table.enum('type', ['text', 'image', 'video', 'audio', 'file']).defaultTo('text')
       table.text('content').notNullable()
 
       table.timestamps(true, true)
