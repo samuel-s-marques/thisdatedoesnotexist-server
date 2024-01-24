@@ -20,6 +20,9 @@ export default class Message extends BaseModel {
   public reported: boolean
 
   @column()
+  public type: string
+
+  @column()
   public status: string
 
   @belongsTo(() => User, { foreignKey: 'user_id' })
