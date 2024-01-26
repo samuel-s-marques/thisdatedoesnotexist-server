@@ -24,8 +24,6 @@ export default class WhisperService {
       const filepath: string = path.normalize(file)
       const modelName = WhisperService.MODEL_NAME
 
-      console.log(shell.pwd().stdout.includes('whisper'))
-
       const transcript = await this.command(
         `main.exe -l auto -nt -t 8 -m models/ggml-${modelName}.bin -f ${filepath}`
       )
@@ -40,7 +38,6 @@ export default class WhisperService {
         .replace(/\[.*?\]/g, '')
     } catch (error) {
       Logger.error('Error retrieving the transcription: ', error)
-      console.log(error)
     }
   }
 
