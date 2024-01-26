@@ -23,6 +23,9 @@ export default class Message extends BaseModel {
   public type: string
 
   @column()
+  public location: string
+
+  @column()
   public status: string
 
   @belongsTo(() => User, { foreignKey: 'user_id' })
