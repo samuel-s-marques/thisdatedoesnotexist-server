@@ -12,6 +12,7 @@ export default class extends BaseSchema {
       table.enum('status', ['sending', 'sent', 'read', 'failed']).defaultTo('sending')
       table.enum('type', ['text', 'image', 'video', 'audio', 'file']).defaultTo('text')
       table.text('content').notNullable()
+      table.string('location')
 
       table.timestamps(true, true)
     })
