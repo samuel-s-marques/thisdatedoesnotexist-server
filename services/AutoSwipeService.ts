@@ -48,6 +48,8 @@ export default class AutoSwipeService {
             .where('target_id', user_id)
             .where('direction', 'right')
             .orWhere('direction', 'left')
+        }).whereNotIn('id', (query) => {
+          query.select('character_id').from('chats').where('user_id', user_id)
         })
 
       return characters
