@@ -2,6 +2,7 @@ import Logger from '@ioc:Adonis/Core/Logger'
 import Env from '@ioc:Adonis/Core/Env'
 import shell from 'shelljs'
 import path from 'path'
+import fs from 'fs';
 
 export default class WhisperService {
   private static instance: WhisperService
@@ -18,14 +19,21 @@ export default class WhisperService {
   public async getTranscription(file: string) {
     try {
       if (!file || file == '') {
+        Logger.error('The file path is empty')
         return null
       }
 
       const filepath: string = path.normalize(file)
       const modelName = WhisperService.MODEL_NAME
+      const modelFullName = `models/ggml-${modelName}.bin`
+
+      if (!fs.existsSync(`whisper\\${modelFullName}`)) {
+        Logger.error('The model file does not exist: ', modelFullName)
+        return null
+      }
 
       const transcript = await this.command(
-        `main.exe -l auto -nt -t 8 -m models/ggml-${modelName}.bin -f ${filepath}`
+        `main.exe -l auto -nt -t 8 -m ${modelFullName} -f ${filepath}`
       )
 
       if (!transcript || transcript == '') {
