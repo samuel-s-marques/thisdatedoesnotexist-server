@@ -367,7 +367,7 @@ async function processAudioMessage(
     const audioBytes = Buffer.from(message.message.content, 'base64')
     const directoryPath = __dirname
     const parentFolder = path.resolve(directoryPath, '..')
-    const filename = `tmp/uploads/${uuidv4()}.wav`
+    const filename = `public/uploads/audios/${uuidv4()}.wav`
     const filepath = path.join(parentFolder, filename)
     fs.writeFileSync(filepath, audioBytes)
 
@@ -382,6 +382,7 @@ async function processAudioMessage(
     await userMessage.related('chat').associate(chat)
     await userMessage.related('user').associate(user)
     userMessage.content = transcript
+    userMessage.location = filename
     userMessage.status = 'sent'
     await userMessage.save()
 
