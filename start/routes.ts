@@ -95,11 +95,11 @@ Route.group(() => {
 
   Route.group(() => {
     Route.get('/', 'ChatsController.index')
+    Route.get('/settings', 'ChatsController.settings')
   }).prefix('/chats')
 
   Route.group(() => {
     Route.get('/', 'MessagesController.index')
-    Route.get('/status', 'MessagesController.status')
   }).prefix('/messages')
 
   Route.group(() => {
