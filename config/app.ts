@@ -278,3 +278,22 @@ export const whisper: WhisperConfig = {
   enabled: false,
   model: 'base'
 }
+
+/*
+|--------------------------------------------------------------------------
+| Matchmaking
+|--------------------------------------------------------------------------
+|
+| Configure the matchmaking settings. The matchmaking system uses 
+| `profile-suggester` to suggest profiles based on user's. If the 
+| similarity between two profiles is greater than the threshold, then 
+| the system makes the character like the user.
+|
+*/
+type MatchmakingConfig = {
+  threshold: number
+}
+
+export const matchmaking: MatchmakingConfig = {
+  threshold: 0.5
+}
