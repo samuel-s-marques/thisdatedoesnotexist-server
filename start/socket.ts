@@ -15,6 +15,7 @@ import admin from 'Config/firebase_database'
 import fs from 'fs'
 import WhisperService from 'Service/WhisperService'
 import path from 'path'
+import getAudioDurationInSeconds from 'get-audio-duration'
 WsService.boot()
 
 const textGenApi = new TextGenerationService()
@@ -71,6 +72,7 @@ WsService.wss.on('connection', (ws) => {
 
   ws.on('error', (error) => {
     Logger.error(`Client ${id} error: ${error}`)
+    console.log(error)
   })
 
   ws.on('message', async (data, isBinary) => {
@@ -128,21 +130,21 @@ WsService.wss.on('connection', (ws) => {
           .preload('relationshipGoal')
           .firstOrFail()
 
-        if (!await canUserMessage(ws, user, character)) {
+        if (!(await canUserMessage(ws, user, character))) {
           return
         }
 
         switch (message.message.type) {
           case 'text':
-            await processTextMessage(ws, message, id, user, chat)
+            await processTextMessage(ws, message, id, user, character, chat)
             break
           case 'audio':
             if (fs.existsSync('whisper')) {
-              await processAudioMessage(ws, message, id, user, chat)
+              await processAudioMessage(ws, message, id, user, character, chat)
             }
             break
           default:
-            await processTextMessage(ws, message, id, user, chat)
+            await processTextMessage(ws, message, id, user, character, chat)
             break
         }
       }
@@ -213,12 +215,13 @@ async function canUserMessage(ws: WebSocket, user: User, character: User): Promi
   return true
 }
 
-async function processTextMessage(ws: WebSocket, message: any, id: string, user: User, chat: Chat) {
+async function processTextMessage(ws: WebSocket, message: any, id: string, user: User, character: User, chat: Chat) {
   let userMessage = new Message()
   await userMessage.related('chat').associate(chat)
   await userMessage.related('user').associate(user)
-  userMessage.content = message.message.text
+  userMessage.content = message.message.content
   userMessage.status = 'sent'
+  userMessage.type = 'text'
   await userMessage.save()
 
   ws.send(
@@ -231,10 +234,10 @@ async function processTextMessage(ws: WebSocket, message: any, id: string, user:
     })
   )
 
-  chat.last_message = message.message.text
+  chat.last_message = message.message.content
   await chat.save()
   await processChat(ws, message, id)
-  await answer(ws, message, id, user, chat.character!, chat, userMessage)
+  await answer(ws, message, id, user, character, chat, userMessage)
 }
 
 async function answer(
@@ -347,7 +350,8 @@ async function answer(
       type: 'text',
       message: {
         id: uuidv4(),
-        type: 'sender',
+        from: 'sender',
+        type: 'text',
         text: finalMessage,
         send_by: character.uid,
         created_at: DateTime.now(),
@@ -361,6 +365,7 @@ async function processAudioMessage(
   message: any,
   id: string,
   user: User,
+  character: User,
   chat: Chat
 ) {
   try {
@@ -378,12 +383,16 @@ async function processAudioMessage(
       return
     }
 
+    console.log(message.message)
+
     let userMessage = new Message()
     await userMessage.related('chat').associate(chat)
     await userMessage.related('user').associate(user)
     userMessage.content = transcript
-    userMessage.location = filename
+    userMessage.location = filename.replace('public/', '')
     userMessage.status = 'sent'
+    userMessage.type = 'audio'
+    userMessage.duration = message.message.duration
     await userMessage.save()
 
     ws.send(
@@ -399,7 +408,7 @@ async function processAudioMessage(
     chat.last_message = 'audio'
     await chat.save()
     await processChat(ws, message, id)
-    await answer(ws, message, id, user, chat.character!, chat, userMessage)
+    await answer(ws, message, id, user, character, chat, userMessage)
   } catch (error) {
     Logger.error('Error calling the Whisper: ', error)
   }
