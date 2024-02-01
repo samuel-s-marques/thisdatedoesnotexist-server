@@ -13,6 +13,7 @@ export default class extends BaseSchema {
       table.enum('type', ['text', 'image', 'video', 'audio', 'file']).defaultTo('text')
       table.text('content').notNullable()
       table.string('location')
+      table.integer('duration')
 
       table.timestamps(true, true)
     })
