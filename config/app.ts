@@ -271,8 +271,10 @@ export const reports: ReportsConfig = {
 */
 type WhisperConfig = {
   enabled: boolean
+  model: string
 }
 
 export const whisper: WhisperConfig = {
-  enabled: true,
+  enabled: false,
+  model: 'base'
 }
