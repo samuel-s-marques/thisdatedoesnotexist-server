@@ -238,7 +238,9 @@ export const validator: ValidatorConfig = {}
 | Reports
 |--------------------------------------------------------------------------
 |
-| Configure the reports settings
+| Configure the reports settings. Suspended people can't send messages and 
+| can't like or dislike other characters for X days. Banned people can't 
+| do the same forever.
 |
 */
 type ReportsConfig = {
