@@ -71,7 +71,6 @@ WsService.wss.on('connection', (ws) => {
 
   ws.on('error', (error) => {
     Logger.error(`Client ${id} error: ${error}`)
-    console.log(error)
   })
 
   ws.on('message', async (data, isBinary) => {
@@ -378,11 +377,9 @@ async function processAudioMessage(
     const transcript = await whisper.getTranscription(filepath)
 
     if (!transcript) {
-      Logger.error('Error calling the Whisper: ', 'Transcript is null')
+      Logger.error('Error calling the Whisper: Transcript is null.')
       return
     }
-
-    console.log(message.message)
 
     let userMessage = new Message()
     await userMessage.related('chat').associate(chat)
@@ -409,7 +406,7 @@ async function processAudioMessage(
     await processChat(ws, message, id)
     await answer(ws, message, id, user, character, chat, userMessage)
   } catch (error) {
-    Logger.error('Error calling the Whisper: ', error)
+    Logger.error(error, 'Error calling the Whisper: ')
   }
 }
 
