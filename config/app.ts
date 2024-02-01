@@ -233,6 +233,14 @@ export const profiler: ProfilerConfig = {
 */
 export const validator: ValidatorConfig = {}
 
+/*
+|--------------------------------------------------------------------------
+| Reports
+|--------------------------------------------------------------------------
+|
+| Configure the reports settings
+|
+*/
 type ReportsConfig = {
   enabled: boolean
   minReportsCountToSuspension: number,
