@@ -15,7 +15,6 @@ import admin from 'Config/firebase_database'
 import fs from 'fs'
 import WhisperService from 'Service/WhisperService'
 import path from 'path'
-import getAudioDurationInSeconds from 'get-audio-duration'
 WsService.boot()
 
 const textGenApi = new TextGenerationService()
