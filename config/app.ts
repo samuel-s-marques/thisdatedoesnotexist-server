@@ -258,3 +258,21 @@ export const reports: ReportsConfig = {
   suspensionDurationInDays: 7,
   reportsCountToBan: 20,
 }
+
+/*
+|--------------------------------------------------------------------------
+| Whisper
+|--------------------------------------------------------------------------
+|
+| Configure the whisper settings. Whisper is a feature that allows users 
+| to send audio messages to characters. Whispen then transcribes the 
+| audio message to text and sends it to the character.
+|
+*/
+type WhisperConfig = {
+  enabled: boolean
+}
+
+export const whisper: WhisperConfig = {
+  enabled: true,
+}
