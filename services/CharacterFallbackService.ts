@@ -41,7 +41,7 @@ export default class CharacterFallbackService {
         await character.delete()
       }
     } catch (error) {
-      Logger.error('Error checking characters: ', error)
+      Logger.error(error, 'Error checking characters.')
     }
   }
 }
