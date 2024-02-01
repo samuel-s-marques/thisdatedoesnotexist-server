@@ -285,7 +285,6 @@ export default class UsersController {
 
       return user
     } catch (error) {
-      console.log(error)
       return response.status(400).json({ error: 'Error creating user', message: error })
     }
   }
@@ -341,8 +340,6 @@ export default class UsersController {
     if (bio != null || bio != undefined) {
       character.bio = bio.trim().replace(/^"|"$/g, '')
     }
-
-    console.log(character.bio)
 
     const createdCharacter = await character.save()
 
