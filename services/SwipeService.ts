@@ -43,7 +43,7 @@ class SwipeService {
 
       Logger.info('Swipes updated successfully.')
     } catch (error) {
-      Logger.error('Error checking swipes: ', error)
+      Logger.error(error, 'Error checking swipes: ')
     }
   }
 }
