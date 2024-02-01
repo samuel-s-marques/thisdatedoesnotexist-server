@@ -193,8 +193,8 @@ export function promptBuilder(messages: Message[], character: User, user: User):
   }
 
   // Ensure the last line ends with \ncharacter.name:
-  if (!prompt.endsWith(`${character.name}: `)) {
-    prompt += `${character.name} ${character.surname}: `
+  if (!prompt.endsWith(`${character.name}:`)) {
+    prompt += `${character.name} ${character.surname}:`
   }
 
   return prompt

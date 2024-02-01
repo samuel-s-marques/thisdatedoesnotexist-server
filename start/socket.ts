@@ -12,10 +12,14 @@ import NotificationService from 'Service/NotificationService'
 import BannedUser from 'App/Models/BannedUser'
 import TextGenerationService from 'Service/TextGenerationService'
 import admin from 'Config/firebase_database'
+import fs from 'fs'
+import WhisperService from 'Service/WhisperService'
+import path from 'path'
 WsService.boot()
 
 const textGenApi = new TextGenerationService()
 const notificationService = new NotificationService()
+const whisper = new WhisperService()
 
 const clients = {}
 
@@ -67,12 +71,12 @@ WsService.wss.on('connection', (ws) => {
 
   ws.on('error', (error) => {
     Logger.error(`Client ${id} error: ${error}`)
+    console.log(error)
   })
 
   ws.on('message', async (data, isBinary) => {
     try {
       const message = isBinary ? data : JSON.parse(data.toString())
-      console.log(message)
 
       if (message.type == 'auth') {
         let userId = message.user_id
@@ -110,7 +114,38 @@ WsService.wss.on('connection', (ws) => {
       }
 
       if (message.type == 'text') {
-        await processMessage(ws, message, id)
+        const character = await User.query()
+          .where('uid', message.room_uid)
+          .preload('hobbies')
+          .preload('personalityTraits')
+          .preload('pronoun')
+          .preload('relationshipGoal')
+          .firstOrFail()
+        const chat = await Chat.query().where('character_id', character.id).firstOrFail()
+        const user = await User.query()
+          .where('uid', message.message.send_by)
+          .preload('hobbies')
+          .preload('pronoun')
+          .preload('relationshipGoal')
+          .firstOrFail()
+
+        if (!(await canUserMessage(ws, user, character))) {
+          return
+        }
+
+        switch (message.message.type) {
+          case 'text':
+            await processTextMessage(ws, message, id, user, character, chat)
+            break
+          case 'audio':
+            if (fs.existsSync('whisper')) {
+              await processAudioMessage(ws, message, id, user, character, chat)
+            }
+            break
+          default:
+            await processTextMessage(ws, message, id, user, character, chat)
+            break
+        }
       }
     } catch (error) {
       Logger.error(`Client ${id} error: ${error}`)
@@ -130,21 +165,7 @@ WsService.wss.on('connection', (ws) => {
   })
 })
 
-async function processMessage(ws: WebSocket, message: any, id: string) {
-  const character = await User.query()
-    .where('uid', message.room_uid)
-    .preload('hobbies')
-    .preload('personalityTraits')
-    .preload('pronoun')
-    .preload('relationshipGoal')
-    .firstOrFail()
-  const chat = await Chat.query().where('character_id', character.id).firstOrFail()
-  const user = await User.query()
-    .where('uid', message.message.send_by)
-    .preload('hobbies')
-    .preload('pronoun')
-    .preload('relationshipGoal')
-    .firstOrFail()
+async function canUserMessage(ws: WebSocket, user: User, character: User): Promise<boolean> {
   const blockedUsers = await BlockedUser.query()
     .where('user_id', character.id)
     .andWhere('blocked_user_id', user.id)
@@ -163,7 +184,7 @@ async function processMessage(ws: WebSocket, message: any, id: string) {
       })
     )
 
-    return
+    return false
   }
 
   if (user.status !== 'normal') {
@@ -187,14 +208,19 @@ async function processMessage(ws: WebSocket, message: any, id: string) {
       })
     )
 
-    return
+    return false
   }
 
+  return true
+}
+
+async function processTextMessage(ws: WebSocket, message: any, id: string, user: User, character: User, chat: Chat) {
   let userMessage = new Message()
   await userMessage.related('chat').associate(chat)
   await userMessage.related('user').associate(user)
-  userMessage.content = message.message.text
+  userMessage.content = message.message.content
   userMessage.status = 'sent'
+  userMessage.type = 'text'
   await userMessage.save()
 
   ws.send(
@@ -207,10 +233,21 @@ async function processMessage(ws: WebSocket, message: any, id: string) {
     })
   )
 
-  chat.last_message = message.message.text
+  chat.last_message = message.message.content
   await chat.save()
   await processChat(ws, message, id)
+  await answer(ws, message, id, user, character, chat, userMessage)
+}
 
+async function answer(
+  ws: WebSocket,
+  message: any,
+  id: string,
+  user: User,
+  character: User,
+  chat: Chat,
+  userMessage: Message
+) {
   const messagesCountQuery = await Message.query().count('* as total').where('chat_id', chat.id)
   const { total: messagesCount } = messagesCountQuery[0].$extras
   const offset = Math.max(messagesCount - 5, 0)
@@ -312,13 +349,68 @@ async function processMessage(ws: WebSocket, message: any, id: string) {
       type: 'text',
       message: {
         id: uuidv4(),
-        type: 'sender',
+        from: 'sender',
+        type: 'text',
         text: finalMessage,
         send_by: character.uid,
         created_at: DateTime.now(),
       },
     })
   )
+}
+
+async function processAudioMessage(
+  ws: WebSocket,
+  message: any,
+  id: string,
+  user: User,
+  character: User,
+  chat: Chat
+) {
+  try {
+    const audioBytes = Buffer.from(message.message.content, 'base64')
+    const directoryPath = __dirname
+    const parentFolder = path.resolve(directoryPath, '..')
+    const filename = `public/uploads/audios/${uuidv4()}.wav`
+    const filepath = path.join(parentFolder, filename)
+    fs.writeFileSync(filepath, audioBytes)
+
+    const transcript = await whisper.getTranscription(filepath)
+
+    if (!transcript) {
+      Logger.error('Error calling the Whisper: ', 'Transcript is null')
+      return
+    }
+
+    console.log(message.message)
+
+    let userMessage = new Message()
+    await userMessage.related('chat').associate(chat)
+    await userMessage.related('user').associate(user)
+    userMessage.content = transcript
+    userMessage.location = filename.replace('public/', '')
+    userMessage.status = 'sent'
+    userMessage.type = 'audio'
+    userMessage.duration = message.message.duration
+    await userMessage.save()
+
+    ws.send(
+      JSON.stringify({
+        type: 'message-status',
+        message: {
+          id: message.message.id,
+          status: 'sent',
+        },
+      })
+    )
+
+    chat.last_message = 'audio'
+    await chat.save()
+    await processChat(ws, message, id)
+    await answer(ws, message, id, user, character, chat, userMessage)
+  } catch (error) {
+    Logger.error('Error calling the Whisper: ', error)
+  }
 }
 
 async function processChat(ws: WebSocket, message: any, id: string) {
