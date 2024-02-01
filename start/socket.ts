@@ -15,11 +15,18 @@ import admin from 'Config/firebase_database'
 import fs from 'fs'
 import WhisperService from 'Service/WhisperService'
 import path from 'path'
+import Config from '@ioc:Adonis/Core/Config'
 WsService.boot()
 
 const textGenApi = new TextGenerationService()
 const notificationService = new NotificationService()
 const whisper = new WhisperService()
+
+const reportsEnabled = Config.get('app.reports.enabled')
+const minReportsCountToSuspension = Config.get('app.reports.minReportsCountToSuspension')
+const maxReportsCountToSuspension = Config.get('app.reports.maxReportsCountToSuspension')
+const suspensionDurationInDays = Config.get('app.reports.suspensionDurationInDays')
+const reportsCountToBan = Config.get('app.reports.reportsCountToBan')
 
 const clients = {}
 
@@ -213,7 +220,14 @@ async function canUserMessage(ws: WebSocket, user: User, character: User): Promi
   return true
 }
 
-async function processTextMessage(ws: WebSocket, message: any, id: string, user: User, character: User, chat: Chat) {
+async function processTextMessage(
+  ws: WebSocket,
+  message: any,
+  id: string,
+  user: User,
+  character: User,
+  chat: Chat
+) {
   let userMessage = new Message()
   await userMessage.related('chat').associate(chat)
   await userMessage.related('user').associate(user)
@@ -289,41 +303,46 @@ async function answer(
       blocked_user_id: user.id,
       user_id: character.id,
     })
-    user.reportsCount++
-    await user.save()
+    if (reportsEnabled) {
+      user.reportsCount++
+      await user.save()
 
-    if (user.reportsCount >= 5 && user.reportsCount < 20) {
-      user.status = 'suspended'
-      user.statusReason = 'inappropriate content'
+      if (
+        user.reportsCount >= minReportsCountToSuspension &&
+        user.reportsCount < maxReportsCountToSuspension
+      ) {
+        user.status = 'suspended'
+        user.statusReason = 'inappropriate content'
 
-      if (user.statusUntil === null) {
-        user.statusUntil = DateTime.now().plus({ days: 5 })
+        if (user.statusUntil === null) {
+          user.statusUntil = DateTime.now().plus({ days: suspensionDurationInDays })
+        }
+
+        await user.save()
+
+        userMessage.reported = true
+        await userMessage.save()
+
+        notificationService.sendNotification('suspended', user.uid)
       }
 
-      await user.save()
+      if (user.reportsCount >= reportsCountToBan && user.status !== 'banned') {
+        user.status = 'banned'
+        user.statusReason = 'inappropriate content'
+        await user.save()
 
-      userMessage.reported = true
-      await userMessage.save()
+        userMessage.reported = true
+        await userMessage.save()
 
-      notificationService.sendNotification('suspended', user.uid)
-    }
+        await new BannedUser()
+          .fill({
+            uid: user.uid,
+            email: user.email,
+          })
+          .save()
 
-    if (user.reportsCount >= 20 && user.status !== 'banned') {
-      user.status = 'banned'
-      user.statusReason = 'inappropriate content'
-      await user.save()
-
-      userMessage.reported = true
-      await userMessage.save()
-
-      await new BannedUser()
-        .fill({
-          uid: user.uid,
-          email: user.email,
-        })
-        .save()
-
-      notificationService.sendNotification('banned', user.uid)
+        notificationService.sendNotification('banned', user.uid)
+      }
     }
 
     ws.send(
@@ -331,7 +350,8 @@ async function answer(
         type: 'text',
         message: {
           id: uuidv4(),
-          type: 'system',
+          from: 'system',
+          type: 'text',
           text: `You have been blocked by ${character.name} ${character.surname}. You cannot send messages to this character anymore.`,
           created_at: DateTime.now(),
         },
