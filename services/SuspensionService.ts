@@ -40,7 +40,7 @@ export default class SuspensionService {
         await user.save()
       }
     } catch (error) {
-      Logger.error('Error checking suspensions: ', error)
+      Logger.error(error, 'Error checking suspensions: ')
     }
   }
 }
