@@ -5,6 +5,7 @@ import { AxiosResponse } from 'axios'
 import NotificationService from './NotificationService'
 import Chat from 'App/Models/Chat'
 import ProfileSuggesterService from './ProfileSuggesterService'
+import Config from '@ioc:Adonis/Core/Config';
 
 const notificationService: NotificationService = new NotificationService()
 const profileSuggesterService: ProfileSuggesterService = new ProfileSuggesterService()
@@ -115,7 +116,7 @@ export default class AutoSwipeService {
             continue
           }
 
-          const randomScoreThreshold = 0.1
+          const randomScoreThreshold = Config.get('app.matchmaking.threshold')
           let direction = score > randomScoreThreshold ? 'right' : 'left'
 
           const reciprocalSwipe = await Swipe.query()
