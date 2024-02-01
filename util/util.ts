@@ -307,7 +307,5 @@ export function replaceMacros(content: string, character: object, user?: User): 
   content = replaceFunction(content, generalReplacements)
   content = replaceFunction(content, replacements)
 
-  console.log(content)
-
   return content
 }
