@@ -1,13 +1,13 @@
 import Logger from '@ioc:Adonis/Core/Logger'
-import Env from '@ioc:Adonis/Core/Env'
 import shell from 'shelljs'
 import path from 'path'
 import fs from 'fs';
 import { platform } from 'node:process';
+import Config from '@ioc:Adonis/Core/Config';
 
 export default class WhisperService {
   private static instance: WhisperService
-  private static readonly MODEL_NAME = Env.get('WHISPER_MODEL_NAME')
+  private static readonly MODEL_NAME = Config.get('app.whisper.model')
 
   public static getInstance(): WhisperService {
     if (!WhisperService.instance) {

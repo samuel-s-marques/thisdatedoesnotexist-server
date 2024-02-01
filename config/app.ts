@@ -232,3 +232,71 @@ export const profiler: ProfilerConfig = {
 |
 */
 export const validator: ValidatorConfig = {}
+
+/*
+|--------------------------------------------------------------------------
+| Reports
+|--------------------------------------------------------------------------
+|
+| Configure the reports settings. Suspended people can't send messages and 
+| can't like or dislike other characters for X days. Banned people can't 
+| do the same forever.
+|
+*/
+type ReportsConfig = {
+  enabled: boolean
+  minReportsCountToSuspension: number,
+  maxReportsCountToSuspension: number,
+  suspensionDurationInDays: number,
+  reportsCountToBan: number,
+}
+
+export const reports: ReportsConfig = {
+  enabled: true,
+  minReportsCountToSuspension: 5,
+  maxReportsCountToSuspension: 20,
+  suspensionDurationInDays: 7,
+  reportsCountToBan: 20,
+}
+
+/*
+|--------------------------------------------------------------------------
+| Whisper
+|--------------------------------------------------------------------------
+|
+| Configure the whisper settings. Whisper is a feature that allows users 
+| to send audio messages to characters. Whispen then transcribes the 
+| audio message to text and sends it to the character.
+|
+*/
+type WhisperConfig = {
+  enabled: boolean
+  model: string
+}
+
+export const whisper: WhisperConfig = {
+  enabled: false,
+  model: 'base'
+}
+
+/*
+|--------------------------------------------------------------------------
+| Matchmaking
+|--------------------------------------------------------------------------
+|
+| Configure the matchmaking settings. The matchmaking system uses 
+| `profile-suggester` to suggest profiles based on user's. If the 
+| similarity between two profiles is greater than the threshold, then 
+| the system makes the character like the user.
+|
+| The threshold is a number between 0 and 1. The higher the threshold,
+| the more similar the profiles must be to make the character like the user.
+|
+*/
+type MatchmakingConfig = {
+  threshold: number
+}
+
+export const matchmaking: MatchmakingConfig = {
+  threshold: 0.01
+}

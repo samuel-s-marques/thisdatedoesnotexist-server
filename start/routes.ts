@@ -95,6 +95,7 @@ Route.group(() => {
 
   Route.group(() => {
     Route.get('/', 'ChatsController.index')
+    Route.get('/settings', 'ChatsController.settings')
   }).prefix('/chats')
 
   Route.group(() => {
