@@ -90,7 +90,7 @@ export default class TextGenerationService {
           return response.data.choices[0].text
       }
     } catch (error) {
-      Logger.error('Error sending prompt to Text Generation AI: ', error)
+      Logger.error(error, 'Error sending prompt to Text Generation AI.')
     }
   }
 }
