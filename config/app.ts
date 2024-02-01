@@ -232,3 +232,19 @@ export const profiler: ProfilerConfig = {
 |
 */
 export const validator: ValidatorConfig = {}
+
+type ReportsConfig = {
+  enabled: boolean
+  minReportsCountToSuspension: number,
+  maxReportsCountToSuspension: number,
+  suspensionDurationInDays: number,
+  reportsCountToBan: number,
+}
+
+export const reports: ReportsConfig = {
+  enabled: true,
+  minReportsCountToSuspension: 5,
+  maxReportsCountToSuspension: 20,
+  suspensionDurationInDays: 7,
+  reportsCountToBan: 20,
+}
