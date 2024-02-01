@@ -29,7 +29,7 @@ export default class AutoSwipeService {
 
       return users
     } catch (error) {
-      Logger.error('Error getting user profiles from Database: ', error)
+      Logger.error(error, 'Error getting user profiles from Database. ')
       return []
     }
   }
@@ -54,8 +54,7 @@ export default class AutoSwipeService {
 
       return characters
     } catch (error) {
-      console.log(error)
-      Logger.error('Error getting character profiles from Database: ', error)
+      Logger.error(error, 'Error getting character profiles from Database.')
       return []
     }
   }
@@ -154,8 +153,7 @@ export default class AutoSwipeService {
         }
       }
     } catch (error) {
-      console.log(error)
-      Logger.error('Error liking profiles: ', error)
+      Logger.error(error, 'Error liking profiles: ')
     }
   }
 }

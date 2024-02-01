@@ -27,7 +27,7 @@ export default class ComfyUiService {
         return response.data
       }
     } catch (error) {
-      Logger.error("Error retrieving the image's history: ", error)
+      Logger.error(error, "Error retrieving the image's history.")
     }
   }
 
@@ -62,8 +62,7 @@ export default class ComfyUiService {
         Logger.info('Image processed and saved.')
       }
     } catch (error) {
-      console.log(error)
-      Logger.error('Error retrieving the image: ', error)
+      Logger.error(error, 'Error retrieving the image.')
     }
   }
 
@@ -179,7 +178,7 @@ export default class ComfyUiService {
         }
       }
     } catch (error) {
-      Logger.error('Error generating image: ', error)
+      Logger.error(error, 'Error generating image: ')
     }
   }
 }

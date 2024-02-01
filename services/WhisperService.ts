@@ -3,6 +3,7 @@ import Env from '@ioc:Adonis/Core/Env'
 import shell from 'shelljs'
 import path from 'path'
 import fs from 'fs';
+import { platform } from 'node:process';
 
 export default class WhisperService {
   private static instance: WhisperService
@@ -28,12 +29,13 @@ export default class WhisperService {
       const modelFullName = `models/ggml-${modelName}.bin`
 
       if (!fs.existsSync(`whisper\\${modelFullName}`)) {
-        Logger.error('The model file does not exist: ', modelFullName)
+        Logger.error(`The model file does not exist: ${modelFullName}`)
         return null
       }
 
+      const main = platform === 'win32' ? 'main.exe' : './main'
       const transcript = await this.command(
-        `main.exe -l auto -nt -t 8 -m ${modelFullName} -f ${filepath}`
+        `${main} -l auto -nt -t 8 -m ${modelFullName} -f ${filepath}`
       )
 
       if (!transcript || transcript == '') {
@@ -45,7 +47,7 @@ export default class WhisperService {
         .trim()
         .replace(/\[.*?\]/g, '')
     } catch (error) {
-      Logger.error('Error retrieving the transcription: ', error)
+      Logger.error(error, 'Error retrieving the transcription.')
     }
   }
 
