@@ -289,11 +289,14 @@ export const whisper: WhisperConfig = {
 | similarity between two profiles is greater than the threshold, then 
 | the system makes the character like the user.
 |
+| The threshold is a number between 0 and 1. The higher the threshold,
+| the more similar the profiles must be to make the character like the user.
+|
 */
 type MatchmakingConfig = {
   threshold: number
 }
 
 export const matchmaking: MatchmakingConfig = {
-  threshold: 0.5
+  threshold: 0.01
 }
