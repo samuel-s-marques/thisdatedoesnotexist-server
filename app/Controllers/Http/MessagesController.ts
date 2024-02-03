@@ -2,26 +2,20 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import User from 'App/Models/User'
 import Message from 'App/Models/Message'
 import Chat from 'App/Models/Chat'
-import admin from 'Config/firebase_database'
 
 export default class MessagesController {
   public async index({ request, response }: HttpContextContract) {
     try {
       const searchQuery = request.qs()
-      const uid = searchQuery.uid
-      const token = request.header('Authorization')!.split(' ')[1]
-      const decodedToken = await admin.auth().verifyIdToken(token)
+      const characterUid = searchQuery.uid
+      const uid = request.token.uid
 
-      if (!decodedToken) {
-        return response.status(401).json({ error: 'Unauthorized' })
-      }
-
-      if (!uid) {
+      if (!characterUid) {
         return response.status(400).json({ error: 'Chat ID is required.' })
       }
 
-      const user = await User.findByOrFail('uid', decodedToken.uid)
-      const character = await User.findByOrFail('uid', uid)
+      const user = await User.findByOrFail('uid', uid)
+      const character = await User.findByOrFail('uid', characterUid)
       const chat = await Chat.query().where('character_id', character.id).where('user_id', user.id).firstOrFail()
 
       const messages = await Message.query()
