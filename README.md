@@ -42,6 +42,16 @@ If you want your users to send audio messages in the app, you need to clone [Whi
 
 It is this way because I have no experience or knowledge about using multimodal LLMs.
 
+## Image Generation
+This project uses [ComfyUI](https://github.com/comfyanonymous/ComfyUI) to generate character's portraits, based on data coming from [character-forge - npm](https://www.npmjs.com/package/character-forge).
+
+You need to run ComfyUI and add its URL to `.env` file. Also, you need to put your model name in `config/app.ts`.
+
+The project also uses [LCM](https://civitai.com/models/195519/lcm-lora-weights-stable-diffusion-acceleration-module), to generate images fast; [CyberRealistic_Negative](https://civitai.com/models/77976/cyberrealistic-negative) as negative embedding; and [vae-ft-mse-840000](https://huggingface.co/stabilityai/sd-vae-ft-mse-original) as VAE. Download them.
+
+<img src="assets/images/example.png" alt="Example character" width="200"/>
+
+
 ## Support
 
 If you encounter any bugs or issues, please report them in the [issue tracker](https://github.com/samuel-s-marques/thisdatedoesnotexist-server/issues).
