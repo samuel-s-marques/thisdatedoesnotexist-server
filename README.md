@@ -51,6 +51,14 @@ The project also uses [LCM](https://civitai.com/models/195519/lcm-lora-weights-s
 
 <img src="assets/images/example.png" alt="Example character" width="200"/>
 
+## Text Generation / Character responses
+This project uses a text generation API through [Kobold](https://github.com/kalomaze/koboldcpp) or [Oobabooga](https://github.com/oobabooga/text-generation-webui) to generate character responses. 
+
+You need to run one of them and add their URL to `.env` file. You also need to define the API name in `config/app.ts`. Currently, the project uses `kobold` as the default API. 
+
+You'll also need to define your prompt format in the config. The project accepts only some prompt formats, like `chatml`, `openchat`, `alpaca`, `mistral` and `metharme`. For default, it uses `chatml`.
+
+The [demo video]() uses `kobold` and `chatml`, with [NousResearch/Nous-Hermes-2-SOLAR-10.7B](https://huggingface.co/NousResearch/Nous-Hermes-2-SOLAR-10.7B) as model.
 
 ## Support
 
