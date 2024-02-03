@@ -1,12 +1,13 @@
-import { BaseTask, CronTimeV2 } from 'adonis5-scheduler/build/src/Scheduler/Task'
-import SuspensionService from 'Service/SuspensionService';
+import { BaseTask } from 'adonis5-scheduler/build/src/Scheduler/Task'
+import SuspensionService from 'Service/SuspensionService'
+import Config from '@ioc:Adonis/Core/Config'
 
 export default class SuspensionCheckerTask extends BaseTask {
   suspensionService: SuspensionService
 
   public static get schedule() {
     // Use CronTimeV2 generator:
-    return CronTimeV2.everyHour()
+    return Config.get('app.tasks.suspensionChecker.cronTime')
     // or just use return cron-style string (simple cron editor: crontab.guru)
   }
   /**
@@ -18,10 +19,12 @@ export default class SuspensionCheckerTask extends BaseTask {
   }
 
   public async handle() {
-    this.suspensionService = new SuspensionService()
-    await new Promise(() => {
-      this.suspensionService.checkSuspensions()
-      this.logger.info('Checked suspensions.')
-    })
+    if (Config.get('app.tasks.suspensionChecker.enabled')) {
+      this.suspensionService = new SuspensionService()
+      await new Promise(() => {
+        this.suspensionService.checkSuspensions()
+        this.logger.info('Checked suspensions.')
+      })
+    }
   }
 }
