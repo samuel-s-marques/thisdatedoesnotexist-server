@@ -262,7 +262,7 @@ function replaceFunction(content: string, replacements: any) {
 }
 
 export function replaceMacros(content: string, character: object, user?: User): string {
-  const instructions = instructionsJson[Config.get('llm.llm.modelInstructions')]
+  const instructions = instructionsJson[Config.get('app.llm.promptFormat')]
 
   const generalReplacements = {
     '{{user}}': user != null ? `${user.name} ${user.surname}` : '',
