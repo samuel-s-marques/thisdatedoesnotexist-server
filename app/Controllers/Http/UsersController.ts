@@ -519,6 +519,20 @@ export default class UsersController {
     }
   }
 
+  public async getAvailableSwipes({ request, response}: HttpContextContract) {
+    try {
+      const uid = request.token.uid
+      const user = await User.findByOrFail('uid', uid);
+
+      return {
+        available_swipes: user.availableSwipes,
+        last_swipe: user.lastSwipe,
+      }
+    } catch (error) {
+      return response.status(400).json({ error: error.message })
+    }
+  }
+
   private async generateBio(character: object) {
     const prompt = `{{input_sequence}}You are {{char}}, a {{occupation}}. Your hobbies are {{hobbies}}. You are from {{country}}. You can use internet language and be informal. You must write a Tinder bio with no more than two lines. You can write it freely and explicitly.{{output_sequence}}`
 
