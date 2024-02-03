@@ -245,10 +245,10 @@ export const validator: ValidatorConfig = {}
 */
 type ReportsConfig = {
   enabled: boolean
-  minReportsCountToSuspension: number,
-  maxReportsCountToSuspension: number,
-  suspensionDurationInDays: number,
-  reportsCountToBan: number,
+  minReportsCountToSuspension: number
+  maxReportsCountToSuspension: number
+  suspensionDurationInDays: number
+  reportsCountToBan: number
 }
 
 export const reports: ReportsConfig = {
@@ -275,8 +275,8 @@ type WhisperConfig = {
 }
 
 export const whisper: WhisperConfig = {
-  enabled: false,
-  model: 'base'
+  enabled: true,
+  model: 'base',
 }
 
 /*
@@ -298,5 +298,25 @@ type MatchmakingConfig = {
 }
 
 export const matchmaking: MatchmakingConfig = {
-  threshold: 0.01
+  threshold: 0.01,
+}
+
+/*
+|--------------------------------------------------------------------------
+| Comfy UI
+|--------------------------------------------------------------------------
+|
+| Configure the Comfy UI settings. Comfy UI is used to generate character 
+| portraits. The `model` property is the name of the model used to generate
+| the portraits.
+|
+*/
+type ComfyUiConfig = {
+  model: string
+  maxAttempts: number
+}
+
+export const comfyUi: ComfyUiConfig = {
+  model: 'analogMadness_v70.safetensors',
+  maxAttempts: 20,
 }
