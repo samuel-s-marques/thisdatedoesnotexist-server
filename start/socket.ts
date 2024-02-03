@@ -127,12 +127,15 @@ WsService.wss.on('connection', (ws) => {
           .preload('pronoun')
           .preload('relationshipGoal')
           .firstOrFail()
-        const chat = await Chat.query().where('character_id', character.id).firstOrFail()
         const user = await User.query()
           .where('uid', message.message.send_by)
           .preload('hobbies')
           .preload('pronoun')
           .preload('relationshipGoal')
+          .firstOrFail()
+        const chat = await Chat.query()
+          .where('user_id', user.id)
+          .where('character_id', character.id)
           .firstOrFail()
 
         if (!(await canUserMessage(ws, user, character))) {
