@@ -7,7 +7,6 @@ import Preference from 'App/Models/Preference'
 import RelationshipGoal from 'App/Models/RelationshipGoal'
 import Sex from 'App/Models/Sex'
 import User from 'App/Models/User'
-import admin from 'firebase-admin'
 import { v4 as uuidv4 } from 'uuid'
 import Drive from '@ioc:Adonis/Core/Drive'
 import { AgesModule, CharacterForge } from 'character-forge'
@@ -96,49 +95,51 @@ export default class UsersController {
     }
   }
 
-  public async show(ctx: HttpContextContract) {
-    const token = ctx.request.header('Authorization')!.split(' ')[1]
-    const decodedToken = await admin.auth().verifyIdToken(token)
-    const uid = ctx.params.uid
+  public async show({ request, response }: HttpContextContract) {
+    try {
+      const uid = request.token.uid
 
-    if (uid != decodedToken.uid) {
-      return ctx.response.status(400).json({ error: 'User does not exist.' })
+      const user = await User.query()
+        .where('uid', uid)
+        .preload('hobbies')
+        .preload('pronoun')
+        .preload('relationshipGoal')
+        .preload('preferences', (query) => {
+          query
+            .preload('body_types')
+            .preload('political_views')
+            .preload('relationship_goals')
+            .preload('sexes')
+        })
+        .firstOrFail()
+
+      return user
+    } catch (error) {
+      return response.status(400).json({ error: 'Error getting user.' })
     }
-
-    const user = await User.query()
-      .where('uid', decodedToken.uid)
-      .preload('hobbies')
-      .preload('pronoun')
-      .preload('relationshipGoal')
-      .preload('preferences', (query) => {
-        query
-          .preload('body_types')
-          .preload('political_views')
-          .preload('relationship_goals')
-          .preload('sexes')
-      })
-      .firstOrFail()
-
-    return user
   }
 
-  public async showCharacter(ctx: HttpContextContract) {
-    const user = await User.query()
-      .where('uid', ctx.params.uuid)
-      .preload('hobbies')
-      .preload('pronoun')
-      .preload('relationshipGoal')
-      .preload('personalityTraits')
-      .firstOrFail()
+  public async showCharacter({ response, params }: HttpContextContract) {
+    try {
+      const character = await User.query()
+        .where('uid', params.uuid)
+        .preload('hobbies')
+        .preload('pronoun')
+        .preload('relationshipGoal')
+        .preload('personalityTraits')
+        .firstOrFail()
 
-    return user
+      return character
+    } catch (error) {
+      return response.status(400).json({ error: 'Error getting character.' })
+    }
   }
 
   public async store({ request, response }: HttpContextContract) {
     try {
-      const token = request.header('Authorization')!.split(' ')[1]
-      const decodedToken = await admin.auth().verifyIdToken(token)
-      const existingUser = await User.findBy('uid', decodedToken.uid)
+      const uid = request.token.uid
+      const email = request.token.email
+      const existingUser = await User.findBy('uid', uid)
 
       if (existingUser) {
         return response.status(400).json({ error: 'User already exists' })
@@ -187,7 +188,7 @@ export default class UsersController {
       let filteredData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v != null))
 
       if (!filteredData.email) {
-        filteredData.email = decodedToken.email
+        filteredData.email = email
       }
 
       if (await BannedUser.findBy('email', filteredData.email)) {
@@ -208,7 +209,7 @@ export default class UsersController {
       }
 
       newUser.fill({
-        uid: decodedToken.uid,
+        uid: uid,
         imageUrl: `/uploads/${imageName}`,
         type: 'user',
         status: 'normal',
@@ -352,18 +353,16 @@ export default class UsersController {
     return createdCharacter
   }
 
-  public async update(ctx: HttpContextContract) {
+  public async update({ request, response }: HttpContextContract) {
     try {
-      const token = ctx.request.header('Authorization')!.split(' ')[1]
-      const decodedToken = await admin.auth().verifyIdToken(token)
-
-      const user = await User.findBy('uid', decodedToken.uid)
+      const uid = request.token.uid
+      const user = await User.findBy('uid', uid)
 
       if (!user) {
-        return ctx.response.status(400).json({ error: 'User does not exist.' })
+        return response.status(400).json({ error: 'User does not exist.' })
       }
 
-      const data = ctx.request.only([
+      const data = request.only([
         'name',
         'email',
         'age',
@@ -437,27 +436,21 @@ export default class UsersController {
 
       await user.save()
     } catch (error) {
-      return ctx.response.status(400).json({ error: 'Error updating user' })
+      return response.status(400).json({ error: 'Error updating user' })
     }
   }
 
-  public async destroy(ctx: HttpContextContract) {
+  public async destroy({ request, response }: HttpContextContract) {
     try {
-      const token = ctx.request.header('Authorization')!.split(' ')[1]
-      const decodedToken = await admin.auth().verifyIdToken(token)
-
-      const user = await User.findBy('uid', decodedToken.uid)
-
-      if (!user) {
-        return ctx.response.status(400).json({ error: 'User does not exist.' })
-      }
+      const uid = request.token.uid
+      const user = await User.findByOrFail('uid', uid)
 
       Drive.delete(user.imageUrl)
       user.delete()
 
-      return ctx.response.status(200).json({ message: 'User deleted.' })
+      return response.status(200).json({ message: 'User deleted.' })
     } catch (error) {
-      return ctx.response.status(400).json({ error: 'Error deleting user' })
+      return response.status(400).json({ error: 'Error deleting user' })
     }
   }
 
@@ -497,14 +490,9 @@ export default class UsersController {
     return response.send({ success: true })
   }
 
-  public async status({ response, params }: HttpContextContract) {
+  public async status({ request, response }: HttpContextContract) {
     try {
-      const uid = params.uid
-
-      if (!uid) {
-        return response.status(400).json({ error: 'User ID is required.' })
-      }
-
+      const uid = request.token.uid
       const user = await User.findByOrFail('uid', uid)
       const messages = await Message.query().where('user_id', user.id).where('reported', true)
 
@@ -519,14 +507,13 @@ export default class UsersController {
     }
   }
 
-  public async getAvailableSwipes({ request, response}: HttpContextContract) {
+  public async getAvailableSwipes({ request, response }: HttpContextContract) {
     try {
       const uid = request.token.uid
-      const user = await User.findByOrFail('uid', uid);
+      const user = await User.findByOrFail('uid', uid)
 
       return {
         available_swipes: user.availableSwipes,
-        last_swipe: user.lastSwipe,
       }
     } catch (error) {
       return response.status(400).json({ error: error.message })
