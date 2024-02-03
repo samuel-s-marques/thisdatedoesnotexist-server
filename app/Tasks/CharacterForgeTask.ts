@@ -1,12 +1,13 @@
 import UsersController from 'App/Controllers/Http/UsersController'
-import { BaseTask, CronTimeV2 } from 'adonis5-scheduler/build/src/Scheduler/Task'
+import { BaseTask } from 'adonis5-scheduler/build/src/Scheduler/Task'
+import Config from '@ioc:Adonis/Core/Config'
 
 export default class CharacterForgeTask extends BaseTask {
   characterController: UsersController
 
   public static get schedule() {
     // Use CronTimeV2 generator:
-    return CronTimeV2.everyDay()
+    return Config.get('app.tasks.characterForge.cronTime')
     // or just use return cron-style string (simple cron editor: crontab.guru)
   }
   /**
@@ -18,10 +19,12 @@ export default class CharacterForgeTask extends BaseTask {
   }
 
   public async handle() {
-    this.characterController = new UsersController()
-    await new Promise(() => {
-      this.characterController.storeCharacter()
-      this.logger.info('Character created.')
-    })
+    if (Config.get('app.tasks.characterForge.enabled')) {
+      this.characterController = new UsersController()
+      await new Promise(() => {
+        this.characterController.storeCharacter()
+        this.logger.info('Character created.')
+      })
+    }
   }
 }
