@@ -5,10 +5,13 @@ import { generateRandomSeed, imagePromptBuilder, negativeImagePromptBuilder } fr
 import { Character } from 'character-forge'
 import fs from 'fs'
 import Application from '@ioc:Adonis/Core/Application'
+import Config from '@ioc:Adonis/Core/Config';
 
 export default class ComfyUiService {
   private static instance: ComfyUiService
   private static readonly API_URL = Env.get('COMFY_UI_API_URL')
+  private static readonly model = Config.get('app.comfyUi.model')
+  private static readonly maxAttempts = Config.get('app.comfyUi.maxAttempts')
 
   public static getInstance(): ComfyUiService {
     if (!ComfyUiService.instance) {
@@ -78,7 +81,7 @@ export default class ComfyUiService {
         prompt: {
           '1': {
             inputs: {
-              ckpt_name: 'analogMadness_v70.safetensors',
+              ckpt_name: ComfyUiService.model,
             },
             class_type: 'CheckpointLoaderSimple',
           },
@@ -159,9 +162,8 @@ export default class ComfyUiService {
 
         let history = {}
         let attempts = 0
-        const maxAttempts = 20
 
-        while (Object.keys(history).length === 0 && attempts < maxAttempts) {
+        while (Object.keys(history).length === 0 && attempts < ComfyUiService.maxAttempts) {
           attempts++
           history = await this.getHistory(promptId)
 
