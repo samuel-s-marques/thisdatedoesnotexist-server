@@ -20,6 +20,7 @@ export default class FirebaseAuth {
         return response.unauthorized({ error: 'Invalid token' })
       }
 
+      request.token = decodedToken
       await next()
     } catch (error) {
       return response.unauthorized({ error: 'Invalid credentials', message: error })
