@@ -1,10 +1,11 @@
 import SwipeService from 'Service/SwipeService'
-import { BaseTask, CronTimeV2 } from 'adonis5-scheduler/build/src/Scheduler/Task'
+import { BaseTask } from 'adonis5-scheduler/build/src/Scheduler/Task'
+import Config from '@ioc:Adonis/Core/Config'
 
 export default class SwipeCheckerTask extends BaseTask {
   public static get schedule() {
     // Use CronTimeV2 generator:
-    return CronTimeV2.everyHour()
+    return Config.get('app.tasks.swipeChecker.cronTime')
     // or just use return cron-style string (simple cron editor: crontab.guru)
   }
   /**
@@ -16,10 +17,11 @@ export default class SwipeCheckerTask extends BaseTask {
   }
 
   public async handle() {
-    // Remove this promise and insert your code:
-    await new Promise(() => {
-      SwipeService.getInstance().checkSwipes()
-      this.logger.info('Checked swipes.')
-    })
+    if (Config.get('app.tasks.swipeChecker.enabled')) {
+      await new Promise(() => {
+        SwipeService.getInstance().checkSwipes()
+        this.logger.info('Checked swipes.')
+      })
+    }
   }
 }
