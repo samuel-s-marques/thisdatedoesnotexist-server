@@ -365,7 +365,8 @@ export const llm: LlmConfig = {
 | `cronTime` property is used to define the time when the task will run.
 |
 | - `autoSwipe` - Automatically swipe profiles.
-| - `characterFallback` - Check if characters have profile image or bio.
+| - `characterFallback` - Delete characters who don't have profile image 
+| or bio.
 | - `swipeChecker` - Check if users have less than 20 swipes.
 | - `suspensionChecker` - Check if users are suspended.
 | - `characterForge` - Generate characters.
