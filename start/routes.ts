@@ -77,6 +77,7 @@ Route.group(() => {
     Route.put('/', 'UsersController.update')
     Route.get('/:uid', 'UsersController.show')
     Route.delete('/', 'UsersController.destroy')
+    Route.get('/swipes', 'UsersController.getAvailableSwipes')
   })
     .prefix('/users')
     .middleware('auth')
