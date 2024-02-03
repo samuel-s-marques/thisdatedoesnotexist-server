@@ -20,9 +20,9 @@ export default class MessagesController {
         return response.status(400).json({ error: 'Chat ID is required.' })
       }
 
-      await User.findByOrFail('uid', decodedToken.uid)
+      const user = await User.findByOrFail('uid', decodedToken.uid)
       const character = await User.findByOrFail('uid', uid)
-      const chat = await Chat.findByOrFail('character_id', character.id)
+      const chat = await Chat.query().where('character_id', character.id).where('user_id', user.id).firstOrFail()
 
       const messages = await Message.query()
         .where('chat_id', chat.id)
