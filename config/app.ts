@@ -11,6 +11,7 @@ import type { ServerConfig } from '@ioc:Adonis/Core/Server'
 import type { LoggerConfig } from '@ioc:Adonis/Core/Logger'
 import type { ProfilerConfig } from '@ioc:Adonis/Core/Profiler'
 import type { ValidatorConfig } from '@ioc:Adonis/Core/Validator'
+import { CronTimeV2 } from 'adonis5-scheduler/build/src/Scheduler/Task'
 
 /*
 |--------------------------------------------------------------------------
@@ -351,4 +352,69 @@ type LlmConfig = {
 export const llm: LlmConfig = {
   promptFormat: 'chatml',
   api: 'kobold',
+}
+
+/*
+|--------------------------------------------------------------------------
+| Tasks
+|--------------------------------------------------------------------------
+|
+| Configure the tasks settings.
+|
+| The `enabled` property is used to enable or disable the task. The 
+| `cronTime` property is used to define the time when the task will run.
+|
+| - `autoSwipe` - Automatically swipe profiles.
+| - `characterFallback` - Delete characters who don't have profile image 
+| or bio.
+| - `swipeChecker` - Check if users have less than 20 swipes.
+| - `suspensionChecker` - Check if users are suspended.
+| - `characterForge` - Generate characters.
+|
+*/
+
+type TaskConfig = {
+  autoSwipe: {
+    enabled: boolean
+    cronTime: CronTimeV2
+  }
+  characterFallback: {
+    enabled: boolean
+    cronTime: CronTimeV2
+  }
+  swipeChecker: {
+    enabled: boolean
+    cronTime: CronTimeV2
+  }
+  suspensionChecker: {
+    enabled: boolean
+    cronTime: CronTimeV2
+  }
+  characterForge: {
+    enabled: boolean
+    cronTime: CronTimeV2
+  }
+}
+
+export const tasks: TaskConfig = {
+  autoSwipe: {
+    enabled: true,
+    cronTime: CronTimeV2.everyDay(),
+  },
+  characterFallback: {
+    enabled: true,
+    cronTime: CronTimeV2.everyTenMinutes(),
+  },
+  swipeChecker: {
+    enabled: true,
+    cronTime: CronTimeV2.everyHour(),
+  },
+  suspensionChecker: {
+    enabled: true,
+    cronTime: CronTimeV2.everyHour(),
+  },
+  characterForge: {
+    enabled: true,
+    cronTime: CronTimeV2.everyDay(),
+  },
 }

@@ -1,13 +1,14 @@
 import CharacterFallbackService from 'Service/CharacterFallbackService'
-import { BaseTask, CronTimeV2 } from 'adonis5-scheduler/build/src/Scheduler/Task'
+import { BaseTask } from 'adonis5-scheduler/build/src/Scheduler/Task'
+import Config from '@ioc:Adonis/Core/Config'
 
 export default class CharacterFallbackTask extends BaseTask {
   characterFallbackService: CharacterFallbackService
 
   public static get schedule() {
-		// Use CronTimeV2 generator:
-    return CronTimeV2.everyTenMinutes()
-		// or just use return cron-style string (simple cron editor: crontab.guru)
+    // Use CronTimeV2 generator:
+    return Config.get('app.tasks.characterFallback.cronTime')
+    // or just use return cron-style string (simple cron editor: crontab.guru)
   }
   /**
    * Set enable use .lock file for block run retry task
@@ -18,10 +19,12 @@ export default class CharacterFallbackTask extends BaseTask {
   }
 
   public async handle() {
-    this.characterFallbackService = new CharacterFallbackService()
-    await new Promise(() => {
-      this.characterFallbackService.checkCharacters()
-      this.logger.info(`Character fallback check.`)
-    })
+    if (Config.get('app.tasks.characterFallback.enabled')) {
+      this.characterFallbackService = new CharacterFallbackService()
+      await new Promise(() => {
+        this.characterFallbackService.checkCharacters()
+        this.logger.info(`Character fallback check.`)
+      })
+    }
   }
 }
