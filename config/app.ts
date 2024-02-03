@@ -398,23 +398,23 @@ type TaskConfig = {
 
 export const tasks: TaskConfig = {
   autoSwipe: {
-    enabled: false,
+    enabled: true,
     cronTime: CronTimeV2.everyDay(),
   },
   characterFallback: {
-    enabled: false,
+    enabled: true,
     cronTime: CronTimeV2.everyTenMinutes(),
   },
   swipeChecker: {
-    enabled: false,
+    enabled: true,
     cronTime: CronTimeV2.everyHour(),
   },
   suspensionChecker: {
-    enabled: false,
+    enabled: true,
     cronTime: CronTimeV2.everyHour(),
   },
   characterForge: {
-    enabled: false,
+    enabled: true,
     cronTime: CronTimeV2.everyDay(),
   },
 }
