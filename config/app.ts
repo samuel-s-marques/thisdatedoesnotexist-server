@@ -320,3 +320,35 @@ export const comfyUi: ComfyUiConfig = {
   model: 'analogMadness_v70.safetensors',
   maxAttempts: 20,
 }
+
+/*
+|--------------------------------------------------------------------------
+| Large Language Model Configuration
+|--------------------------------------------------------------------------
+|
+| Configure the Large Language Model settings. The `promptFormat` 
+| property is the name of the model used to generate the responses. The `api`
+| property is the name of the API used to generate the responses.
+|
+| The are only two possible values for the `api` property: `kobold` and 
+| `oobabooga`.
+|
+| There are some possible values for the `promptFormat` property:
+| - `chatml`
+| - `openchat`
+| - `alpaca`
+| - `mistral`
+| - `metharme`
+|
+| These values are defined in `assets/json/instructions.json`.
+|
+*/
+type LlmConfig = {
+  promptFormat: string
+  api: string
+}
+
+export const llm: LlmConfig = {
+  promptFormat: 'chatml',
+  api: 'kobold',
+}
