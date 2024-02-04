@@ -24,13 +24,17 @@ Route.group(() => {
   Route.group(() => {
     Route.get('/', 'UsersController.index')
     Route.get('/:uuid', 'UsersController.showCharacter')
-  }).prefix('/characters')
+  })
+    .prefix('/characters')
+    .middleware('auth')
 
   Route.group(() => {
     Route.post('/', 'FeedbacksController.store')
     Route.get('/', 'FeedbacksController.index')
     Route.get('/:id', 'FeedbacksController.show')
-  }).prefix('/feedbacks')
+  })
+    .prefix('/feedbacks')
+    .middleware('auth')
 
   Route.group(() => {
     Route.get('/', 'HobbiesController.index')
@@ -86,26 +90,36 @@ Route.group(() => {
     Route.post('/', 'PreferencesController.store')
     Route.put('/:uid', 'PreferencesController.update')
     Route.get('/:uid', 'PreferencesController.show')
-  }).prefix('/preferences')
+  })
+    .prefix('/preferences')
+    .middleware('auth')
 
   Route.group(() => {
     Route.post('/', 'SwipesController.store')
     Route.get('/', 'SwipesController.index')
     Route.get('/user', 'SwipesController.indexSwipes')
-  }).prefix('/swipes')
+  })
+    .prefix('/swipes')
+    .middleware('auth')
 
   Route.group(() => {
     Route.get('/', 'ChatsController.index')
     Route.get('/settings', 'ChatsController.settings')
-  }).prefix('/chats')
+  })
+    .prefix('/chats')
+    .middleware('auth')
 
   Route.group(() => {
     Route.get('/', 'MessagesController.index')
-  }).prefix('/messages')
+  })
+    .prefix('/messages')
+    .middleware('auth')
 
   Route.group(() => {
     Route.get('/', 'NotificationsController.index')
-  }).prefix('/notifications')
+  })
+    .prefix('/notifications')
+    .middleware('auth')
 
   Route.group(() => {
     Route.get('/', 'OccupationsController.index')
@@ -116,14 +130,17 @@ Route.group(() => {
     Route.get('/', 'ReportsController.index')
     Route.get('/:id', 'ReportsController.show')
     Route.post('/', 'ReportsController.store')
-  }).prefix('/reports')
+  })
+    .prefix('/reports')
+    .middleware('auth')
 
   Route.group(() => {
-    // todo: replace with token auth
-    Route.get('/account/:uid', 'UsersController.status')
-  }).prefix('/status')
+    Route.get('/account', 'UsersController.status')
+  })
+    .prefix('/status')
+    .middleware('auth')
 
   Route.post('/users/upload', 'UsersController.checkNsfwDetection')
 }).prefix('/api')
 
-Route.get('/uploads/:filename', 'UploadsController.show')
+Route.get('/uploads/:filename', 'UploadsController.show').middleware('auth')
