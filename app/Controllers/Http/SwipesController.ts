@@ -33,6 +33,10 @@ export default class SwipesController {
         return response.status(400).json({ error: message })
       }
 
+      if (swiper.availableSwipes <= 0) {
+        return response.status(400).json({ error: 'You have no available swipes.' })
+      }
+
       const reciprocalSwipe = await Swipe.query()
         .where('target_id', swiper.id)
         .where('swiper_id', target.id)
