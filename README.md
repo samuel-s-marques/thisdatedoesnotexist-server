@@ -4,9 +4,9 @@ Welcome to the backend documentation of ["This Date Does Not Exist"](https://git
 
 ## Installation
 
-You will need Firebase (for authentication), MySQL database, OneSignal, a Text Generation backend (Kobold or Ooobabooga), Comfy UI and [profile-suggester](https://github.com/samuel-s-marques/thisdatedoesnotexist-profile-suggester).
+You will need Firebase (for authentication), MySQL database, OneSignal, a Text Generation backend (Kobold or Ooobabooga), Comfy UI, and [profile-suggester](https://github.com/samuel-s-marques/thisdatedoesnotexist-profile-suggester).
 
-Comfy UI and the the Text Generation backend are both used to generate characters. To chat with them, it will also be used a LLM. 
+Comfy UI and the Text Generation backend are both used to generate characters. To chat with them, it will also be used a LLM. 
 
 To install and use this project, you need to follow these instructions:
 
@@ -33,19 +33,19 @@ node ace migration:fresh --seed
 node ace serve
 ```
 
-You need to install and download [profile-suggester](https://github.com/samuel-s-marques/thisdatedoesnotexist-profile-suggester), otherwise, the characters won't like, dislike nor match the user. The user won't see the characters cards too.
+You need to install and download [profile-suggester](https://github.com/samuel-s-marques/thisdatedoesnotexist-profile-suggester), otherwise, the characters won't like, dislike nor match the user. The user won't see the character's cards either.
 
 ## Speech to Text / Audio Messages
 The project allows the users to send audio messages to characters. The audios are transcribed using WhisperCPP, locally.
 
-If you want your users to send audio messages in the app, you need to clone [WhisperCPP](https://github.com/ggerganov/whisper.cpp) and move it project's root. Then, you need to download a model and put the model's name in `config/app.ts`, at the `WhisperConfig` section. After that, you need to change the `enabled` option above the `model` key.
+If you want your users to send audio messages in the app, you need to clone [WhisperCPP](https://github.com/ggerganov/whisper.cpp) and move it to the project's root. Then, you need to download a model and put the model's name in `config/app.ts`, in the `WhisperConfig` section. After that, you need to change the `enabled` option above the `model` key.
 
 It is this way because I have no experience or knowledge about using multimodal LLMs.
 
 ## Image Generation
-This project uses [ComfyUI](https://github.com/comfyanonymous/ComfyUI) to generate character's portraits, based on data coming from [character-forge - npm](https://www.npmjs.com/package/character-forge).
+This project uses [ComfyUI](https://github.com/comfyanonymous/ComfyUI) to generate character portraits, based on data coming from [character-forge - npm](https://www.npmjs.com/package/character-forge).
 
-You need to run ComfyUI and add its URL to `.env` file. Also, you need to put your model name in `config/app.ts`.
+You need to run ComfyUI and add its URL to the `.env` file. Also, you need to put your model name in `config/app.ts`.
 
 The project also uses [LCM](https://civitai.com/models/195519/lcm-lora-weights-stable-diffusion-acceleration-module), to generate images fast; [CyberRealistic_Negative](https://civitai.com/models/77976/cyberrealistic-negative) as negative embedding; and [vae-ft-mse-840000](https://huggingface.co/stabilityai/sd-vae-ft-mse-original) as VAE. Download them.
 
@@ -54,11 +54,11 @@ The project also uses [LCM](https://civitai.com/models/195519/lcm-lora-weights-s
 ## Text Generation / Character responses
 This project uses a text generation API through [Kobold](https://github.com/kalomaze/koboldcpp) or [Oobabooga](https://github.com/oobabooga/text-generation-webui) to generate character responses. 
 
-You need to run one of them and add their URL to `.env` file. You also need to define the API name in `config/app.ts`. Currently, the project uses `kobold` as the default API. 
+You need to run one of them and add their URL to the `.env` file. You also need to define the API name in `config/app.ts`. Currently, the project uses `kobold` as the default API. 
 
-You'll also need to define your prompt format in the config. The project accepts only some prompt formats, like `chatml`, `openchat`, `alpaca`, `mistral` and `metharme`. For default, it uses `chatml`.
+You'll also need to define your prompt format in the config. The project accepts only some prompt formats, like `chatml`, `openchat`, `alpaca`, `mistral`, and `metharme`. For default, it uses `chatml`.
 
-The [demo video]() uses `kobold` and `chatml`, with [NousResearch/Nous-Hermes-2-SOLAR-10.7B](https://huggingface.co/NousResearch/Nous-Hermes-2-SOLAR-10.7B) as model.
+The [demo video]() uses `kobold` and `chatml`, with [NousResearch/Nous-Hermes-2-SOLAR-10.7B](https://huggingface.co/NousResearch/Nous-Hermes-2-SOLAR-10.7B) as a model.
 
 ## Support
 
