@@ -68,7 +68,7 @@ export default class UsersController {
       .if(searchQuery.min_age && searchQuery.max_age, (query) => {
         query.whereBetween('age', [searchQuery.min_age, searchQuery.max_age])
       })
-      .paginate(page, 10)
+      .paginate(page, 25)
 
     const charactersJson = characters.toJSON()
     const response = await profileSuggesterService.getProfilesFromApi(user, charactersJson.data)
