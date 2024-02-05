@@ -24,15 +24,13 @@ Route.group(() => {
   Route.group(() => {
     Route.get('/', 'UsersController.index')
     Route.get('/:uuid', 'UsersController.showCharacter')
-  })
-    .prefix('/characters')
+  }).prefix('/characters')
 
   Route.group(() => {
     Route.post('/', 'FeedbacksController.store')
     Route.get('/', 'FeedbacksController.index')
     Route.get('/:id', 'FeedbacksController.show')
-  })
-    .prefix('/feedbacks')
+  }).prefix('/feedbacks')
 
   Route.group(() => {
     Route.get('/', 'HobbiesController.index')
@@ -80,38 +78,32 @@ Route.group(() => {
     Route.get('/', 'UsersController.show')
     Route.delete('/', 'UsersController.destroy')
     Route.get('/swipes', 'UsersController.getAvailableSwipes')
-  })
-    .prefix('/users')
+  }).prefix('/users')
 
   Route.group(() => {
     Route.post('/', 'PreferencesController.store')
     Route.put('/', 'PreferencesController.update')
     Route.get('/', 'PreferencesController.show')
-  })
-    .prefix('/preferences')
+  }).prefix('/preferences')
 
   Route.group(() => {
     Route.post('/', 'SwipesController.store')
     Route.get('/', 'SwipesController.index')
     Route.get('/user', 'SwipesController.indexSwipes')
-  })
-    .prefix('/swipes')
+  }).prefix('/swipes')
 
   Route.group(() => {
     Route.get('/', 'ChatsController.index')
     Route.get('/settings', 'ChatsController.settings')
-  })
-    .prefix('/chats')
+  }).prefix('/chats')
 
   Route.group(() => {
     Route.get('/', 'MessagesController.index')
-  })
-    .prefix('/messages')
+  }).prefix('/messages')
 
   Route.group(() => {
     Route.get('/', 'NotificationsController.index')
-  })
-    .prefix('/notifications')
+  }).prefix('/notifications')
 
   Route.group(() => {
     Route.get('/', 'OccupationsController.index')
@@ -122,13 +114,11 @@ Route.group(() => {
     Route.get('/', 'ReportsController.index')
     Route.get('/:id', 'ReportsController.show')
     Route.post('/', 'ReportsController.store')
-  })
-    .prefix('/reports')
+  }).prefix('/reports')
 
   Route.group(() => {
     Route.get('/account', 'UsersController.status')
-  })
-    .prefix('/status')
+  }).prefix('/status')
 
   Route.post('/users/upload', 'UsersController.checkNsfwDetection')
 })
