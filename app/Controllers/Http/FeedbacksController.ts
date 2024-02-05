@@ -3,18 +3,13 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import FeedbackModel from 'App/Models/FeedbackModel'
 
 export default class FeedbacksController {
-  public async index(ctx: HttpContextContract) {
-    const page = ctx.request.input('page', 1)
-    const query = ctx.request.input('query')
-    const value = ctx.request.input('value')
+  public async index({ request }: HttpContextContract) {
+    const page = request.input('page', 1)
 
-    if (query && value) {
-      const feedbacks = await FeedbackModel.query().where(query, value).paginate(page, 40)
-
-      return feedbacks
-    }
-
-    const feedbacks = await FeedbackModel.query().paginate(page, 40)
+    const feedbacks = await FeedbackModel.query()
+      .where('user_uid', request.token.uid)
+      .orderBy('updatedAt', 'desc')
+      .paginate(page, 40)
     return feedbacks
   }
 
@@ -24,14 +19,38 @@ export default class FeedbacksController {
     return feedback
   }
 
-  public async store(ctx: HttpContextContract) {
-    const feedback = new FeedbackModel()
-    feedback.user_uid = ctx.request.input('user_uid')
-    feedback.text = ctx.request.input('text')
-    feedback.screenshot = Attachment.fromFile(ctx.request.file('screenshot')!)
+  public async store({ request, response }: HttpContextContract) {
+    try {
+      const existingFeedback = await FeedbackModel.query()
+        .where('user_uid', request.token.uid)
+        .first()
 
-    await feedback.save()
+      if (existingFeedback) {
+        return response.status(409).json({
+          error: {
+            code: 409,
+            message: 'Conflict',
+            details: 'Feedback already exists.',
+          },
+        })
+      }
 
-    return feedback
+      const feedback = new FeedbackModel()
+
+      feedback.user_uid = request.input('user_uid')
+      feedback.text = request.input('text')
+      feedback.screenshot = Attachment.fromFile(request.file('screenshot')!)
+
+      await feedback.save()
+      return response.status(201).send(feedback)
+    } catch (error) {
+      return response.status(400).json({
+        error: {
+          code: 400,
+          message: 'Bad Request',
+          details: `Error creating feedback: ${error.message}`,
+        },
+      })
+    }
   }
 }
