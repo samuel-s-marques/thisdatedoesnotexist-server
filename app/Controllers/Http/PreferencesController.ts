@@ -4,27 +4,31 @@ import User from 'App/Models/User'
 import CacheService from 'Service/CacheService'
 
 export default class PreferencesController {
-  public async show({ params }: HttpContextContract) {
-    const uid = params.uid
-    const user = await User.findByOrFail('uid', uid)
+  public async show({ request, response }: HttpContextContract) {
+    try {
+      const uid = request.token.uid
+      const user = await User.findByOrFail('uid', uid)
 
-    const cache = CacheService.getInstance()
-    if (cache.get(`preferences-${uid}`)) {
-      return cache.get(`preferences-${uid}`)
+      const cache = CacheService.getInstance()
+      if (cache.get(`preferences-${uid}`)) {
+        return cache.get(`preferences-${uid}`)
+      }
+
+      const preference = await Preference.query()
+        .where('user_id', user.id)
+        .preload('body_types')
+        .preload('political_views')
+        .preload('relationship_goals')
+        .preload('sexes')
+        .preload('religions')
+        .firstOrFail()
+
+      cache.set(`preferences-${uid}`, preference)
+
+      return preference
+    } catch (error) {
+      return response.status(400).json({ error: 'Error getting character.' })
     }
-
-    const preference = await Preference.query()
-      .where('user_id', user.id)
-      .preload('body_types')
-      .preload('political_views')
-      .preload('relationship_goals')
-      .preload('sexes')
-      .preload('religions')
-      .firstOrFail()
-
-    cache.set(`preferences-${uid}`, preference)
-
-    return preference
   }
 
   public async store(ctx: HttpContextContract) {
@@ -33,7 +37,8 @@ export default class PreferencesController {
     return preference
   }
 
-  public async update({ request, params }: HttpContextContract) {
+  public async update({ request }: HttpContextContract) {
+    const uid = request.token.uid
     const requestData = request.only([
       'min_age',
       'max_age',
@@ -43,7 +48,7 @@ export default class PreferencesController {
       'political_views',
       'religions',
     ])
-    const user = await User.findByOrFail('uid', params.uid)
+    const user = await User.findByOrFail('uid', uid)
     const preference = await Preference.query().where('user_id', user.id).firstOrFail()
 
     preference.merge(request.body())
