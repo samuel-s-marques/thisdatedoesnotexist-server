@@ -25,12 +25,12 @@ const textGenApi = new TextGenerationService()
 const profileSuggesterService = new ProfileSuggesterService()
 
 export default class UsersController {
-  public async index(ctx: HttpContextContract) {
-    const page = ctx.request.input('page', 1)
-    const searchQuery = ctx.request.qs()
+  public async index({request, response}: HttpContextContract) {
+    const page = request.input('page', 1)
+    const searchQuery = request.qs()
 
     const user = await User.query()
-      .where('uid', searchQuery.uid)
+      .where('uid', request.token.uid)
       .preload('hobbies')
       .preload('relationshipGoal')
       .firstOrFail()
@@ -71,13 +71,13 @@ export default class UsersController {
       .paginate(page, 25)
 
     const charactersJson = characters.toJSON()
-    const response = await profileSuggesterService.getProfilesFromApi(user, charactersJson.data)
+    const profileSuggester = await profileSuggesterService.getProfilesFromApi(user, charactersJson.data)
 
-    if (response.status != 200) {
-      return ctx.response.status(400).json({ error: 'Error getting profiles from API' })
+    if (profileSuggester.status != 200) {
+      return response.status(400).json({ error: 'Error getting profiles from API' })
     }
 
-    const profiles = response.data.suggested_profiles
+    const profiles = profileSuggester.data.suggested_profiles
 
     return {
       meta: {
