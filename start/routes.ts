@@ -79,7 +79,7 @@ Route.group(() => {
   Route.group(() => {
     Route.post('/', 'UsersController.store')
     Route.put('/', 'UsersController.update')
-    Route.get('/:uid', 'UsersController.show')
+    Route.get('/', 'UsersController.show')
     Route.delete('/', 'UsersController.destroy')
     Route.get('/swipes', 'UsersController.getAvailableSwipes')
   })
@@ -88,8 +88,8 @@ Route.group(() => {
 
   Route.group(() => {
     Route.post('/', 'PreferencesController.store')
-    Route.put('/:uid', 'PreferencesController.update')
-    Route.get('/:uid', 'PreferencesController.show')
+    Route.put('/', 'PreferencesController.update')
+    Route.get('/', 'PreferencesController.show')
   })
     .prefix('/preferences')
     .middleware('auth')
