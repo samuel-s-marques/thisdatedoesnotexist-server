@@ -60,7 +60,7 @@ export default class SwipesController {
 
       swiper.availableSwipes--
       swiper.lastSwipe = DateTime.now()
-      await swiper.save();
+      await swiper.save()
 
       return swipe
     } catch (error) {
@@ -68,17 +68,12 @@ export default class SwipesController {
     }
   }
 
-  public async index(ctx: HttpContextContract) {
+  public async index({ request, response }: HttpContextContract) {
     try {
-      const page = ctx.request.input('page', 1)
-      const searchQuery = ctx.request.qs()
-      const uid = searchQuery.uid
+      const page = request.input('page', 1)
+      const searchQuery = request.qs()
 
-      if (!uid) {
-        return ctx.response.status(400).json({ error: 'User ID is required.' })
-      }
-
-      const user = await User.query().where('uid', uid).firstOrFail()
+      const user = await User.query().where('uid', request.token.uid).firstOrFail()
       const swipes = await Swipe.query()
         .preload('target')
         .where('swiper_id', user.id)
@@ -89,7 +84,7 @@ export default class SwipesController {
 
       return swipes
     } catch (error) {
-      return ctx.response.status(400).json({ error: error.message })
+      return response.status(400).json({ error: error.message })
     }
   }
 }
