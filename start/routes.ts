@@ -26,7 +26,6 @@ Route.group(() => {
     Route.get('/:uuid', 'UsersController.showCharacter')
   })
     .prefix('/characters')
-    .middleware('auth')
 
   Route.group(() => {
     Route.post('/', 'FeedbacksController.store')
@@ -34,7 +33,6 @@ Route.group(() => {
     Route.get('/:id', 'FeedbacksController.show')
   })
     .prefix('/feedbacks')
-    .middleware('auth')
 
   Route.group(() => {
     Route.get('/', 'HobbiesController.index')
@@ -84,7 +82,6 @@ Route.group(() => {
     Route.get('/swipes', 'UsersController.getAvailableSwipes')
   })
     .prefix('/users')
-    .middleware('auth')
 
   Route.group(() => {
     Route.post('/', 'PreferencesController.store')
@@ -92,7 +89,6 @@ Route.group(() => {
     Route.get('/', 'PreferencesController.show')
   })
     .prefix('/preferences')
-    .middleware('auth')
 
   Route.group(() => {
     Route.post('/', 'SwipesController.store')
@@ -100,26 +96,22 @@ Route.group(() => {
     Route.get('/user', 'SwipesController.indexSwipes')
   })
     .prefix('/swipes')
-    .middleware('auth')
 
   Route.group(() => {
     Route.get('/', 'ChatsController.index')
     Route.get('/settings', 'ChatsController.settings')
   })
     .prefix('/chats')
-    .middleware('auth')
 
   Route.group(() => {
     Route.get('/', 'MessagesController.index')
   })
     .prefix('/messages')
-    .middleware('auth')
 
   Route.group(() => {
     Route.get('/', 'NotificationsController.index')
   })
     .prefix('/notifications')
-    .middleware('auth')
 
   Route.group(() => {
     Route.get('/', 'OccupationsController.index')
@@ -132,15 +124,15 @@ Route.group(() => {
     Route.post('/', 'ReportsController.store')
   })
     .prefix('/reports')
-    .middleware('auth')
 
   Route.group(() => {
     Route.get('/account', 'UsersController.status')
   })
     .prefix('/status')
-    .middleware('auth')
 
   Route.post('/users/upload', 'UsersController.checkNsfwDetection')
-}).prefix('/api')
+})
+  .prefix('/api')
+  .middleware('auth')
 
 Route.get('/uploads/:filename', 'UploadsController.show').middleware('auth')
