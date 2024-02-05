@@ -6,14 +6,8 @@ export default class NotificationsController {
   public async index({ request, response }: HttpContextContract) {
     try {
       const page = request.input('page', 1)
-      const searchQuery = request.qs()
-      const uid = searchQuery.uid
 
-      if (!uid) {
-        return response.status(400).json({ error: 'User UID is required.' })
-      }
-
-      const user = await User.findByOrFail('uid', uid)
+      const user = await User.findByOrFail('uid', request.token.uid)
       const notifications = await Notification.query().where('user_id', user.id).orderBy('updatedAt', 'desc').paginate(page, 40)
 
       return notifications

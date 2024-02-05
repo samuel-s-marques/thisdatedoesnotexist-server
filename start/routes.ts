@@ -24,17 +24,13 @@ Route.group(() => {
   Route.group(() => {
     Route.get('/', 'UsersController.index')
     Route.get('/:uuid', 'UsersController.showCharacter')
-  })
-    .prefix('/characters')
-    .middleware('auth')
+  }).prefix('/characters')
 
   Route.group(() => {
     Route.post('/', 'FeedbacksController.store')
     Route.get('/', 'FeedbacksController.index')
     Route.get('/:id', 'FeedbacksController.show')
-  })
-    .prefix('/feedbacks')
-    .middleware('auth')
+  }).prefix('/feedbacks')
 
   Route.group(() => {
     Route.get('/', 'HobbiesController.index')
@@ -79,47 +75,35 @@ Route.group(() => {
   Route.group(() => {
     Route.post('/', 'UsersController.store')
     Route.put('/', 'UsersController.update')
-    Route.get('/:uid', 'UsersController.show')
+    Route.get('/', 'UsersController.show')
     Route.delete('/', 'UsersController.destroy')
     Route.get('/swipes', 'UsersController.getAvailableSwipes')
-  })
-    .prefix('/users')
-    .middleware('auth')
+  }).prefix('/users')
 
   Route.group(() => {
     Route.post('/', 'PreferencesController.store')
-    Route.put('/:uid', 'PreferencesController.update')
-    Route.get('/:uid', 'PreferencesController.show')
-  })
-    .prefix('/preferences')
-    .middleware('auth')
+    Route.put('/', 'PreferencesController.update')
+    Route.get('/', 'PreferencesController.show')
+  }).prefix('/preferences')
 
   Route.group(() => {
     Route.post('/', 'SwipesController.store')
     Route.get('/', 'SwipesController.index')
     Route.get('/user', 'SwipesController.indexSwipes')
-  })
-    .prefix('/swipes')
-    .middleware('auth')
+  }).prefix('/swipes')
 
   Route.group(() => {
     Route.get('/', 'ChatsController.index')
     Route.get('/settings', 'ChatsController.settings')
-  })
-    .prefix('/chats')
-    .middleware('auth')
+  }).prefix('/chats')
 
   Route.group(() => {
     Route.get('/', 'MessagesController.index')
-  })
-    .prefix('/messages')
-    .middleware('auth')
+  }).prefix('/messages')
 
   Route.group(() => {
     Route.get('/', 'NotificationsController.index')
-  })
-    .prefix('/notifications')
-    .middleware('auth')
+  }).prefix('/notifications')
 
   Route.group(() => {
     Route.get('/', 'OccupationsController.index')
@@ -130,17 +114,15 @@ Route.group(() => {
     Route.get('/', 'ReportsController.index')
     Route.get('/:id', 'ReportsController.show')
     Route.post('/', 'ReportsController.store')
-  })
-    .prefix('/reports')
-    .middleware('auth')
+  }).prefix('/reports')
 
   Route.group(() => {
     Route.get('/account', 'UsersController.status')
-  })
-    .prefix('/status')
-    .middleware('auth')
+  }).prefix('/status')
 
   Route.post('/users/upload', 'UsersController.checkNsfwDetection')
-}).prefix('/api')
+})
+  .prefix('/api')
+  .middleware('auth')
 
 Route.get('/uploads/:filename', 'UploadsController.show').middleware('auth')
