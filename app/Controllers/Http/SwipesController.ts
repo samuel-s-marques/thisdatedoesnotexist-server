@@ -18,7 +18,13 @@ export default class SwipesController {
         .first()
 
       if (existingSwipe) {
-        return response.status(400).json({ error: 'Swipe already exists.' })
+        return response.status(409).json({
+          error: {
+            code: 409,
+            message: 'Conflict',
+            details: 'Swipe already exists.',
+          },
+        })
       }
 
       if (swiper.status !== 'normal') {
@@ -30,11 +36,23 @@ export default class SwipesController {
           message += ` You have been banned.`
         }
 
-        return response.status(400).json({ error: message })
+        return response.status(400).json({
+          error: {
+            code: 400,
+            message: 'Bad Request',
+            details: message,
+          },
+        })
       }
 
       if (swiper.availableSwipes <= 0) {
-        return response.status(400).json({ error: 'You have no available swipes.' })
+        return response.status(400).json({
+          error: {
+            code: 400,
+            message: 'Bad Request',
+            details: 'You have no available swipes.',
+          },
+        })
       }
 
       const reciprocalSwipe = await Swipe.query()
@@ -62,9 +80,15 @@ export default class SwipesController {
       swiper.lastSwipe = DateTime.now()
       await swiper.save()
 
-      return swipe
-    } catch (error) {
-      return response.status(400).json({ error: error.message })
+      return response.status(201).send(swipe)
+    } catch (exception) {
+      return response.status(400).json({
+        error: {
+          code: 400,
+          message: 'Bad Request',
+          details: exception.message,
+        },
+      })
     }
   }
 
@@ -83,8 +107,14 @@ export default class SwipesController {
         .paginate(page, 40)
 
       return swipes
-    } catch (error) {
-      return response.status(400).json({ error: error.message })
+    } catch (exception) {
+      return response.status(400).json({
+        error: {
+          code: 400,
+          message: 'Bad Request',
+          details: exception.message,
+        },
+      })
     }
   }
 }
