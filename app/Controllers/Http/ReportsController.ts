@@ -5,15 +5,10 @@ import { findMostCommonString } from 'Util/util'
 import { DateTime } from 'luxon'
 
 export default class ReportsController {
-  public async index({ request, response }: HttpContextContract) {
+  public async index({ request }: HttpContextContract) {
     const page = request.input('page', 1)
-    const uid = request.input('uid')
 
-    if (!uid) {
-      return response.status(400).json({ error: 'User ID is required.' })
-    }
-
-    const user = await User.findByOrFail('uid', uid)
+    const user = await User.findByOrFail('uid', request.token.uid)
     const reports = await Report.query()
       .where('user_id', user.id)
       .preload('character')
