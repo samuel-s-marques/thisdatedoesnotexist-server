@@ -16,7 +16,10 @@ export default class MessagesController {
 
       const user = await User.findByOrFail('uid', uid)
       const character = await User.findByOrFail('uid', characterUid)
-      const chat = await Chat.query().where('character_id', character.id).where('user_id', user.id).firstOrFail()
+      const chat = await Chat.query()
+        .where('character_id', character.id)
+        .where('user_id', user.id)
+        .firstOrFail()
 
       const messages = await Message.query()
         .where('chat_id', chat.id)
@@ -26,7 +29,13 @@ export default class MessagesController {
 
       return messages
     } catch (error) {
-      return response.status(400).json({ error: error.message })
+      return response.status(400).json({
+        error: {
+          code: 400,
+          message: 'Bad Request',
+          details: `Error getting user status: ${error.message}`,
+        },
+      })
     }
   }
 }

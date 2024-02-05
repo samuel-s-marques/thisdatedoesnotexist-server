@@ -25,7 +25,7 @@ const textGenApi = new TextGenerationService()
 const profileSuggesterService = new ProfileSuggesterService()
 
 export default class UsersController {
-  public async index({request, response}: HttpContextContract) {
+  public async index({ request, response }: HttpContextContract) {
     const page = request.input('page', 1)
     const searchQuery = request.qs()
 
@@ -71,10 +71,19 @@ export default class UsersController {
       .paginate(page, 25)
 
     const charactersJson = characters.toJSON()
-    const profileSuggester = await profileSuggesterService.getProfilesFromApi(user, charactersJson.data)
+    const profileSuggester = await profileSuggesterService.getProfilesFromApi(
+      user,
+      charactersJson.data
+    )
 
     if (profileSuggester.status != 200) {
-      return response.status(400).json({ error: 'Error getting profiles from API' })
+      return response.status(502).json({
+        error: {
+          code: 502,
+          message: 'Bad Gateway',
+          details: 'Error getting profiles from API.',
+        },
+      })
     }
 
     const profiles = profileSuggester.data.suggested_profiles
@@ -115,7 +124,13 @@ export default class UsersController {
 
       return user
     } catch (error) {
-      return response.status(400).json({ error: 'Error getting user.' })
+      return response.status(400).json({
+        error: {
+          code: 400,
+          message: 'Bad Request',
+          details: 'Error getting user.',
+        },
+      })
     }
   }
 
@@ -131,7 +146,13 @@ export default class UsersController {
 
       return character
     } catch (error) {
-      return response.status(400).json({ error: 'Error getting character.' })
+      return response.status(400).json({
+        error: {
+          code: 400,
+          message: 'Bad Request',
+          details: 'Error getting character.',
+        },
+      })
     }
   }
 
@@ -172,11 +193,23 @@ export default class UsersController {
       })
 
       if (!profileImage) {
-        return response.status(400).json({ error: 'Profile image is required' })
+        return response.status(400).json({
+          error: {
+            code: 400,
+            message: 'Bad Request',
+            details: 'Profile image is required',
+          },
+        })
       }
 
       if (!profileImage.isValid) {
-        return response.status(400).json({ error: profileImage.errors })
+        return response.status(400).json({
+          error: {
+            code: 400,
+            message: 'Bad Request',
+            details: profileImage.errors,
+          },
+        })
       }
 
       const imageName = uuidv4() + '.' + profileImage.extname
@@ -284,9 +317,15 @@ export default class UsersController {
         }
       }
 
-      return user
+      return response.status(201).send(user)
     } catch (error) {
-      return response.status(400).json({ error: 'Error creating user', message: error })
+      return response.status(400).json({
+        error: {
+          code: 400,
+          message: 'Bad Request',
+          details: `Error creating user: ${error.message}`,
+        },
+      })
     }
   }
 
@@ -359,7 +398,13 @@ export default class UsersController {
       const user = await User.findBy('uid', uid)
 
       if (!user) {
-        return response.status(400).json({ error: 'User does not exist.' })
+        return response.status(404).json({
+          error: {
+            code: 404,
+            message: 'Not Found',
+            details: 'User does not exist.',
+          },
+        })
       }
 
       const data = request.only([
@@ -435,8 +480,15 @@ export default class UsersController {
       }
 
       await user.save()
+      return response.status(201).send(user)
     } catch (error) {
-      return response.status(400).json({ error: 'Error updating user' })
+      return response.status(400).json({
+        error: {
+          code: 400,
+          message: 'Bad Request',
+          details: `Error updating user: ${error.message}`,
+        },
+      })
     }
   }
 
@@ -450,7 +502,13 @@ export default class UsersController {
 
       return response.status(200).json({ message: 'User deleted.' })
     } catch (error) {
-      return response.status(400).json({ error: 'Error deleting user' })
+      return response.status(400).json({
+        error: {
+          code: 400,
+          message: 'Bad Request',
+          details: `Error deleting user: ${error.message}`,
+        },
+      })
     }
   }
 
@@ -463,11 +521,25 @@ export default class UsersController {
     })
 
     if (!profileImage) {
-      return response.status(400).json({ error: 'No file provided' })
+      if (!profileImage) {
+        return response.status(400).json({
+          error: {
+            code: 400,
+            message: 'Bad Request',
+            details: 'Profile image is required',
+          },
+        })
+      }
     }
 
     if (!profileImage.isValid) {
-      return response.status(400).json({ error: profileImage.errors })
+      return response.status(400).json({
+        error: {
+          code: 400,
+          message: 'Bad Request',
+          details: profileImage.errors,
+        },
+      })
     }
 
     const imageName = uuidv4() + '.' + profileImage.extname
@@ -484,10 +556,16 @@ export default class UsersController {
     fs.unlinkSync(imagePath)
 
     if (isNsfw) {
-      return response.status(400).json({ error: 'NSFW image' })
+      return response.status(400).json({
+        error: {
+          code: 400,
+          message: 'Bad Request',
+          details: 'Profile image is NSFW.',
+        },
+      })
     }
 
-    return response.send({ success: true })
+    return response.status(200).json({ message: 'Profile image is safe.' })
   }
 
   public async status({ request, response }: HttpContextContract) {
@@ -503,7 +581,13 @@ export default class UsersController {
         messages: messages,
       }
     } catch (error) {
-      return response.status(400).json({ error: error.message })
+      return response.status(400).json({
+        error: {
+          code: 400,
+          message: 'Bad Request',
+          details: `Error getting user status: ${error.message}`,
+        },
+      })
     }
   }
 
@@ -516,7 +600,13 @@ export default class UsersController {
         available_swipes: user.availableSwipes,
       }
     } catch (error) {
-      return response.status(400).json({ error: error.message })
+      return response.status(400).json({
+        error: {
+          code: 400,
+          message: 'Bad Request',
+          details: `Error getting available swipes: ${error.message}`,
+        },
+      })
     }
   }
 
