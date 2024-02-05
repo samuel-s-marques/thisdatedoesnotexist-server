@@ -35,7 +35,13 @@ export default class ReportsController {
         .first()
 
       if (existingReport) {
-        return response.status(400).json({ error: 'Report already exists.' })
+        return response.status(409).json({
+          error: {
+            code: 409,
+            message: 'Conflict',
+            details: 'Report already exists.',
+          },
+        })
       }
 
       const report = new Report()
@@ -79,9 +85,15 @@ export default class ReportsController {
         await character.save()
       }
 
-      return report
+      return response.status(201).send(report)
     } catch (error) {
-      return response.status(400).json({ error: error.message })
+      return response.status(400).json({
+        error: {
+          code: 400,
+          message: 'Bad Request',
+          details: `Error creating report: ${error.message}`,
+        },
+      })
     }
   }
 }
