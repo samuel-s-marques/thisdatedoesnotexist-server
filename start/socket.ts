@@ -264,6 +264,14 @@ async function answer(
   chat: Chat,
   userMessage: Message
 ) {
+  ws.send(
+    JSON.stringify({
+      type: 'typing',
+      from: character.uid,
+      isTyping: true,
+    })
+  )
+
   const messagesCountQuery = await Message.query().count('* as total').where('chat_id', chat.id)
   const { total: messagesCount } = messagesCountQuery[0].$extras
   const offset = Math.max(messagesCount - 5, 0)
@@ -377,6 +385,14 @@ async function answer(
         send_by: character.uid,
         created_at: DateTime.now(),
       },
+    })
+  )
+
+  ws.send(
+    JSON.stringify({
+      type: 'typing',
+      from: character.uid,
+      isTyping: false,
     })
   )
 }
