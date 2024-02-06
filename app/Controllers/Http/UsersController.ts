@@ -128,7 +128,7 @@ export default class UsersController {
         error: {
           code: 400,
           message: 'Bad Request',
-          details: 'Error getting user.',
+          details: `Error getting user: ${error.message}`,
         },
       })
     }

@@ -12,7 +12,7 @@ export default class OccupationsController {
 
     const page = ctx.request.input('page', 1)
 
-    const occupations = await Occupation.query().paginate(page, 120)
+    const occupations = await Occupation.query().paginate(page, 150)
     cache.set('occupations', occupations)
 
     return occupations
