@@ -185,10 +185,6 @@ export default class extends BaseSeeder {
         type: 'sports',
       },
       {
-        name: 'skateboarding',
-        type: 'sports',
-      },
-      {
         name: 'snowboarding',
         type: 'sports',
       },
