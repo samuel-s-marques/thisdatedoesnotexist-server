@@ -76,11 +76,10 @@ async function processMessages(ws: WebSocket, id: string, character: User, chat:
     }
 
     try {
+      isProcessing = true
       const userUid = await Redis.rpop('messageQueue')
 
       if (userUid) {
-        isProcessing = true
-
         const user = await User.query()
           .where('uid', userUid)
           .preload('hobbies')
