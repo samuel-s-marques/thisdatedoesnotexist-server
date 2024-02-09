@@ -4,7 +4,7 @@ import Logger from '@ioc:Adonis/Core/Logger'
 import Message from 'App/Models/Message'
 import Chat from 'App/Models/Chat'
 import User from 'App/Models/User'
-import { promptBuilder, replaceMacros } from '../util/util'
+import { clearSymbols, promptBuilder, replaceMacros } from '../util/util'
 import BlockedUser from 'App/Models/BlockedUser'
 import { WebSocket } from 'ws'
 import { DateTime } from 'luxon'
@@ -48,9 +48,16 @@ function messageCleaner(message: string, character: User, user: User): string {
 
 async function sendMessage(message: string, character: User, user: User) {
   let prompt = `{{system_sequence_prefix}}{{system_prompt}}\n${message}`
-  prompt = replaceMacros(prompt, character.toObject(), user)
+  const characterObj = character.toObject()
 
-  return await textGenApi.sendPrompt(prompt)
+  prompt = replaceMacros(prompt, characterObj, user)
+
+  return await textGenApi.sendPrompt(prompt, [
+    `\n${user.name} ${user.surname}:`,
+    clearSymbols(replaceMacros('{{first_output_sequence}}', characterObj), ['\n']),
+    clearSymbols(replaceMacros('{{input_sequence}}', characterObj), ['\n']),
+    clearSymbols(replaceMacros('{{separator_sequence}}', characterObj), ['\n']),
+  ])
 }
 
 function sendSystemMessage(ws: WebSocket, message: string, show = false, status = 'success') {
@@ -367,8 +374,6 @@ async function saveTextMessage(ws: WebSocket, message: any, user: User, clientId
 
 async function saveMessage(ws: WebSocket, clientId: string, message: any, user: User) {
   try {
-    console.log(message)
-
     switch (message.message.type) {
       case 'text':
         await saveTextMessage(ws, message, user, clientId)
