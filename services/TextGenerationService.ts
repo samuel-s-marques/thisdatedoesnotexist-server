@@ -15,7 +15,7 @@ export default class TextGenerationService {
     return TextGenerationService.instance
   }
 
-  public async sendPrompt(prompt: string) {
+  public async sendPrompt(prompt: string, stopSequence: string[] = []) {
     try {
       Logger.info('Sending prompt to Text Generation AI.')
       const api = Config.get('app.llm.api')
@@ -47,6 +47,7 @@ export default class TextGenerationService {
             sampler_full_determinism: false,
             frmttriminc: false,
             frmtrmblln: false,
+            stop_sequence: stopSequence,
           }
           break
         case 'oobabooga':
@@ -67,6 +68,7 @@ export default class TextGenerationService {
             sampler_order: [6, 0, 1, 3, 4, 2, 5],
             singleline: false,
             ban_eos_token: false,
+            stop: stopSequence,
           }
           break
       }
