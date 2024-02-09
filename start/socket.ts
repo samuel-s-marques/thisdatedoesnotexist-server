@@ -69,7 +69,7 @@ async function saveToRedis(userUid: string): Promise<void> {
   Logger.info(`User ${userUid} added to the message queue.`)
 }
 
-async function processMessages(ws: WebSocket, id: string, character: User, chat: Chat) {
+async function processMessages(ws: WebSocket, id: string) {
   while (true) {
     if (isProcessing) {
       return
@@ -83,10 +83,21 @@ async function processMessages(ws: WebSocket, id: string, character: User, chat:
         const user = await User.query()
           .where('uid', userUid)
           .preload('hobbies')
-          .preload('personalityTraits')
           .preload('pronoun')
           .preload('relationshipGoal')
           .firstOrFail()
+        const chat = await Chat.query()
+          .where('user_id', user.id)
+          .where('last_message_from', user.uid)
+          .firstOrFail()
+        const character = await User.query()
+          .where('id', chat.character_id)
+          .preload('pronoun')
+          .preload('hobbies')
+          .preload('personalityTraits')
+          .preload('relationshipGoal')
+          .firstOrFail()
+
         Logger.info(`User found: ${user.name} ${user.surname}`)
         await answer(ws, id, user, character, chat)
       } else {
@@ -179,18 +190,14 @@ WsService.wss.on('connection', (ws) => {
           .preload('pronoun')
           .preload('relationshipGoal')
           .firstOrFail()
-        const chat = await Chat.query()
-          .where('user_id', user.id)
-          .where('character_id', character.id)
-          .firstOrFail()
 
         if (!(await canUserMessage(ws, user, character))) {
           return
         }
 
-        await saveMessage(ws, message, id, user, chat)
+        await saveMessage(ws, id, message, user)
         await saveToRedis(user.uid)
-        await processMessages(ws, id, character, chat)
+        await processMessages(ws, id)
       }
     } catch (error) {
       Logger.error(`Client ${id} error: ${error}`)
@@ -259,7 +266,7 @@ async function canUserMessage(ws: WebSocket, user: User, character: User): Promi
   return true
 }
 
-async function saveAudioMessage(ws: WebSocket, message: any, user: User, chat: Chat) {
+async function saveAudioMessage(ws: WebSocket, message: any, user: User, clientId: string) {
   try {
     const audioBytes = Buffer.from(message.message.content, 'base64')
     const directoryPath = __dirname
@@ -274,6 +281,11 @@ async function saveAudioMessage(ws: WebSocket, message: any, user: User, chat: C
       Logger.error('Error calling the Whisper: Transcript is null.')
       return
     }
+
+    const chat = await Chat.query()
+      .where('user_id', user.id)
+      .where('character_id', message.room_uid)
+      .firstOrFail()
 
     let userMessage = new Message()
     await userMessage.related('chat').associate(chat)
@@ -294,6 +306,11 @@ async function saveAudioMessage(ws: WebSocket, message: any, user: User, chat: C
         },
       })
     )
+
+    chat.last_message = transcript
+    chat.last_message_from = user.uid
+    await chat.save()
+    await processChat(ws, clientId, message)
   } catch (error) {
     Logger.error(error, 'Error calling the Whisper: ')
     ws.send(
@@ -306,8 +323,14 @@ async function saveAudioMessage(ws: WebSocket, message: any, user: User, chat: C
   }
 }
 
-async function saveTextMessage(ws: WebSocket, message: any, user: User, chat: Chat) {
+async function saveTextMessage(ws: WebSocket, message: any, user: User, clientId: string) {
   try {
+    const character = await User.query().where('uid', message.room_uid).firstOrFail()
+    const chat = await Chat.query()
+      .where('user_id', user.id)
+      .where('character_id', character.id)
+      .firstOrFail()
+
     let userMessage = new Message()
     await userMessage.related('chat').associate(chat)
     await userMessage.related('user').associate(user)
@@ -325,7 +348,13 @@ async function saveTextMessage(ws: WebSocket, message: any, user: User, chat: Ch
         },
       })
     )
+
+    chat.last_message = message.message.content
+    chat.last_message_from = user.uid
+    await chat.save()
+    await processChat(ws, clientId, message)
   } catch (error) {
+    Logger.error(error, 'Error saving text message.')
     ws.send(
       JSON.stringify({
         type: 'system',
@@ -336,25 +365,21 @@ async function saveTextMessage(ws: WebSocket, message: any, user: User, chat: Ch
   }
 }
 
-async function saveMessage(ws: WebSocket, message: any, clientId: string, user: User, chat: Chat) {
+async function saveMessage(ws: WebSocket, clientId: string, message: any, user: User) {
   try {
+    console.log(message)
+
     switch (message.message.type) {
       case 'text':
-        saveTextMessage(ws, message, user, chat)
-        chat.last_message = message.message.content
+        await saveTextMessage(ws, message, user, clientId)
         break
       case 'audio':
-        saveAudioMessage(ws, message, user, chat)
-        chat.last_message = 'audio'
+        await saveAudioMessage(ws, message, user, clientId)
         break
       default:
-        saveTextMessage(ws, message, user, chat)
-        chat.last_message = message.message.content
+        await saveTextMessage(ws, message, user, clientId)
         break
     }
-
-    await chat.save()
-    await processChat(ws, clientId, message)
 
     Logger.info('Message saved.')
   } catch (error) {
@@ -369,15 +394,7 @@ async function saveMessage(ws: WebSocket, message: any, clientId: string, user: 
   }
 }
 
-async function answer(ws: WebSocket, id: string, user: User, character: User, chat: Chat) {
-  ws.send(
-    JSON.stringify({
-      type: 'typing',
-      from: character.uid,
-      isTyping: true,
-    })
-  )
-
+async function answer(ws: WebSocket, clientId: string, user: User, character: User, chat: Chat) {
   const messagesCountQuery = await Message.query().count('* as total').where('chat_id', chat.id)
   const { total: messagesCount } = messagesCountQuery[0].$extras
   const offset = Math.max(messagesCount - 5, 0)
@@ -389,6 +406,14 @@ async function answer(ws: WebSocket, id: string, user: User, character: User, ch
     .offset(offset)
     .limit(5)
   const prompt = promptBuilder(messages, character, user)
+
+  ws.send(
+    JSON.stringify({
+      type: 'typing',
+      from: character.uid,
+      isTyping: true,
+    })
+  )
   const aiResponse = await sendMessage(prompt, character, user)
   const finalMessage = messageCleaner(aiResponse!.trim(), character, user)
 
@@ -408,8 +433,9 @@ async function answer(ws: WebSocket, id: string, user: User, character: User, ch
   await userMessage.save()
 
   chat.last_message = finalMessage
+  chat.last_message_from = character.uid
   await chat.save()
-  await processChat(ws, id)
+  await processChat(ws, clientId)
 
   if (finalMessage.match(/\/block/g)) {
     await character.related('blockedUsers').create({
@@ -474,7 +500,7 @@ async function answer(ws: WebSocket, id: string, user: User, character: User, ch
     return
   }
 
-  await processChat(ws, id)
+  await processChat(ws, clientId)
 
   ws.send(
     JSON.stringify({
