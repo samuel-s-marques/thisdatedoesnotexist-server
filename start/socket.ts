@@ -502,7 +502,12 @@ async function answer(ws: WebSocket, id: string, user: User, character: User, ch
 async function processChat(ws: WebSocket, clientId: string, message?: any) {
   Logger.info(`Client ${clientId} requested chats`)
 
-  const user = await User.query().where('uid', clients[clientId]).firstOrFail()
+  const user = await User.query().where('uid', clients[clientId]).first()
+
+  if (!user) {
+    return
+  }
+
   let chatsQuery = Chat.query()
     .where('user_id', user.id)
     .orderBy('updatedAt', 'desc')
