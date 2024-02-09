@@ -11,6 +11,9 @@ export default class Chat extends BaseModel {
   public last_message: string
 
   @column()
+  public last_message_from: string
+
+  @column()
   public seen: boolean
 
   @column({ columnName: 'user_id' })
