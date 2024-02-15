@@ -252,10 +252,18 @@ export function findMostCommonString(strings: string[]): string | undefined {
   return mostCommonString
 }
 
-function replaceFunction(content: string, replacements: any) {
+function replaceFunction(content: string, replacements: object) {
   Object.keys(replacements).forEach((key) => {
     const regex = new RegExp(key, 'g')
     content = content.replace(regex, replacements[key] || '')
+  })
+
+  return content
+}
+
+export function clearSymbols(content: string, symbols: string[]): string {
+  symbols.forEach((symbol) => {
+    content = content.replace(new RegExp(symbol, 'g'), '')
   })
 
   return content

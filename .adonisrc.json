@@ -26,7 +26,8 @@
     "@adonisjs/lucid",
     "adonis5-scheduler",
     "@adonisjs/attachment-lite",
-    "./providers/OneSignalProvider"
+    "./providers/OneSignalProvider",
+    "@adonisjs/redis"
   ],
   "aceProviders": [
     "@adonisjs/repl"

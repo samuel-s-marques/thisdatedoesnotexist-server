@@ -4,7 +4,7 @@ import Logger from '@ioc:Adonis/Core/Logger'
 import Message from 'App/Models/Message'
 import Chat from 'App/Models/Chat'
 import User from 'App/Models/User'
-import { promptBuilder, replaceMacros } from '../util/util'
+import { clearSymbols, promptBuilder, replaceMacros } from '../util/util'
 import BlockedUser from 'App/Models/BlockedUser'
 import { WebSocket } from 'ws'
 import { DateTime } from 'luxon'
@@ -16,6 +16,7 @@ import fs from 'fs'
 import WhisperService from 'Service/WhisperService'
 import path from 'path'
 import Config from '@ioc:Adonis/Core/Config'
+import Redis from '@ioc:Adonis/Addons/Redis'
 WsService.boot()
 
 const textGenApi = new TextGenerationService()
@@ -29,6 +30,8 @@ const suspensionDurationInDays = Config.get('app.reports.suspensionDurationInDay
 const reportsCountToBan = Config.get('app.reports.reportsCountToBan')
 
 const clients = {}
+
+let isProcessing = false
 
 function messageCleaner(message: string, character: User, user: User): string {
   const characterPrefix = `${character.name} ${character.surname}:`
@@ -45,9 +48,16 @@ function messageCleaner(message: string, character: User, user: User): string {
 
 async function sendMessage(message: string, character: User, user: User) {
   let prompt = `{{system_sequence_prefix}}{{system_prompt}}\n${message}`
-  prompt = replaceMacros(prompt, character.toObject(), user)
+  const characterObj = character.toObject()
 
-  return await textGenApi.sendPrompt(prompt)
+  prompt = replaceMacros(prompt, characterObj, user)
+
+  return await textGenApi.sendPrompt(prompt, [
+    `\n${user.name} ${user.surname}:`,
+    clearSymbols(replaceMacros('{{first_output_sequence}}', characterObj), ['\n']),
+    clearSymbols(replaceMacros('{{input_sequence}}', characterObj), ['\n']),
+    clearSymbols(replaceMacros('{{separator_sequence}}', characterObj), ['\n']),
+  ])
 }
 
 function sendSystemMessage(ws: WebSocket, message: string, show = false, status = 'success') {
@@ -61,9 +71,63 @@ function sendSystemMessage(ws: WebSocket, message: string, show = false, status 
   )
 }
 
+async function saveToRedis(userUid: string): Promise<void> {
+  await Redis.lpush('messageQueue', userUid)
+  Logger.info(`User ${userUid} added to the message queue.`)
+}
+
+async function processMessages(ws: WebSocket, id: string) {
+  while (true) {
+    if (isProcessing) {
+      return
+    }
+
+    try {
+      isProcessing = true
+      const userUid = await Redis.rpop('messageQueue')
+
+      if (userUid) {
+        const user = await User.query()
+          .where('uid', userUid)
+          .preload('hobbies')
+          .preload('pronoun')
+          .preload('relationshipGoal')
+          .firstOrFail()
+        const chat = await Chat.query()
+          .where('user_id', user.id)
+          .where('last_message_from', user.uid)
+          .firstOrFail()
+        const character = await User.query()
+          .where('id', chat.character_id)
+          .preload('pronoun')
+          .preload('hobbies')
+          .preload('personalityTraits')
+          .preload('relationshipGoal')
+          .firstOrFail()
+
+        Logger.info(`User found: ${user.name} ${user.surname}`)
+        await answer(ws, id, user, character, chat)
+      } else {
+        await new Promise((resolve) => setTimeout(resolve, 1500))
+      }
+    } catch (error) {
+      Logger.error(error, 'Error processing messages.')
+      ws.send(
+        JSON.stringify({
+          type: 'system',
+          status: 'error',
+          message: 'Something went wrong. Please try again.',
+        })
+      )
+    } finally {
+      isProcessing = false
+    }
+  }
+}
+
 WsService.wss.on('connection', (ws) => {
-  const id = uuidv4()
-  Logger.info(`Client connected with id ${id}`)
+  const clientId = uuidv4()
+  Logger.info(`Client connected with id ${clientId}`)
 
   if (ws.readyState === WebSocket.OPEN) {
     ws.send(
@@ -77,7 +141,7 @@ WsService.wss.on('connection', (ws) => {
   }
 
   ws.on('error', (error) => {
-    Logger.error(`Client ${id} error: ${error}`)
+    Logger.error(`Client ${clientId} error: ${error}`)
   })
 
   ws.on('message', async (data, isBinary) => {
@@ -89,16 +153,23 @@ WsService.wss.on('connection', (ws) => {
         let token = message.token
 
         if (!userId || !token) {
-          Logger.error(`Client ${id} error: missing user_id or token`)
+          Logger.error(`Client ${clientId} error: missing user_id or token`)
           sendSystemMessage(ws, 'Unauthorized.', true, 'error')
           return
         }
 
         try {
           await admin.auth().verifyIdToken(token)
-          clients[id] = userId
 
-          Logger.info(`Client ${id} authorized with user_id ${userId}`)
+          for (const key in clients) {
+            if (clients[key] === userId) {
+              delete clients[key]
+            }
+          }
+
+          clients[clientId] = userId
+
+          Logger.info(`Client ${clientId} authorized with user_id ${userId}`)
           sendSystemMessage(ws, 'Authorized.', false, 'success')
         } catch (error) {
           Logger.error(`Unauthorized: Token verification failed. ${error}`)
@@ -108,15 +179,15 @@ WsService.wss.on('connection', (ws) => {
         }
       }
 
-      if (clients[id] === undefined) {
-        Logger.error(`Unauthorized: Client ${id} is not authorized.`)
+      if (clients[clientId] === undefined) {
+        Logger.error(`Unauthorized: Client ${clientId} is not authorized.`)
         sendSystemMessage(ws, 'Unauthorized.', false, 'error')
 
         return
       }
 
       if (message.type == 'chats') {
-        await processChat(ws, message, id)
+        await processChat(ws, clientId, message)
       }
 
       if (message.type == 'text') {
@@ -133,31 +204,17 @@ WsService.wss.on('connection', (ws) => {
           .preload('pronoun')
           .preload('relationshipGoal')
           .firstOrFail()
-        const chat = await Chat.query()
-          .where('user_id', user.id)
-          .where('character_id', character.id)
-          .firstOrFail()
 
         if (!(await canUserMessage(ws, user, character))) {
           return
         }
 
-        switch (message.message.type) {
-          case 'text':
-            await processTextMessage(ws, message, id, user, character, chat)
-            break
-          case 'audio':
-            if (fs.existsSync('whisper')) {
-              await processAudioMessage(ws, message, id, user, character, chat)
-            }
-            break
-          default:
-            await processTextMessage(ws, message, id, user, character, chat)
-            break
-        }
+        await saveMessage(ws, clientId, message, user)
+        await saveToRedis(user.uid)
+        await processMessages(ws, clientId)
       }
     } catch (error) {
-      Logger.error(`Client ${id} error: ${error}`)
+      Logger.error(`Client ${clientId} error: ${error}`)
       ws.send(
         JSON.stringify({
           type: 'system',
@@ -169,8 +226,8 @@ WsService.wss.on('connection', (ws) => {
   })
 
   ws.on('close', (code, reason) => {
-    Logger.info(`Client ${id} disconnected with code ${code} and reason ${reason}`)
-    delete clients[id]
+    Logger.info(`Client ${clientId} disconnected with code ${code} and reason ${reason}`)
+    delete clients[clientId]
   })
 })
 
@@ -223,55 +280,133 @@ async function canUserMessage(ws: WebSocket, user: User, character: User): Promi
   return true
 }
 
-async function processTextMessage(
-  ws: WebSocket,
-  message: any,
-  id: string,
-  user: User,
-  character: User,
-  chat: Chat
-) {
-  let userMessage = new Message()
-  await userMessage.related('chat').associate(chat)
-  await userMessage.related('user').associate(user)
-  userMessage.content = message.message.content
-  userMessage.status = 'sent'
-  userMessage.type = 'text'
-  await userMessage.save()
+async function saveAudioMessage(ws: WebSocket, message: any, user: User, clientId: string) {
+  try {
+    const audioBytes = Buffer.from(message.message.content, 'base64')
+    const directoryPath = __dirname
+    const parentFolder = path.resolve(directoryPath, '..')
+    const filename = `public/uploads/audios/${uuidv4()}.wav`
+    const filepath = path.join(parentFolder, filename)
+    fs.writeFileSync(filepath, audioBytes)
 
-  ws.send(
-    JSON.stringify({
-      type: 'message-status',
-      message: {
-        id: message.message.id,
-        status: 'sent',
-      },
-    })
-  )
+    const transcript = await whisper.getTranscription(filepath)
 
-  chat.last_message = message.message.content
-  await chat.save()
-  await processChat(ws, message, id)
-  await answer(ws, message, id, user, character, chat, userMessage)
+    if (!transcript) {
+      Logger.error('Error calling the Whisper: Transcript is null.')
+      return
+    }
+
+    const chat = await Chat.query()
+      .where('user_id', user.id)
+      .where('character_id', message.room_uid)
+      .firstOrFail()
+
+    let userMessage = new Message()
+    await userMessage.related('chat').associate(chat)
+    await userMessage.related('user').associate(user)
+    userMessage.content = transcript
+    userMessage.location = filename.replace('public/', '')
+    userMessage.status = 'sent'
+    userMessage.type = 'audio'
+    userMessage.duration = message.message.duration
+    await userMessage.save()
+
+    ws.send(
+      JSON.stringify({
+        type: 'message-status',
+        message: {
+          id: message.message.id,
+          status: 'sent',
+        },
+      })
+    )
+
+    chat.last_message = transcript
+    chat.last_message_from = user.uid
+    await chat.save()
+    await processChat(ws, clientId, message)
+  } catch (error) {
+    Logger.error(error, 'Error calling the Whisper: ')
+    ws.send(
+      JSON.stringify({
+        type: 'system',
+        status: 'error',
+        message: 'Error saving audio message! Please try again.',
+      })
+    )
+  }
 }
 
-async function answer(
-  ws: WebSocket,
-  message: any,
-  id: string,
-  user: User,
-  character: User,
-  chat: Chat,
-  userMessage: Message
-) {
-  ws.send(
-    JSON.stringify({
-      type: 'typing',
-      from: character.uid,
-      isTyping: true,
-    })
-  )
+async function saveTextMessage(ws: WebSocket, message: any, user: User, clientId: string) {
+  try {
+    const character = await User.query().where('uid', message.room_uid).firstOrFail()
+    const chat = await Chat.query()
+      .where('user_id', user.id)
+      .where('character_id', character.id)
+      .firstOrFail()
 
+    let userMessage = new Message()
+    await userMessage.related('chat').associate(chat)
+    await userMessage.related('user').associate(user)
+    userMessage.content = message.message.content
+    userMessage.status = 'sent'
+    userMessage.type = message.message.type
+    await userMessage.save()
+
+    ws.send(
+      JSON.stringify({
+        type: 'message-status',
+        message: {
+          id: message.message.id,
+          status: 'sent',
+        },
+      })
+    )
+
+    chat.last_message = message.message.content
+    chat.last_message_from = user.uid
+    await chat.save()
+    await processChat(ws, clientId, message)
+  } catch (error) {
+    Logger.error(error, 'Error saving text message.')
+    ws.send(
+      JSON.stringify({
+        type: 'system',
+        status: 'error',
+        message: 'Error saving text message! Please try again.',
+      })
+    )
+  }
+}
+
+async function saveMessage(ws: WebSocket, clientId: string, message: any, user: User) {
+  try {
+    switch (message.message.type) {
+      case 'text':
+        await saveTextMessage(ws, message, user, clientId)
+        break
+      case 'audio':
+        await saveAudioMessage(ws, message, user, clientId)
+        break
+      default:
+        await saveTextMessage(ws, message, user, clientId)
+        break
+    }
+
+    Logger.info('Message saved.')
+  } catch (error) {
+    Logger.error(error, 'Error saving message.')
+    ws.send(
+      JSON.stringify({
+        type: 'system',
+        status: 'error',
+        message: 'Error saving message! Please try again.',
+      })
+    )
+  }
+}
+
+async function answer(ws: WebSocket, clientId: string, user: User, character: User, chat: Chat) {
   const messagesCountQuery = await Message.query().count('* as total').where('chat_id', chat.id)
   const { total: messagesCount } = messagesCountQuery[0].$extras
   const offset = Math.max(messagesCount - 5, 0)
@@ -283,6 +418,14 @@ async function answer(
     .offset(offset)
     .limit(5)
   const prompt = promptBuilder(messages, character, user)
+
+  ws.send(
+    JSON.stringify({
+      type: 'typing',
+      from: character.uid,
+      isTyping: true,
+    })
+  )
   const aiResponse = await sendMessage(prompt, character, user)
   const finalMessage = messageCleaner(aiResponse!.trim(), character, user)
 
@@ -292,22 +435,19 @@ async function answer(
   characterMessage.content = finalMessage
   await characterMessage.save()
 
+  let userMessage = await Message.query()
+    .where('chat_id', chat.id)
+    .where('user_id', user.id)
+    .orderBy('id', 'desc')
+    .firstOrFail()
+
   userMessage.status = 'read'
   await userMessage.save()
 
-  ws.send(
-    JSON.stringify({
-      type: 'message-status',
-      message: {
-        id: message.message.id,
-        status: 'read',
-      },
-    })
-  )
-
   chat.last_message = finalMessage
+  chat.last_message_from = character.uid
   await chat.save()
-  await processChat(ws, message, id)
+  await processChat(ws, clientId)
 
   if (finalMessage.match(/\/block/g)) {
     await character.related('blockedUsers').create({
@@ -372,7 +512,7 @@ async function answer(
     return
   }
 
-  await processChat(ws, message, id)
+  await processChat(ws, clientId)
 
   ws.send(
     JSON.stringify({
@@ -397,82 +537,37 @@ async function answer(
   )
 }
 
-async function processAudioMessage(
-  ws: WebSocket,
-  message: any,
-  id: string,
-  user: User,
-  character: User,
-  chat: Chat
-) {
-  try {
-    const audioBytes = Buffer.from(message.message.content, 'base64')
-    const directoryPath = __dirname
-    const parentFolder = path.resolve(directoryPath, '..')
-    const filename = `public/uploads/audios/${uuidv4()}.wav`
-    const filepath = path.join(parentFolder, filename)
-    fs.writeFileSync(filepath, audioBytes)
+async function processChat(ws: WebSocket, clientId: string, message?: any) {
+  Logger.info(`Client ${clientId} requested chats`)
 
-    const transcript = await whisper.getTranscription(filepath)
+  const user = await User.query().where('uid', clients[clientId]).first()
 
-    if (!transcript) {
-      Logger.error('Error calling the Whisper: Transcript is null.')
-      return
-    }
-
-    let userMessage = new Message()
-    await userMessage.related('chat').associate(chat)
-    await userMessage.related('user').associate(user)
-    userMessage.content = transcript
-    userMessage.location = filename.replace('public/', '')
-    userMessage.status = 'sent'
-    userMessage.type = 'audio'
-    userMessage.duration = message.message.duration
-    await userMessage.save()
-
-    ws.send(
-      JSON.stringify({
-        type: 'message-status',
-        message: {
-          id: message.message.id,
-          status: 'sent',
-        },
-      })
-    )
-
-    chat.last_message = 'audio'
-    await chat.save()
-    await processChat(ws, message, id)
-    await answer(ws, message, id, user, character, chat, userMessage)
-  } catch (error) {
-    Logger.error(error, 'Error calling the Whisper: ')
+  if (!user) {
+    return
   }
-}
 
-async function processChat(ws: WebSocket, message: any, id: string) {
-  Logger.info(`Client ${id} requested chats`)
-
-  const user = await User.query().where('uid', clients[id]).firstOrFail()
   let chatsQuery = Chat.query()
     .where('user_id', user.id)
     .orderBy('updatedAt', 'desc')
     .preload('character')
 
-  if (
-    message.search != null &&
-    message.search != '' &&
-    message.search != undefined &&
-    message.searching == true
-  ) {
-    chatsQuery = chatsQuery.whereHas('character', (query) => {
-      query
-        .where('name', 'like', `%${message.search}%`)
-        .orWhere('surname', 'like', `%${message.search}%`)
-    })
-    Logger.info(`Client ${id} searched for ${message.search}`)
+  if (message) {
+    if (
+      message.search != null &&
+      message.search != '' &&
+      message.search != undefined &&
+      message.searching == true
+    ) {
+      chatsQuery = chatsQuery.whereHas('character', (query) => {
+        query
+          .where('name', 'like', `%${message.search}%`)
+          .orWhere('surname', 'like', `%${message.search}%`)
+      })
+      Logger.info(`Client ${clientId} searched for ${message.search}`)
+    }
   }
 
-  const chats = await chatsQuery.paginate(1, 40 * (message.page ?? 1))
+  const chats = await chatsQuery.paginate(1, 40 * (message?.page ?? 1))
 
   ws.send(
     JSON.stringify({
