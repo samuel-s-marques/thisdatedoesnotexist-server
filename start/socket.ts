@@ -126,8 +126,8 @@ async function processMessages(ws: WebSocket, id: string) {
 }
 
 WsService.wss.on('connection', (ws) => {
-  const id = uuidv4()
-  Logger.info(`Client connected with id ${id}`)
+  const clientId = uuidv4()
+  Logger.info(`Client connected with id ${clientId}`)
 
   if (ws.readyState === WebSocket.OPEN) {
     ws.send(
@@ -141,7 +141,7 @@ WsService.wss.on('connection', (ws) => {
   }
 
   ws.on('error', (error) => {
-    Logger.error(`Client ${id} error: ${error}`)
+    Logger.error(`Client ${clientId} error: ${error}`)
   })
 
   ws.on('message', async (data, isBinary) => {
@@ -153,16 +153,23 @@ WsService.wss.on('connection', (ws) => {
         let token = message.token
 
         if (!userId || !token) {
-          Logger.error(`Client ${id} error: missing user_id or token`)
+          Logger.error(`Client ${clientId} error: missing user_id or token`)
           sendSystemMessage(ws, 'Unauthorized.', true, 'error')
           return
         }
 
         try {
           await admin.auth().verifyIdToken(token)
-          clients[id] = userId
 
-          Logger.info(`Client ${id} authorized with user_id ${userId}`)
+          for (const key in clients) {
+            if (clients[key] === userId) {
+              delete clients[key]
+            }
+          }
+
+          clients[clientId] = userId
+
+          Logger.info(`Client ${clientId} authorized with user_id ${userId}`)
           sendSystemMessage(ws, 'Authorized.', false, 'success')
         } catch (error) {
           Logger.error(`Unauthorized: Token verification failed. ${error}`)
@@ -172,15 +179,15 @@ WsService.wss.on('connection', (ws) => {
         }
       }
 
-      if (clients[id] === undefined) {
-        Logger.error(`Unauthorized: Client ${id} is not authorized.`)
+      if (clients[clientId] === undefined) {
+        Logger.error(`Unauthorized: Client ${clientId} is not authorized.`)
         sendSystemMessage(ws, 'Unauthorized.', false, 'error')
 
         return
       }
 
       if (message.type == 'chats') {
-        await processChat(ws, id, message)
+        await processChat(ws, clientId, message)
       }
 
       if (message.type == 'text') {
@@ -202,12 +209,12 @@ WsService.wss.on('connection', (ws) => {
           return
         }
 
-        await saveMessage(ws, id, message, user)
+        await saveMessage(ws, clientId, message, user)
         await saveToRedis(user.uid)
-        await processMessages(ws, id)
+        await processMessages(ws, clientId)
       }
     } catch (error) {
-      Logger.error(`Client ${id} error: ${error}`)
+      Logger.error(`Client ${clientId} error: ${error}`)
       ws.send(
         JSON.stringify({
           type: 'system',
@@ -219,8 +226,8 @@ WsService.wss.on('connection', (ws) => {
   })
 
   ws.on('close', (code, reason) => {
-    Logger.info(`Client ${id} disconnected with code ${code} and reason ${reason}`)
-    delete clients[id]
+    Logger.info(`Client ${clientId} disconnected with code ${code} and reason ${reason}`)
+    delete clients[clientId]
   })
 })
 
