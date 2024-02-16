@@ -340,6 +340,7 @@ export const comfyUi: ComfyUiConfig = {
 | - `alpaca`
 | - `mistral`
 | - `metharme`
+| - `user-assistant-newlines`
 |
 | These values are defined in `assets/json/instructions.json`.
 |
@@ -350,7 +351,7 @@ type LlmConfig = {
 }
 
 export const llm: LlmConfig = {
-  promptFormat: 'chatml',
+  promptFormat: 'user-assistant-newlines',
   api: 'kobold',
 }
 
@@ -399,7 +400,7 @@ type TaskConfig = {
 export const tasks: TaskConfig = {
   autoSwipe: {
     enabled: true,
-    cronTime: CronTimeV2.everyDay(),
+    cronTime: CronTimeV2.everyHour(),
   },
   characterFallback: {
     enabled: true,
@@ -414,7 +415,7 @@ export const tasks: TaskConfig = {
     cronTime: CronTimeV2.everyHour(),
   },
   characterForge: {
-    enabled: true,
-    cronTime: CronTimeV2.everyDay(),
+    enabled: false,
+    cronTime: CronTimeV2.everyMinute(),
   },
 }

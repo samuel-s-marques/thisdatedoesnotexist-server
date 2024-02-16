@@ -36,11 +36,14 @@ let isProcessing = false
 function messageCleaner(message: string, character: User, user: User): string {
   const characterPrefix = `${character.name} ${character.surname}:`
   const userPrefix = `${user.name} ${user.surname}:`
+  const characterObj = character.toObject()
 
   if (message.startsWith(characterPrefix)) {
     message = message.slice(characterPrefix.length).trim()
   } else if (message.endsWith(userPrefix)) {
     message = message.slice(0, -userPrefix.length).trim()
+  } else if (message.endsWith(clearSymbols(replaceMacros('{{input_sequence}}', characterObj), ['\n']))) {
+    message = message.slice(0, -clearSymbols(replaceMacros('{{input_sequence}}', characterObj), ['\n']).length).trim()
   }
 
   return message
