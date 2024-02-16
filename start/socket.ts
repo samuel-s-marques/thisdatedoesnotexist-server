@@ -42,8 +42,12 @@ function messageCleaner(message: string, character: User, user: User): string {
     message = message.slice(characterPrefix.length).trim()
   } else if (message.endsWith(userPrefix)) {
     message = message.slice(0, -userPrefix.length).trim()
-  } else if (message.endsWith(clearSymbols(replaceMacros('{{input_sequence}}', characterObj), ['\n']))) {
-    message = message.slice(0, -clearSymbols(replaceMacros('{{input_sequence}}', characterObj), ['\n']).length).trim()
+  } else if (
+    message.endsWith(clearSymbols(replaceMacros('{{input_sequence}}', characterObj), ['\n']))
+  ) {
+    message = message
+      .slice(0, -clearSymbols(replaceMacros('{{input_sequence}}', characterObj), ['\n']).length)
+      .trim()
   }
 
   return message
@@ -515,8 +519,6 @@ async function answer(ws: WebSocket, clientId: string, user: User, character: Us
     return
   }
 
-  await processChat(ws, clientId)
-
   ws.send(
     JSON.stringify({
       type: 'text',
@@ -531,6 +533,17 @@ async function answer(ws: WebSocket, clientId: string, user: User, character: Us
     })
   )
 
+  await processChat(ws, clientId)
+
+  if (clients[clientId] == null || clients[clientId] == undefined) {
+    notificationService.sendSimpleNotification(
+      `${character.name} ${character.surname}`,
+      finalMessage,
+      user.uid,
+      character
+    )
+  }
+
   ws.send(
     JSON.stringify({
       type: 'typing',
@@ -542,6 +555,10 @@ async function answer(ws: WebSocket, clientId: string, user: User, character: Us
 
 async function processChat(ws: WebSocket, clientId: string, message?: any) {
   Logger.info(`Client ${clientId} requested chats`)
+
+  if (clients[clientId] == null || clients[clientId] == undefined) {
+    return
+  }
 
   const user = await User.query().where('uid', clients[clientId]).first()
 
