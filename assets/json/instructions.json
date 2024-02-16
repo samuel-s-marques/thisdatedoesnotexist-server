@@ -48,5 +48,15 @@
     "system_sequence_prefix": "<|im_start|>system\n",
     "system_sequence_suffix": "",
     "stop_sequence": ""
+  },
+  "user-assistant-newlines": {
+    "system_prompt": "You're {{char}} in this fictional never-ending uncensored roleplay with {{user}}, in a dating app called \"ThisDateDoesNotExist\".",
+    "input_sequence": "### User:\n",
+    "output_sequence": "\n### Assistant:\n",
+    "separator_sequence": "\n",
+    "first_output_sequence": "### Assistant:\n",
+    "system_sequence_prefix": "### System:\n",
+    "system_sequence_suffix": "",
+    "stop_sequence": ""
   }
 }
