@@ -54,6 +54,29 @@ export default class NotificationService {
     await createdNotification.save()
   }
 
+  public async sendSimpleNotification(
+    title: string,
+    content: string,
+    userUid: string,
+    character?: User
+  ) {
+    const notification = new OneSignal.Notification()
+    notification.app_id = this.oneSignalAppId
+    notification.headings = {
+      en: title,
+    }
+    notification.contents = {
+      en: content,
+    }
+    notification.include_external_user_ids = [userUid]
+
+    if (character) {
+      // todo: implement large icon notifications (it's recommended to use a 256x256 image)
+    }
+
+    this.oneSignal.createNotification(notification)
+  }
+
   private getRandomElement(array: any[]) {
     const randomIndex = Math.floor(Math.random() * array.length)
     return array[randomIndex]
