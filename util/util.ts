@@ -174,7 +174,7 @@ export function promptBuilder(messages: Message[], character: User, user: User):
     if (message.user_id === user.id) {
       // Check if the last sender was the character and append accordingly
       if (lastSender === 'character') {
-        prompt += `{{input_sequence}}${user.name} ${user.surname}: ${message.content}{{output_sequence}}`
+        prompt += `{{input_sequence}}${user.name} ${user.surname}:\n${message.content}{{output_sequence}}`
       } else {
         prompt += `${message.content}{{output_sequence}}`
       }
@@ -183,7 +183,7 @@ export function promptBuilder(messages: Message[], character: User, user: User):
     } else {
       // Check if the last sender was the user and append accordingly
       if (lastSender === 'user') {
-        prompt += `{{output_sequence}}{{separator_sequence}}${character.name} ${character.surname}: ${message.content}{{separator_sequence}}`
+        prompt += `{{output_sequence}}{{separator_sequence}}${character.name} ${character.surname}:\n${message.content}{{separator_sequence}}`
       } else {
         prompt += `${message.content}{{separator_sequence}}`
       }
@@ -194,7 +194,7 @@ export function promptBuilder(messages: Message[], character: User, user: User):
 
   // Ensure the last line ends with \ncharacter.name:
   if (!prompt.endsWith(`${character.name}:`)) {
-    prompt += `${character.name} ${character.surname}:`
+    prompt += `${character.name} ${character.surname}:\n`
   }
 
   return prompt
