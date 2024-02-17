@@ -58,7 +58,7 @@ You need to run one of them and add their URL to the `.env` file. You also need 
 
 You'll also need to define your prompt format in the config. The project accepts only some prompt formats, like `chatml`, `openchat`, `alpaca`, `mistral`, `user-assistant-newlines`, and `metharme`. For default, it uses `user-assistant-newlines`.
 
-The [demo video]() uses `kobold` and `chatml`, with [NousResearch/Nous-Hermes-2-SOLAR-10.7B](https://huggingface.co/NousResearch/Nous-Hermes-2-SOLAR-10.7B) as a model.
+The [demo video](https://youtu.be/bp5w28hu6S8) uses `kobold` and `chatml`, with [NousResearch/Nous-Hermes-2-SOLAR-10.7B](https://huggingface.co/NousResearch/Nous-Hermes-2-SOLAR-10.7B) as the model.
 
 ## Support
 
