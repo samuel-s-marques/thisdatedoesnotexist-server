@@ -63,7 +63,7 @@ async function sendMessage(message: string, character: User, user: User) {
     `\n${user.name} ${user.surname}:`,
     clearSymbols(replaceMacros('{{first_output_sequence}}', characterObj), ['\n']),
     clearSymbols(replaceMacros('{{input_sequence}}', characterObj), ['\n']),
-    clearSymbols(replaceMacros('{{separator_sequence}}', characterObj), ['\n']),
+    clearSymbols(replaceMacros('{{output_sequence}}', characterObj), ['\n']),
   ])
 }
 
@@ -303,9 +303,10 @@ async function saveAudioMessage(ws: WebSocket, message: any, user: User, clientI
       return
     }
 
+    const character = await User.query().where('uid', message.room_uid).firstOrFail()
     const chat = await Chat.query()
       .where('user_id', user.id)
-      .where('character_id', message.room_uid)
+      .where('character_id', character.id)
       .firstOrFail()
 
     let userMessage = new Message()
