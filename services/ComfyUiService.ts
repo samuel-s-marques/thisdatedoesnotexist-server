@@ -1,7 +1,17 @@
 import axios from 'axios'
 import Env from '@ioc:Adonis/Core/Env'
 import Logger from '@ioc:Adonis/Core/Logger'
-import { generateRandomSeed, imagePromptBuilder, negativeImagePromptBuilder } from 'Util/util'
+import {
+  breastSizeMapping,
+  characterAgeMapping,
+  characterSexMapping,
+  generateRandomSeed,
+  getRandomInt,
+  imagePromptBuilder,
+  muscleMapping,
+  negativeImagePromptBuilder,
+  weightMapping,
+} from 'Util/util'
 import { Character } from 'character-forge'
 import fs from 'fs'
 import Application from '@ioc:Adonis/Core/Application'
@@ -76,6 +86,12 @@ export default class ComfyUiService {
       )
       const prompt = imagePromptBuilder(character)
       const negativePrompt = negativeImagePromptBuilder(character.sex)
+      const age = characterAgeMapping(character.age)
+      const sex = characterSexMapping(character.sex)
+      const breastSize = breastSizeMapping(character.sex, character.bodyType.type)
+      const muscle = muscleMapping(character.bodyType.type)
+      const weight = weightMapping(character.bodyType.type)
+      const details = getRandomInt(1, 5)
 
       const payload = {
         prompt: {
@@ -155,8 +171,8 @@ export default class ComfyUiService {
           '39': {
             inputs: {
               lora_name: 'weight_slider_v2.safetensors',
-              strength_model: 0.2,
-              strength_clip: 1,
+              strength_model: weight,
+              strength_clip: weight,
               model: ['2', 0],
               clip: ['2', 1],
             },
@@ -168,8 +184,8 @@ export default class ComfyUiService {
           '40': {
             inputs: {
               lora_name: 'gender_slider_v1.safetensors',
-              strength_model: 0,
-              strength_clip: 1,
+              strength_model: sex,
+              strength_clip: sex,
               model: ['39', 0],
               clip: ['39', 1],
             },
@@ -181,8 +197,8 @@ export default class ComfyUiService {
           '41': {
             inputs: {
               lora_name: 'muscle_slider_v1.safetensors',
-              strength_model: 0,
-              strength_clip: 1,
+              strength_model: muscle,
+              strength_clip: muscle,
               model: ['40', 0],
               clip: ['40', 1],
             },
@@ -194,8 +210,8 @@ export default class ComfyUiService {
           '42': {
             inputs: {
               lora_name: 'detail_slider_v4.safetensors',
-              strength_model: 1,
-              strength_clip: 1,
+              strength_model: details,
+              strength_clip: details,
               model: ['41', 0],
               clip: ['41', 1],
             },
@@ -220,8 +236,8 @@ export default class ComfyUiService {
           '45': {
             inputs: {
               lora_name: 'breastsizeslideroffset.safetensors',
-              strength_model: -1,
-              strength_clip: 1,
+              strength_model: breastSize,
+              strength_clip: breastSize,
               model: ['44', 0],
               clip: ['44', 1],
             },
@@ -248,8 +264,8 @@ export default class ComfyUiService {
           '57': {
             inputs: {
               lora_name: 'ReaLora.safetensors',
-              strength_model: 0.7000000000000001,
-              strength_clip: 1,
+              strength_model: 0.7,
+              strength_clip: 0.7,
               model: ['45', 0],
               clip: ['45', 1],
             },
@@ -261,8 +277,8 @@ export default class ComfyUiService {
           '73': {
             inputs: {
               lora_name: 'age_slider-LECO-v1.safetensors',
-              strength_model: -0.5,
-              strength_clip: 1,
+              strength_model: age,
+              strength_clip: age,
               model: ['67', 0],
               clip: ['67', 1],
             },
