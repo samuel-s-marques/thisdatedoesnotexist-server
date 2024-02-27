@@ -47,7 +47,17 @@ This project uses [ComfyUI](https://github.com/comfyanonymous/ComfyUI) to genera
 
 You need to run ComfyUI and add its URL to the `.env` file. Also, you need to put your model name in `config/app.ts`.
 
-The project also uses [LCM](https://civitai.com/models/195519/lcm-lora-weights-stable-diffusion-acceleration-module), to generate images fast; [CyberRealistic_Negative](https://civitai.com/models/77976/cyberrealistic-negative) as negative embedding; and [vae-ft-mse-840000](https://huggingface.co/stabilityai/sd-vae-ft-mse-original) as VAE. Download them.
+The project also uses:
+- [LCM - LoRA](https://civitai.com/models/195519/lcm-lora-weights-stable-diffusion-acceleration-module), to generate images fast;
+- [CyberRealistic_Negative](https://civitai.com/models/77976/cyberrealistic-negative) as negative embedding; 
+- [Weight Slider - LoRA](https://civitai.com/models/112552/weight-slider-lora) to change the character's weight;
+- [Gender Slider - LoRA](https://civitai.com/models/112988/gender-slider-lora) to change the character's gender;
+- [Muscle Slider - LoRA](https://civitai.com/models/112658/muscle-slider-lora) to change the character's muscle;
+- [Skin Tone Slider - LoRA](https://civitai.com/models/112594/skin-tone-slider-lora) to change the character's skin tone;
+- [Detail Slider - LoRA](https://civitai.com/models/153562/detail-slider-lora) to change the image's detail;
+- [Breast Size Slider - LoRA](https://civitai.com/models/131864/breast-size-slider) to change the character's breast size;
+- [Age Slider - LoRA](https://civitai.com/models/179792/age-slider) to change the character's age appearance;
+- and [vae-ft-mse-840000](https://huggingface.co/stabilityai/sd-vae-ft-mse-original) as VAE. Download them.
 
 <img src="assets/images/example.png" alt="Example character" width="200"/>
 
