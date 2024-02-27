@@ -317,3 +317,15 @@ export function replaceMacros(content: string, character: object, user?: User): 
 
   return content
 }
+
+export function characterAgeMapping(character: Character) {
+  if (character.age >= 18 && character.age <= 25) {
+    return -(Math.floor(Math.random() * (100 - 10 + 1) + 10) / 100)
+  } else if (character.age >= 26 && character.age <= 35) {
+    return Math.floor(Math.random() * (100 - 0 + 1) + 0) / 100
+  } else if (character.age >= 36 && character.age <= 55) {
+    return Math.floor(Math.random() * (150 - 100 + 1) + 100) / 100
+  } else if (character.age >= 56) {
+    return Math.floor(Math.random() * (200 - 150 + 1) + 150) / 100
+  }
+}
