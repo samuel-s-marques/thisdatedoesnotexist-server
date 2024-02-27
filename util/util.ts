@@ -342,6 +342,6 @@ export function breastSizeMapping(character: Character) {
   if (character.sex === 'male') {
     return 0
   } else {
-    return Math.floor(Math.random() * (100 - 0 + 1) + 0) / 100
+    return Math.random() * 2 - 1
   }
 }
