@@ -320,21 +320,21 @@ export function replaceMacros(content: string, character: object, user?: User): 
 
 export function characterAgeMapping(character: Character) {
   if (character.age >= 18 && character.age <= 25) {
-    return -(Math.floor(Math.random() * (100 - 10 + 1) + 10) / 100)
+    return -(Math.floor(getRandomInt(10, 100) + 10) / 100)
   } else if (character.age >= 26 && character.age <= 35) {
-    return Math.floor(Math.random() * (100 - 0 + 1) + 0) / 100
+    return Math.floor(getRandomInt(0, 100) + 0) / 100
   } else if (character.age >= 36 && character.age <= 55) {
-    return Math.floor(Math.random() * (150 - 100 + 1) + 100) / 100
+    return Math.floor(getRandomInt(100, 150) + 100) / 100
   } else if (character.age >= 56) {
-    return Math.floor(Math.random() * (200 - 150 + 1) + 150) / 100
+    return Math.floor(getRandomInt(150, 200) + 150) / 100
   }
 }
 
 export function characterSexMapping(character: Character) {
   if (character.sex === 'male') {
-    return -(Math.floor(Math.random() * (500 - 100 + 1) + 100) / 100)
+    return -(Math.floor(getRandomInt(100, 500)) / 100)
   } else {
-    return Math.floor(Math.random() * (500 - 100 + 1) + 100) / 100
+    return Math.floor(getRandomInt(100, 500)) / 100
   }
 }
 
@@ -343,5 +343,41 @@ export function breastSizeMapping(character: Character) {
     return 0
   } else {
     return Math.random() * 2 - 1
+  }
+}
+
+export function muscleMapping(character: Character) {
+  switch (character.bodyType.type) {
+    case 'muscular':
+      return getRandomInt(4, 5)
+    case 'athletic':
+    case 'stocky':
+      return getRandomInt(2, 3)
+    case 'slim':
+    case 'fit':
+    case 'v-shaped':
+      return getRandomInt(1, 2)
+    case 'slender':
+      return getRandomInt(-1.5, -2.5)
+    case 'lithe':
+      return getRandomInt(-1, -2)
+    case 'statuesque':
+      return getRandomInt(-1, 1)
+    case 'obese':
+    case 'chubby':
+    case 'plump':
+    case 'fat':
+    case 'curvy':
+      return 0
+    default:
+      return 0
+  }
+}
+
+export function getRandomInt(min: number, max: number) {
+  if (min > max) {
+    throw new Error('Min cannot be greater than max')
+  } else {
+    return Math.random() * (max - min + 1) + min
   }
 }
