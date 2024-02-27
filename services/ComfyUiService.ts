@@ -258,6 +258,19 @@ export default class ComfyUiService {
               title: 'Load LoRA',
             },
           },
+          '73': {
+            inputs: {
+              lora_name: 'age_slider-LECO-v1.safetensors',
+              strength_model: -0.5,
+              strength_clip: 1,
+              model: ['67', 0],
+              clip: ['67', 1],
+            },
+            class_type: 'LoraLoader',
+            _meta: {
+              title: 'Age Slider',
+            },
+          },
         },
       }
 
