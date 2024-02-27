@@ -318,36 +318,48 @@ export function replaceMacros(content: string, character: object, user?: User): 
   return content
 }
 
-export function characterAgeMapping(character: Character) {
-  if (character.age >= 18 && character.age <= 25) {
+export function characterAgeMapping(age: number) {
+  if (age >= 18 && age <= 25) {
     return -(Math.floor(getRandomInt(10, 100) + 10) / 100)
-  } else if (character.age >= 26 && character.age <= 35) {
+  } else if (age >= 26 && age <= 35) {
     return Math.floor(getRandomInt(0, 100) + 0) / 100
-  } else if (character.age >= 36 && character.age <= 55) {
+  } else if (age >= 36 && age <= 55) {
     return Math.floor(getRandomInt(100, 150) + 100) / 100
-  } else if (character.age >= 56) {
+  } else if (age >= 56) {
     return Math.floor(getRandomInt(150, 200) + 150) / 100
   }
 }
 
-export function characterSexMapping(character: Character) {
-  if (character.sex === 'male') {
+export function characterSexMapping(sex: string) {
+  if (sex === 'male') {
     return -(Math.floor(getRandomInt(100, 500)) / 100)
   } else {
     return Math.floor(getRandomInt(100, 500)) / 100
   }
 }
 
-export function breastSizeMapping(character: Character) {
-  if (character.sex === 'male') {
+export function breastSizeMapping(sex: string, bodyType: string) {
+  if (sex === 'male') {
     return 0
   } else {
-    return Math.random() * 2 - 1
+    switch (bodyType) {
+      case 'obese':
+        return 1
+      case 'plump':
+      case 'chubby':
+        return getRandomInt(0.8, 1)
+      case 'fat':
+        return 1
+      case 'curvy':
+        return getRandomInt(0.5, 1)
+      default:
+        return Math.random() * 2 - 1
+    }
   }
 }
 
-export function muscleMapping(character: Character) {
-  switch (character.bodyType.type) {
+export function muscleMapping(bodyType: string) {
+  switch (bodyType) {
     case 'muscular':
       return getRandomInt(4, 5)
     case 'athletic':
@@ -363,29 +375,13 @@ export function muscleMapping(character: Character) {
       return getRandomInt(-1, -2)
     case 'statuesque':
       return getRandomInt(-1, 1)
-    case 'obese':
-    case 'chubby':
-    case 'plump':
-    case 'fat':
-    case 'curvy':
-      return 0
     default:
       return 0
   }
 }
 
-export function weightMapping(character: Character) {
-  switch (character.bodyType.type) {
-    case 'athletic':
-    case 'stocky':
-    case 'slim':
-    case 'fit':
-    case 'v-shaped':
-    case 'muscular':
-    case 'slender':
-    case 'lithe':
-    case 'statuesque':
-      return 0
+export function weightMapping(bodyType: string) {
+  switch (bodyType) {
     case 'obese':
       return getRandomInt(2.5, 3)
     case 'chubby':
