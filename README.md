@@ -57,7 +57,9 @@ The project also uses:
 - [Detail Slider - LoRA](https://civitai.com/models/153562/detail-slider-lora) to change the image's detail;
 - [Breast Size Slider - LoRA](https://civitai.com/models/131864/breast-size-slider) to change the character's breast size;
 - [Age Slider - LoRA](https://civitai.com/models/179792/age-slider) to change the character's age appearance;
-- and [vae-ft-mse-840000](https://huggingface.co/stabilityai/sd-vae-ft-mse-original) as VAE. Download them.
+- and [vae-ft-mse-840000](https://huggingface.co/stabilityai/sd-vae-ft-mse-original) as VAE. 
+
+Download them.
 
 <img src="assets/images/example.png" alt="Example character" width="200"/>
 
