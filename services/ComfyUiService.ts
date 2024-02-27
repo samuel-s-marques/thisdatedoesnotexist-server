@@ -92,6 +92,8 @@ export default class ComfyUiService {
       const muscle = muscleMapping(character.bodyType.type)
       const weight = weightMapping(character.bodyType.type)
       const details = getRandomInt(1, 5)
+      const artifactLevel = getRandomInt(50, 100)
+      const noiseLevel = getRandomInt(1, 40)
 
       const payload = {
         prompt: {
@@ -223,8 +225,8 @@ export default class ComfyUiService {
           '44': {
             inputs: {
               lora_name: 'skin_tone_slider_v1.safetensors',
-              strength_model: -1,
-              strength_clip: 1,
+              strength_model: 0,
+              strength_clip: 0,
               model: ['42', 0],
               clip: ['42', 1],
             },
@@ -248,8 +250,8 @@ export default class ComfyUiService {
           },
           '54': {
             inputs: {
-              jpeg_artifact_level: 65,
-              noise_level: 8,
+              jpeg_artifact_level: artifactLevel,
+              noise_level: noiseLevel,
               adjust_brightness: 1,
               adjust_color: 1,
               adjust_contrast: 1,
