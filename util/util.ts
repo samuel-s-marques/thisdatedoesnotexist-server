@@ -374,6 +374,33 @@ export function muscleMapping(character: Character) {
   }
 }
 
+export function weightMapping(character: Character) {
+  switch (character.bodyType.type) {
+    case 'athletic':
+    case 'stocky':
+    case 'slim':
+    case 'fit':
+    case 'v-shaped':
+    case 'muscular':
+    case 'slender':
+    case 'lithe':
+    case 'statuesque':
+      return 0
+    case 'obese':
+      return getRandomInt(2.5, 3)
+    case 'chubby':
+      return getRandomInt(1.5, 2.5)
+    case 'plump':
+      return getRandomInt(1, 2)
+    case 'fat':
+      return getRandomInt(2, 3)
+    case 'curvy':
+      return getRandomInt(1, 2)
+    default:
+      return 0
+  }
+}
+
 export function getRandomInt(min: number, max: number) {
   if (min > max) {
     throw new Error('Min cannot be greater than max')
