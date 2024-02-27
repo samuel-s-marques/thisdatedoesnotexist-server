@@ -337,3 +337,11 @@ export function characterSexMapping(character: Character) {
     return Math.floor(Math.random() * (500 - 100 + 1) + 100) / 100
   }
 }
+
+export function breastSizeMapping(character: Character) {
+  if (character.sex === 'male') {
+    return 0
+  } else {
+    return Math.floor(Math.random() * (100 - 0 + 1) + 0) / 100
+  }
+}
