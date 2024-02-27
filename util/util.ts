@@ -329,3 +329,11 @@ export function characterAgeMapping(character: Character) {
     return Math.floor(Math.random() * (200 - 150 + 1) + 150) / 100
   }
 }
+
+export function characterSexMapping(character: Character) {
+  if (character.sex === 'male') {
+    return -(Math.floor(Math.random() * (500 - 100 + 1) + 100) / 100)
+  } else {
+    return Math.floor(Math.random() * (500 - 100 + 1) + 100) / 100
+  }
+}
