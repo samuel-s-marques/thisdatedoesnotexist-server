@@ -116,16 +116,22 @@ export default class ComfyUiService {
           '3': {
             inputs: {
               text: prompt,
-              clip: ['2', 1],
+              clip: ['57', 1],
             },
             class_type: 'CLIPTextEncode',
+            _meta: {
+              title: 'CLIP Text Encode (Prompt)',
+            },
           },
           '4': {
             inputs: {
               text: `embedding:CyberRealistic_Negative-neg, ${negativePrompt}`,
-              clip: ['1', 1],
+              clip: ['57', 1],
             },
             class_type: 'CLIPTextEncode',
+            _meta: {
+              title: 'CLIP Text Encode (Prompt)',
+            },
           },
           '5': {
             inputs: {
@@ -135,12 +141,15 @@ export default class ComfyUiService {
               sampler_name: 'lcm',
               scheduler: 'normal',
               denoise: 1,
-              model: ['2', 0],
+              model: ['57', 0],
               positive: ['3', 0],
               negative: ['4', 0],
               latent_image: ['6', 0],
             },
             class_type: 'KSampler',
+            _meta: {
+              title: 'KSampler',
+            },
           },
           '6': {
             inputs: {
@@ -149,6 +158,9 @@ export default class ComfyUiService {
               batch_size: 1,
             },
             class_type: 'EmptyLatentImage',
+            _meta: {
+              title: 'Empty Latent Image',
+            },
           },
           '7': {
             inputs: {
@@ -160,7 +172,7 @@ export default class ComfyUiService {
           '35': {
             inputs: {
               filename_prefix: uid,
-              images: ['7', 0],
+              images: ['54', 0],
             },
             class_type: 'SaveImage',
           },
@@ -170,84 +182,6 @@ export default class ComfyUiService {
             },
             class_type: 'VAELoader',
           },
-          '39': {
-            inputs: {
-              lora_name: 'weight_slider_v2.safetensors',
-              strength_model: weight,
-              strength_clip: weight,
-              model: ['2', 0],
-              clip: ['2', 1],
-            },
-            class_type: 'LoraLoader',
-            _meta: {
-              title: 'Weight Slider',
-            },
-          },
-          '40': {
-            inputs: {
-              lora_name: 'gender_slider_v1.safetensors',
-              strength_model: sex,
-              strength_clip: sex,
-              model: ['39', 0],
-              clip: ['39', 1],
-            },
-            class_type: 'LoraLoader',
-            _meta: {
-              title: 'Gender Slider',
-            },
-          },
-          '41': {
-            inputs: {
-              lora_name: 'muscle_slider_v1.safetensors',
-              strength_model: muscle,
-              strength_clip: muscle,
-              model: ['40', 0],
-              clip: ['40', 1],
-            },
-            class_type: 'LoraLoader',
-            _meta: {
-              title: 'Muscle Slider',
-            },
-          },
-          '42': {
-            inputs: {
-              lora_name: 'detail_slider_v4.safetensors',
-              strength_model: details,
-              strength_clip: details,
-              model: ['41', 0],
-              clip: ['41', 1],
-            },
-            class_type: 'LoraLoader',
-            _meta: {
-              title: 'Detail Slider',
-            },
-          },
-          '44': {
-            inputs: {
-              lora_name: 'skin_tone_slider_v1.safetensors',
-              strength_model: 0,
-              strength_clip: 0,
-              model: ['42', 0],
-              clip: ['42', 1],
-            },
-            class_type: 'LoraLoader',
-            _meta: {
-              title: 'Skin Tone Slider',
-            },
-          },
-          '45': {
-            inputs: {
-              lora_name: 'breastsizeslideroffset.safetensors',
-              strength_model: breastSize,
-              strength_clip: breastSize,
-              model: ['44', 0],
-              clip: ['44', 1],
-            },
-            class_type: 'LoraLoader',
-            _meta: {
-              title: 'Breast Size Slider',
-            },
-          },
           '54': {
             inputs: {
               jpeg_artifact_level: artifactLevel,
@@ -255,7 +189,7 @@ export default class ComfyUiService {
               adjust_brightness: 1,
               adjust_color: 1,
               adjust_contrast: 1,
-              seed: -850025818286687,
+              seed: 871038986630641,
               pixels: ['7', 0],
             },
             class_type: 'Dequality',
@@ -268,12 +202,90 @@ export default class ComfyUiService {
               lora_name: 'ReaLora.safetensors',
               strength_model: 0.7,
               strength_clip: 0.7,
-              model: ['45', 0],
-              clip: ['45', 1],
+              model: ['72', 0],
+              clip: ['72', 1],
             },
             class_type: 'LoraLoader',
             _meta: {
               title: 'Load LoRA',
+            },
+          },
+          '67': {
+            inputs: {
+              lora_name: 'weight_slider_v2.safetensors',
+              strength_model: weight,
+              strength_clip: weight,
+              model: ['2', 0],
+              clip: ['2', 1],
+            },
+            class_type: 'LoraLoader',
+            _meta: {
+              title: 'Weight Slider',
+            },
+          },
+          '68': {
+            inputs: {
+              lora_name: 'gender_slider_v1.safetensors',
+              strength_model: sex,
+              strength_clip: sex,
+              model: ['73', 0],
+              clip: ['73', 1],
+            },
+            class_type: 'LoraLoader',
+            _meta: {
+              title: 'Gender Slider',
+            },
+          },
+          '69': {
+            inputs: {
+              lora_name: 'muscle_slider_v1.safetensors',
+              strength_model: muscle,
+              strength_clip: muscle,
+              model: ['68', 0],
+              clip: ['68', 1],
+            },
+            class_type: 'LoraLoader',
+            _meta: {
+              title: 'Muscle Slider',
+            },
+          },
+          '70': {
+            inputs: {
+              lora_name: 'detail_slider_v4.safetensors',
+              strength_model: details,
+              strength_clip: details,
+              model: ['69', 0],
+              clip: ['69', 1],
+            },
+            class_type: 'LoraLoader',
+            _meta: {
+              title: 'Detail Slider',
+            },
+          },
+          '71': {
+            inputs: {
+              lora_name: 'skin_tone_slider_v1.safetensors',
+              strength_model: 0,
+              strength_clip: 0,
+              model: ['70', 0],
+              clip: ['70', 1],
+            },
+            class_type: 'LoraLoader',
+            _meta: {
+              title: 'Skin Tone Slider',
+            },
+          },
+          '72': {
+            inputs: {
+              lora_name: 'breastsizeslideroffset.safetensors',
+              strength_model: breastSize,
+              strength_clip: breastSize,
+              model: ['71', 0],
+              clip: ['71', 1],
+            },
+            class_type: 'LoraLoader',
+            _meta: {
+              title: 'Breast Size Slider',
             },
           },
           '73': {
