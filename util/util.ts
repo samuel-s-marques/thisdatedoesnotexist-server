@@ -55,7 +55,6 @@ export function imagePromptBuilder(character: Character) {
     'candid shot',
     'full body shot',
     'nighttime',
-    '(from behind looking at viewer)',
   ]
   const photoType = photoTypes[Math.floor(Math.random() * photoTypes.length)]
 
