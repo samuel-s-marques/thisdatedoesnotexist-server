@@ -93,7 +93,7 @@ export default class ComfyUiService {
       const weight = weightMapping(character.bodyType.type)
       const details = getRandomInt(1, 5)
       const artifactLevel = getRandomInt(50, 100)
-      const noiseLevel = getRandomInt(1, 40)
+      const noiseLevel = getRandomInt(1, 20)
 
       const payload = {
         prompt: {
