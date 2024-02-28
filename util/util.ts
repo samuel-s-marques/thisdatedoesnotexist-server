@@ -369,9 +369,9 @@ export function muscleMapping(bodyType: string) {
     case 'v-shaped':
       return getRandomInt(1, 2)
     case 'slender':
-      return getRandomInt(-1.5, -2.5)
+      return getRandomInt(-2.5, -1.5)
     case 'lithe':
-      return getRandomInt(-1, -2)
+      return getRandomInt(-2, -1)
     case 'statuesque':
       return getRandomInt(-1, 1)
     default:
