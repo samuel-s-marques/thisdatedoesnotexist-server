@@ -125,7 +125,7 @@ export default class ComfyUiService {
           },
           '4': {
             inputs: {
-              text: `embedding:CyberRealistic_Negative-neg, ${negativePrompt}`,
+              text: `embedding:CyberRealistic_Negative-neg`,
               clip: ['57', 1],
             },
             class_type: 'CLIPTextEncode',
