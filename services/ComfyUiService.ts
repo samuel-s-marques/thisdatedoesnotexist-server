@@ -90,8 +90,8 @@ export default class ComfyUiService {
       const muscle = muscleMapping(character.bodyType.type)
       const weight = weightMapping(character.bodyType.type)
       const details = getRandomInt(-1, 1.5)
-      const artifactLevel = getRandomInt(50, 100)
-      const noiseLevel = getRandomInt(1, 20)
+      const artifactLevel = getRandomInt(60, 100)
+      const noiseLevel = getRandomInt(1, 10)
 
       const payload = {
         prompt: {
