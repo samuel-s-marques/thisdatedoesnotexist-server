@@ -91,7 +91,7 @@ export default class ComfyUiService {
       const breastSize = breastSizeMapping(character.sex, character.bodyType.type)
       const muscle = muscleMapping(character.bodyType.type)
       const weight = weightMapping(character.bodyType.type)
-      const details = getRandomInt(1, 5)
+      const details = getRandomInt(-1, 1.5)
       const artifactLevel = getRandomInt(50, 100)
       const noiseLevel = getRandomInt(1, 20)
 
