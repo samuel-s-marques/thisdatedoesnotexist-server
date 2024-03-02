@@ -120,6 +120,9 @@ export function imagePromptBuilder(character: Character) {
   return prompt
 }
 
+/**
+ * @deprecated Use a negative embedding to achieve better and more realistic results.
+ */
 export function negativeImagePromptBuilder(sex: string): string {
   let negativePrompts = [
     '(deformed iris, deformed hands, worst quality, low quality, normal quality:2)',
