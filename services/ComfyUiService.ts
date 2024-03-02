@@ -9,7 +9,6 @@ import {
   getRandomInt,
   imagePromptBuilder,
   muscleMapping,
-  negativeImagePromptBuilder,
   weightMapping,
 } from 'Util/util'
 import { Character } from 'character-forge'
@@ -85,7 +84,6 @@ export default class ComfyUiService {
         `${character.name}+${character.surname}+${character.age}`
       )
       const prompt = imagePromptBuilder(character)
-      const negativePrompt = negativeImagePromptBuilder(character.sex)
       const age = characterAgeMapping(character.age)
       const sex = characterSexMapping(character.sex)
       const breastSize = breastSizeMapping(character.sex, character.bodyType.type)
