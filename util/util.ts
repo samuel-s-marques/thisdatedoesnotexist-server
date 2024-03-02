@@ -40,22 +40,20 @@ export function imagePromptBuilder(character: Character) {
     'smiling',
     'focused',
     'distracted',
-    'serious',
-    'neutral',
     '(troubled facial expression)',
     'happy',
   ]
   const expression = expressions[Math.floor(Math.random() * expressions.length)]
 
   const photoTypes = [
-    'selfie',
+    'taking a selfie',
+    'self shot',
     'portrait',
+    'first-person-pov',
     'instagram selfie',
     'looking at viewer',
     'candid shot',
-    'full body shot',
     'nighttime',
-    '(from behind looking at viewer)',
   ]
   const photoType = photoTypes[Math.floor(Math.random() * photoTypes.length)]
 
@@ -121,6 +119,9 @@ export function imagePromptBuilder(character: Character) {
   return prompt
 }
 
+/**
+ * @deprecated Use a negative embedding to achieve better and more realistic results.
+ */
 export function negativeImagePromptBuilder(sex: string): string {
   let negativePrompts = [
     '(deformed iris, deformed hands, worst quality, low quality, normal quality:2)',
@@ -316,4 +317,90 @@ export function replaceMacros(content: string, character: object, user?: User): 
   content = replaceFunction(content, replacements)
 
   return content
+}
+
+export function characterAgeMapping(age: number) {
+  if (age >= 18 && age <= 25) {
+    return -(Math.floor(getRandomInt(10, 100) + 10) / 100)
+  } else if (age >= 26 && age <= 35) {
+    return Math.floor(getRandomInt(0, 100) + 0) / 100
+  } else if (age >= 36 && age <= 55) {
+    return Math.floor(getRandomInt(100, 150) + 100) / 100
+  } else if (age >= 56) {
+    return Math.floor(getRandomInt(150, 200) + 150) / 100
+  }
+}
+
+export function characterSexMapping(sex: string) {
+  if (sex === 'male') {
+    return -(Math.floor(getRandomInt(100, 500)) / 100)
+  } else {
+    return Math.floor(getRandomInt(100, 500)) / 100
+  }
+}
+
+export function breastSizeMapping(sex: string, bodyType: string) {
+  if (sex === 'male') {
+    return 0
+  } else {
+    switch (bodyType) {
+      case 'obese':
+        return 1
+      case 'plump':
+      case 'chubby':
+        return getRandomInt(0, 0.8)
+      case 'fat':
+        return 1
+      case 'curvy':
+        return getRandomInt(0, 0.5)
+      default:
+        return Math.random() * 2 - 1
+    }
+  }
+}
+
+export function muscleMapping(bodyType: string) {
+  switch (bodyType) {
+    case 'muscular':
+      return getRandomInt(2.5, 3.5)
+    case 'athletic':
+    case 'stocky':
+      return getRandomInt(1.5, 2.5)
+    case 'slim':
+    case 'fit':
+    case 'v-shaped':
+      return getRandomInt(1, 1.5)
+    case 'slender':
+      return getRandomInt(-2.5, -1.5)
+    case 'lithe':
+      return getRandomInt(-2, -1)
+    case 'statuesque':
+      return getRandomInt(-1, 1)
+    default:
+      return 0
+  }
+}
+
+export function weightMapping(bodyType: string) {
+  switch (bodyType) {
+    case 'obese':
+      return getRandomInt(2, 2.5)
+    case 'chubby':
+    case 'plump':
+      return getRandomInt(0.5, 1)
+    case 'fat':
+      return getRandomInt(1.5, 2)
+    case 'curvy':
+      return getRandomInt(0, 0.8)
+    default:
+      return 0
+  }
+}
+
+export function getRandomInt(min: number, max: number) {
+  if (min > max) {
+    throw new Error('Min cannot be greater than max')
+  } else {
+    return Math.random() * (max - min + 1) + min
+  }
 }

@@ -1,11 +1,20 @@
 import axios from 'axios'
 import Env from '@ioc:Adonis/Core/Env'
 import Logger from '@ioc:Adonis/Core/Logger'
-import { generateRandomSeed, imagePromptBuilder, negativeImagePromptBuilder } from 'Util/util'
+import {
+  breastSizeMapping,
+  characterAgeMapping,
+  characterSexMapping,
+  generateRandomSeed,
+  getRandomInt,
+  imagePromptBuilder,
+  muscleMapping,
+  weightMapping,
+} from 'Util/util'
 import { Character } from 'character-forge'
 import fs from 'fs'
 import Application from '@ioc:Adonis/Core/Application'
-import Config from '@ioc:Adonis/Core/Config';
+import Config from '@ioc:Adonis/Core/Config'
 
 export default class ComfyUiService {
   private static instance: ComfyUiService
@@ -75,7 +84,14 @@ export default class ComfyUiService {
         `${character.name}+${character.surname}+${character.age}`
       )
       const prompt = imagePromptBuilder(character)
-      const negativePrompt = negativeImagePromptBuilder(character.sex)
+      const age = characterAgeMapping(character.age)
+      const sex = characterSexMapping(character.sex)
+      const breastSize = breastSizeMapping(character.sex, character.bodyType.type)
+      const muscle = muscleMapping(character.bodyType.type)
+      const weight = weightMapping(character.bodyType.type)
+      const details = getRandomInt(-1, 1.5)
+      const artifactLevel = getRandomInt(60, 100)
+      const noiseLevel = getRandomInt(1, 10)
 
       const payload = {
         prompt: {
@@ -98,16 +114,22 @@ export default class ComfyUiService {
           '3': {
             inputs: {
               text: prompt,
-              clip: ['2', 1],
+              clip: ['57', 1],
             },
             class_type: 'CLIPTextEncode',
+            _meta: {
+              title: 'CLIP Text Encode (Prompt)',
+            },
           },
           '4': {
             inputs: {
-              text: `embedding:CyberRealistic_Negative-neg, ${negativePrompt}`,
-              clip: ['1', 1],
+              text: `embedding:CyberRealistic_Negative-neg`,
+              clip: ['57', 1],
             },
             class_type: 'CLIPTextEncode',
+            _meta: {
+              title: 'CLIP Text Encode (Prompt)',
+            },
           },
           '5': {
             inputs: {
@@ -117,12 +139,15 @@ export default class ComfyUiService {
               sampler_name: 'lcm',
               scheduler: 'normal',
               denoise: 1,
-              model: ['2', 0],
+              model: ['57', 0],
               positive: ['3', 0],
               negative: ['4', 0],
               latent_image: ['6', 0],
             },
             class_type: 'KSampler',
+            _meta: {
+              title: 'KSampler',
+            },
           },
           '6': {
             inputs: {
@@ -131,6 +156,9 @@ export default class ComfyUiService {
               batch_size: 1,
             },
             class_type: 'EmptyLatentImage',
+            _meta: {
+              title: 'Empty Latent Image',
+            },
           },
           '7': {
             inputs: {
@@ -142,7 +170,7 @@ export default class ComfyUiService {
           '35': {
             inputs: {
               filename_prefix: uid,
-              images: ['7', 0],
+              images: ['54', 0],
             },
             class_type: 'SaveImage',
           },
@@ -151,6 +179,112 @@ export default class ComfyUiService {
               vae_name: 'vae-ft-mse-840000-ema-pruned.safetensors',
             },
             class_type: 'VAELoader',
+          },
+          '54': {
+            inputs: {
+              jpeg_artifact_level: artifactLevel,
+              noise_level: noiseLevel,
+              adjust_brightness: 1,
+              adjust_color: 1,
+              adjust_contrast: 1,
+              seed: 871038986630641,
+              pixels: ['7', 0],
+            },
+            class_type: 'Dequality',
+            _meta: {
+              title: 'Dequality',
+            },
+          },
+          '57': {
+            inputs: {
+              lora_name: 'ReaLora.safetensors',
+              strength_model: 0.7,
+              strength_clip: 0.7,
+              model: ['83', 0],
+              clip: ['83', 1],
+            },
+            class_type: 'LoraLoader',
+            _meta: {
+              title: 'Load LoRA',
+            },
+          },
+          '77': {
+            inputs: {
+              lora_name: 'weight_slider_v2.safetensors',
+              strength_model: weight,
+              strength_clip: weight,
+              model: ['2', 0],
+              clip: ['2', 1],
+            },
+            class_type: 'LoraLoader',
+            _meta: {
+              title: 'Weight Slider',
+            },
+          },
+          '78': {
+            inputs: {
+              lora_name: 'gender_slider_v1.safetensors',
+              strength_model: sex,
+              strength_clip: sex,
+              model: ['77', 0],
+              clip: ['77', 1],
+            },
+            class_type: 'LoraLoader',
+            _meta: {
+              title: 'Gender Slider',
+            },
+          },
+          '79': {
+            inputs: {
+              lora_name: 'muscle_slider_v1.safetensors',
+              strength_model: muscle,
+              strength_clip: muscle,
+              model: ['78', 0],
+              clip: ['78', 1],
+            },
+            class_type: 'LoraLoader',
+            _meta: {
+              title: 'Muscle Slider',
+            },
+          },
+          '80': {
+            inputs: {
+              lora_name: 'detail_slider_v4.safetensors',
+              strength_model: details,
+              strength_clip: details,
+              model: ['79', 0],
+              clip: ['79', 1],
+            },
+            class_type: 'LoraLoader',
+            _meta: {
+              title: 'Detail Slider',
+            },
+          },
+          '81': {
+            inputs: {
+              lora_name: 'breastsizeslideroffset.safetensors',
+              strength_model: breastSize,
+              strength_clip: breastSize,
+              model: ['80', 0],
+              clip: ['80', 1],
+            },
+            class_type: 'LoraLoader',
+            _meta: {
+              title: 'Breast Size Slider',
+            },
+          },
+          '83': {
+            inputs: {
+              lora_name: 'age_slider-LECO-v1.safetensors',
+              strength_model: age,
+              strength_clip: age,
+              model: ['81', 0],
+              clip: ['81', 1],
+            },
+            class_type: 'LoraLoader',
+            _meta: {
+              title: 'Age Slider',
+            },
           },
         },
       }
