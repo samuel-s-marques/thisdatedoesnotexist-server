@@ -53,7 +53,6 @@ The project also uses:
 - [Weight Slider - LoRA](https://civitai.com/models/112552/weight-slider-lora) to change the character's weight;
 - [Gender Slider - LoRA](https://civitai.com/models/112988/gender-slider-lora) to change the character's gender;
 - [Muscle Slider - LoRA](https://civitai.com/models/112658/muscle-slider-lora) to change the character's muscle;
-- [Skin Tone Slider - LoRA](https://civitai.com/models/112594/skin-tone-slider-lora) to change the character's skin tone;
 - [Detail Slider - LoRA](https://civitai.com/models/153562/detail-slider-lora) to change the image's detail;
 - [Breast Size Slider - LoRA](https://civitai.com/models/131864/breast-size-slider) to change the character's breast size;
 - [Age Slider - LoRA](https://civitai.com/models/179792/age-slider) to change the character's age appearance;
