@@ -40,20 +40,19 @@ export function imagePromptBuilder(character: Character) {
     'smiling',
     'focused',
     'distracted',
-    'serious',
-    'neutral',
     '(troubled facial expression)',
     'happy',
   ]
   const expression = expressions[Math.floor(Math.random() * expressions.length)]
 
   const photoTypes = [
-    'selfie',
+    'taking a selfie',
+    'self shot',
     'portrait',
+    'first-person-pov',
     'instagram selfie',
     'looking at viewer',
     'candid shot',
-    'full body shot',
     'nighttime',
   ]
   const photoType = photoTypes[Math.floor(Math.random() * photoTypes.length)]
