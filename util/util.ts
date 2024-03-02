@@ -346,11 +346,11 @@ export function breastSizeMapping(sex: string, bodyType: string) {
         return 1
       case 'plump':
       case 'chubby':
-        return getRandomInt(0.8, 1)
+        return getRandomInt(0, 0.8)
       case 'fat':
         return 1
       case 'curvy':
-        return getRandomInt(0.5, 1)
+        return getRandomInt(0, 0.5)
       default:
         return Math.random() * 2 - 1
     }
@@ -360,14 +360,14 @@ export function breastSizeMapping(sex: string, bodyType: string) {
 export function muscleMapping(bodyType: string) {
   switch (bodyType) {
     case 'muscular':
-      return getRandomInt(4, 5)
+      return getRandomInt(2.5, 3.5)
     case 'athletic':
     case 'stocky':
-      return getRandomInt(2, 3)
+      return getRandomInt(1.5, 2.5)
     case 'slim':
     case 'fit':
     case 'v-shaped':
-      return getRandomInt(1, 2)
+      return getRandomInt(1, 1.5)
     case 'slender':
       return getRandomInt(-2.5, -1.5)
     case 'lithe':
@@ -382,15 +382,14 @@ export function muscleMapping(bodyType: string) {
 export function weightMapping(bodyType: string) {
   switch (bodyType) {
     case 'obese':
-      return getRandomInt(2.5, 3)
+      return getRandomInt(2, 2.5)
     case 'chubby':
-      return getRandomInt(1.5, 2.5)
     case 'plump':
-      return getRandomInt(1, 2)
+      return getRandomInt(0.5, 1)
     case 'fat':
-      return getRandomInt(2, 3)
+      return getRandomInt(1.5, 2)
     case 'curvy':
-      return getRandomInt(1, 2)
+      return getRandomInt(0, 0.8)
     default:
       return 0
   }
