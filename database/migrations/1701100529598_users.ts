@@ -17,6 +17,7 @@ export default class extends BaseSchema {
       table.text('bio')
       table.integer('pronoun_id').unsigned().references('pronouns.id').onDelete('SET NULL')
       table.integer('occupation_id').unsigned().references('occupations.id').onDelete('SET NULL')
+      table.integer('political_view_id').unsigned().references('political_views.id').onDelete('SET NULL')
       table
         .integer('relationship_goal_id')
         .unsigned()
@@ -36,7 +37,6 @@ export default class extends BaseSchema {
       table.string('sexuality')
       table.string('phobia')
       table.string('social_class')
-      table.string('political_view')
       table.enum('status', ['normal', 'banned', 'suspended'])
       table.enum('type', ['user', 'character'])
       table.timestamp('last_swipe').nullable()
