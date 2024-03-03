@@ -34,6 +34,7 @@ export default class UsersController {
       .where('uid', request.token.uid)
       .preload('hobbies')
       .preload('relationshipGoal')
+      .preload('politicalView')
       .firstOrFail()
 
     const characters = await User.query()
@@ -41,6 +42,7 @@ export default class UsersController {
       .preload('pronoun')
       .preload('relationshipGoal')
       .preload('occupation')
+      .preload('politicalView')
       .where('type', 'character')
       .whereNotIn('id', function (query) {
         query.select('target_id').from('swipes').where('swiper_id', user.id)
@@ -116,6 +118,7 @@ export default class UsersController {
         .preload('pronoun')
         .preload('relationshipGoal')
         .preload('occupation')
+        .preload('politicalView')
         .preload('preferences', (query) => {
           query
             .preload('body_types')
@@ -146,6 +149,7 @@ export default class UsersController {
         .preload('relationshipGoal')
         .preload('personalityTraits')
         .preload('occupation')
+        .preload('politicalView')
         .firstOrFail()
 
       return character
@@ -366,7 +370,6 @@ export default class UsersController {
     character.hairColor = forgedCharacter.hairColor
     character.religion = forgedCharacter.religion
     character.socialClass = forgedCharacter.socialClass
-    character.politicalView = forgedCharacter.politicalView
     character.phobia = forgedCharacter.phobia ? forgedCharacter.phobia : null
     character.type = 'character'
     character.status = 'normal'
@@ -376,10 +379,14 @@ export default class UsersController {
     const occupation = await Occupation.query()
       .where('name', forgedCharacter.occupation)
       .firstOrFail()
+    const politicalView = await PoliticalView.query()
+      .where('name', forgedCharacter.politicalView)
+      .firstOrFail()
 
     await character.related('pronoun').associate(pronouns)
     await character.related('relationshipGoal').associate(relationshipGoals)
     await character.related('occupation').associate(occupation)
+    await character.related('politicalView').associate(politicalView)
 
     await new ComfyUiService().sendPrompt(forgedCharacter, character.uid)
     const characterJson = character.toJSON()
