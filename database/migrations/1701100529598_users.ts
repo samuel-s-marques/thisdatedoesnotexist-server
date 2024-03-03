@@ -13,7 +13,6 @@ export default class extends BaseSchema {
       table.string('surname')
       table.integer('age')
       table.dateTime('birthday')
-      table.string('sex')
       table.text('bio')
       table.integer('pronoun_id').unsigned().references('pronouns.id').onDelete('SET NULL')
       table.integer('occupation_id').unsigned().references('occupations.id').onDelete('SET NULL')
@@ -23,6 +22,7 @@ export default class extends BaseSchema {
         .references('political_views.id')
         .onDelete('SET NULL')
       table.integer('religion_id').unsigned().references('religions.id').onDelete('SET NULL')
+      table.integer('sex_id').unsigned().references('sexes.id').onDelete('SET NULL')
       table
         .integer('relationship_goal_id')
         .unsigned()
