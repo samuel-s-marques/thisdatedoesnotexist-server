@@ -18,12 +18,12 @@ export default class extends BaseSchema {
       table.integer('pronoun_id').unsigned().references('pronouns.id').onDelete('SET NULL')
       table.integer('occupation_id').unsigned().references('occupations.id').onDelete('SET NULL')
       table.integer('political_view_id').unsigned().references('political_views.id').onDelete('SET NULL')
+      table.integer('religion_id').unsigned().references('religions.id').onDelete('SET NULL')
       table
         .integer('relationship_goal_id')
         .unsigned()
         .references('relationship_goals.id')
         .onDelete('SET NULL')
-      table.string('religion')
       table.string('country')
       table.string('image_url')
       table.double('height')
