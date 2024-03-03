@@ -77,6 +77,9 @@ export default class User extends BaseModel {
   public weight: number
 
   @column()
+  public birthday: DateTime
+
+  @column()
   public hairColor: string
 
   @column()
