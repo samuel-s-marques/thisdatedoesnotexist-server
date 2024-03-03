@@ -46,6 +46,7 @@ export default class UsersController {
       .preload('occupation')
       .preload('politicalView')
       .preload('religion')
+      .preload('sex')
       .where('type', 'character')
       .whereNotIn('id', function (query) {
         query.select('target_id').from('swipes').where('swiper_id', user.id)
@@ -123,6 +124,7 @@ export default class UsersController {
         .preload('occupation')
         .preload('politicalView')
         .preload('religion')
+        .preload('sex')
         .preload('preferences', (query) => {
           query
             .preload('body_types')
@@ -155,6 +157,7 @@ export default class UsersController {
         .preload('occupation')
         .preload('politicalView')
         .preload('religion')
+        .preload('sex')
         .firstOrFail()
 
       return character
@@ -248,12 +251,14 @@ export default class UsersController {
       const occupation = await Occupation.findOrFail(filteredData.occupation.id)
       const politicalView = await PoliticalView.findOrFail(filteredData.political_view.id)
       const religion = await Religion.findOrFail(filteredData.religion.id)
+      const sex = await Sex.findOrFail(filteredData.sex.id)
 
       delete filteredData['relationship_goal']
       delete filteredData['pronoun']
       delete filteredData['occupation']
       delete filteredData['political_view']
       delete filteredData['religion']
+      delete filteredData['sex']
 
       newUser.fill({
         uid: uid,
@@ -268,6 +273,7 @@ export default class UsersController {
       await newUser.related('occupation').associate(occupation)
       await newUser.related('politicalView').associate(politicalView)
       await newUser.related('religion').associate(religion)
+      await newUser.related('sex').associate(sex)
 
       const user = await newUser.save()
 
@@ -360,7 +366,6 @@ export default class UsersController {
     character.nickname = forgedCharacter.nickname ? forgedCharacter.nickname : null
     character.surname = forgedCharacter.surname
     character.age = forgedCharacter.age
-    character.sex = forgedCharacter.sex
     character.sexuality = forgedCharacter.sexuality.sexuality
     character.bodyType = forgedCharacter.bodyType.type
     character.height = forgedCharacter.bodyType.height
@@ -385,12 +390,14 @@ export default class UsersController {
       .where('name', forgedCharacter.politicalView)
       .firstOrFail()
     const religion = await Religion.query().where('name', forgedCharacter.religion).firstOrFail()
+    const sex = await Sex.query().where('name', forgedCharacter.sex).firstOrFail()
 
     await character.related('pronoun').associate(pronouns)
     await character.related('relationshipGoal').associate(relationshipGoals)
     await character.related('occupation').associate(occupation)
     await character.related('politicalView').associate(politicalView)
     await character.related('religion').associate(religion)
+    await character.related('sex').associate(sex)
 
     await new ComfyUiService().sendPrompt(forgedCharacter, character.uid)
     const characterJson = character.toJSON()
