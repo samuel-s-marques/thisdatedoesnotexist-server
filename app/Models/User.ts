@@ -21,6 +21,7 @@ import BlockedUser from './BlockedUser'
 import Notification from './Notification'
 import Report from './Report'
 import Occupation from './Occupation'
+import PoliticalView from './PoliticalView'
 
 export default class User extends BaseModel {
   @column({ isPrimary: true })
@@ -58,9 +59,6 @@ export default class User extends BaseModel {
 
   @column()
   public imageUrl: string
-
-  @column()
-  public politicalView: string
 
   @column()
   public phobia: string | null
@@ -175,6 +173,16 @@ export default class User extends BaseModel {
     serializeAs: 'occupation',
   })
   public occupation: BelongsTo<typeof Occupation>
+
+  @column()
+  public political_view_id: number
+
+  @belongsTo(() => PoliticalView, {
+    foreignKey: 'political_view_id',
+    localKey: 'id',
+    serializeAs: 'political_view',
+  })
+  public politicalView: BelongsTo<typeof PoliticalView>
 
   @hasMany(() => Report, { foreignKey: 'user_id' })
   public reports: HasMany<typeof Report>
