@@ -21,6 +21,7 @@ import BannedUser from 'App/Models/BannedUser'
 import TextGenerationService from 'Service/TextGenerationService'
 import { replaceMacros } from 'Util/util'
 import Occupation from 'App/Models/Occupation'
+import Religion from 'App/Models/Religion'
 
 const textGenApi = new TextGenerationService()
 const profileSuggesterService = new ProfileSuggesterService()
@@ -368,7 +369,6 @@ export default class UsersController {
     character.ethnicity = forgedCharacter.ethnicity
     character.eyeColor = forgedCharacter.eyeColor
     character.hairColor = forgedCharacter.hairColor
-    character.religion = forgedCharacter.religion
     character.socialClass = forgedCharacter.socialClass
     character.phobia = forgedCharacter.phobia ? forgedCharacter.phobia : null
     character.type = 'character'
@@ -382,11 +382,15 @@ export default class UsersController {
     const politicalView = await PoliticalView.query()
       .where('name', forgedCharacter.politicalView)
       .firstOrFail()
+      const religion = await Religion.query()
+      .where('name', forgedCharacter.religion)
+      .firstOrFail()
 
     await character.related('pronoun').associate(pronouns)
     await character.related('relationshipGoal').associate(relationshipGoals)
     await character.related('occupation').associate(occupation)
     await character.related('politicalView').associate(politicalView)
+    await character.related('religion').associate(religion)
 
     await new ComfyUiService().sendPrompt(forgedCharacter, character.uid)
     const characterJson = character.toJSON()
