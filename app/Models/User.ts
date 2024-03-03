@@ -22,6 +22,7 @@ import Notification from './Notification'
 import Report from './Report'
 import Occupation from './Occupation'
 import PoliticalView from './PoliticalView'
+import Religion from './Religion'
 
 export default class User extends BaseModel {
   @column({ isPrimary: true })
@@ -50,9 +51,6 @@ export default class User extends BaseModel {
 
   @column()
   public bio: string
-
-  @column()
-  public religion: string
 
   @column()
   public country: string
@@ -183,6 +181,16 @@ export default class User extends BaseModel {
     serializeAs: 'political_view',
   })
   public politicalView: BelongsTo<typeof PoliticalView>
+
+  @column()
+  public religion_id: number
+
+  @belongsTo(() => Religion, {
+    foreignKey: 'religion_id',
+    localKey: 'id',
+    serializeAs: 'religion',
+  })
+  public religion: BelongsTo<typeof Religion>
 
   @hasMany(() => Report, { foreignKey: 'user_id' })
   public reports: HasMany<typeof Report>
