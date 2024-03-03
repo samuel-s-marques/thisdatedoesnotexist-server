@@ -36,6 +36,7 @@ export default class UsersController {
       .preload('hobbies')
       .preload('relationshipGoal')
       .preload('politicalView')
+      .preload('religion')
       .firstOrFail()
 
     const characters = await User.query()
@@ -44,6 +45,7 @@ export default class UsersController {
       .preload('relationshipGoal')
       .preload('occupation')
       .preload('politicalView')
+      .preload('religion')
       .where('type', 'character')
       .whereNotIn('id', function (query) {
         query.select('target_id').from('swipes').where('swiper_id', user.id)
@@ -120,6 +122,7 @@ export default class UsersController {
         .preload('relationshipGoal')
         .preload('occupation')
         .preload('politicalView')
+        .preload('religion')
         .preload('preferences', (query) => {
           query
             .preload('body_types')
@@ -151,6 +154,7 @@ export default class UsersController {
         .preload('personalityTraits')
         .preload('occupation')
         .preload('politicalView')
+        .preload('religion')
         .firstOrFail()
 
       return character
@@ -242,6 +246,8 @@ export default class UsersController {
       const pronoun = await PronounsModel.findOrFail(filteredData.pronoun.id)
       const relationshipGoal = await RelationshipGoal.findOrFail(filteredData.relationship_goal.id)
       const occupation = await Occupation.findOrFail(filteredData.occupation.id)
+      const politicalView = await PoliticalView.findOrFail(filteredData.political_view.id)
+      const religion = await Religion.findOrFail(filteredData.religion.id)
 
       if (filteredData.hasOwnProperty('relationship_goal')) {
         delete filteredData['relationship_goal']
@@ -266,6 +272,8 @@ export default class UsersController {
       await newUser.related('pronoun').associate(pronoun)
       await newUser.related('relationshipGoal').associate(relationshipGoal)
       await newUser.related('occupation').associate(occupation)
+      await newUser.related('politicalView').associate(politicalView)
+      await newUser.related('religion').associate(religion)
 
       const user = await newUser.save()
 
@@ -382,9 +390,7 @@ export default class UsersController {
     const politicalView = await PoliticalView.query()
       .where('name', forgedCharacter.politicalView)
       .firstOrFail()
-      const religion = await Religion.query()
-      .where('name', forgedCharacter.religion)
-      .firstOrFail()
+    const religion = await Religion.query().where('name', forgedCharacter.religion).firstOrFail()
 
     await character.related('pronoun').associate(pronouns)
     await character.related('relationshipGoal').associate(relationshipGoals)
