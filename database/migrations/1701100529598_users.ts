@@ -15,8 +15,8 @@ export default class extends BaseSchema {
       table.dateTime('birthday')
       table.string('sex')
       table.text('bio')
-      table.string('occupation')
       table.integer('pronoun_id').unsigned().references('pronouns.id').onDelete('SET NULL')
+      table.integer('occupation_id').unsigned().references('occupations.id').onDelete('SET NULL')
       table
         .integer('relationship_goal_id')
         .unsigned()
