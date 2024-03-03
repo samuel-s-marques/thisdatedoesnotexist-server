@@ -12,6 +12,7 @@ export default class extends BaseSchema {
       table.string('nickname')
       table.string('surname')
       table.integer('age')
+      table.dateTime('birthday')
       table.string('sex')
       table.text('bio')
       table.string('occupation')
