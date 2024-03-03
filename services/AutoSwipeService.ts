@@ -5,7 +5,7 @@ import { AxiosResponse } from 'axios'
 import NotificationService from './NotificationService'
 import Chat from 'App/Models/Chat'
 import ProfileSuggesterService from './ProfileSuggesterService'
-import Config from '@ioc:Adonis/Core/Config';
+import Config from '@ioc:Adonis/Core/Config'
 
 const notificationService: NotificationService = new NotificationService()
 const profileSuggesterService: ProfileSuggesterService = new ProfileSuggesterService()
@@ -27,6 +27,8 @@ export default class AutoSwipeService {
         .where('type', 'user')
         .preload('hobbies')
         .preload('relationshipGoal')
+        .preload('politicalView')
+        .preload('religion')
 
       return users
     } catch (error) {
@@ -41,6 +43,9 @@ export default class AutoSwipeService {
         .where('type', 'character')
         .preload('hobbies')
         .preload('relationshipGoal')
+        .preload('politicalView')
+        .preload('religion')
+        .preload('occupation')
         .where('status', 'normal')
         .whereNotIn('id', (query) => {
           query
@@ -49,7 +54,8 @@ export default class AutoSwipeService {
             .where('target_id', user_id)
             .where('direction', 'right')
             .orWhere('direction', 'left')
-        }).whereNotIn('id', (query) => {
+        })
+        .whereNotIn('id', (query) => {
           query.select('character_id').from('chats').where('user_id', user_id)
         })
 
