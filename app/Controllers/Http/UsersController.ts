@@ -20,6 +20,7 @@ import Message from 'App/Models/Message'
 import BannedUser from 'App/Models/BannedUser'
 import TextGenerationService from 'Service/TextGenerationService'
 import { replaceMacros } from 'Util/util'
+import Occupation from 'App/Models/Occupation'
 
 const textGenApi = new TextGenerationService()
 const profileSuggesterService = new ProfileSuggesterService()
@@ -39,6 +40,7 @@ export default class UsersController {
       .preload('hobbies')
       .preload('pronoun')
       .preload('relationshipGoal')
+      .preload('occupation')
       .where('type', 'character')
       .whereNotIn('id', function (query) {
         query.select('target_id').from('swipes').where('swiper_id', user.id)
@@ -113,6 +115,7 @@ export default class UsersController {
         .preload('hobbies')
         .preload('pronoun')
         .preload('relationshipGoal')
+        .preload('occupation')
         .preload('preferences', (query) => {
           query
             .preload('body_types')
@@ -142,6 +145,7 @@ export default class UsersController {
         .preload('pronoun')
         .preload('relationshipGoal')
         .preload('personalityTraits')
+        .preload('occupation')
         .firstOrFail()
 
       return character
@@ -170,7 +174,7 @@ export default class UsersController {
       const data = request.only([
         'name',
         'email',
-        'age',
+        'birthday',
         'sex',
         'bio',
         'weight',
@@ -232,6 +236,7 @@ export default class UsersController {
 
       const pronoun = await PronounsModel.findOrFail(filteredData.pronoun.id)
       const relationshipGoal = await RelationshipGoal.findOrFail(filteredData.relationship_goal.id)
+      const occupation = await Occupation.findOrFail(filteredData.occupation.id)
 
       if (filteredData.hasOwnProperty('relationship_goal')) {
         delete filteredData['relationship_goal']
@@ -239,6 +244,10 @@ export default class UsersController {
 
       if (filteredData.hasOwnProperty('pronoun')) {
         delete filteredData['pronoun']
+      }
+
+      if (filteredData.hasOwnProperty('occupation')) {
+        delete filteredData['occupation']
       }
 
       newUser.fill({
@@ -251,6 +260,7 @@ export default class UsersController {
 
       await newUser.related('pronoun').associate(pronoun)
       await newUser.related('relationshipGoal').associate(relationshipGoal)
+      await newUser.related('occupation').associate(occupation)
 
       const user = await newUser.save()
 
@@ -350,7 +360,6 @@ export default class UsersController {
     character.weight = forgedCharacter.bodyType.weight
     character.skinTone = forgedCharacter.skinTone
     character.hairStyle = forgedCharacter.hairStyle
-    character.occupation = forgedCharacter.occupation
     character.country = forgedCharacter.birthplace
     character.ethnicity = forgedCharacter.ethnicity
     character.eyeColor = forgedCharacter.eyeColor
@@ -364,9 +373,13 @@ export default class UsersController {
 
     const pronouns = await PronounsModel.query().where('type', forgedCharacter.sex).firstOrFail()
     const relationshipGoals = await RelationshipGoal.query().orderByRaw('RAND()').firstOrFail()
+    const occupation = await Occupation.query()
+      .where('name', forgedCharacter.occupation)
+      .firstOrFail()
 
     await character.related('pronoun').associate(pronouns)
     await character.related('relationshipGoal').associate(relationshipGoals)
+    await character.related('occupation').associate(occupation)
 
     await new ComfyUiService().sendPrompt(forgedCharacter, character.uid)
     const characterJson = character.toJSON()
@@ -410,21 +423,19 @@ export default class UsersController {
       const data = request.only([
         'name',
         'email',
-        'age',
+        'birthday',
         'sex',
         'bio',
         'weight',
         'height',
         'surname',
         'occupation',
-        'last_swipe',
-        'available_swipes',
-        'birthday_date',
         'hobbies',
         'religion',
         'country',
         'political_view',
         'relationship_goal',
+        'pronoun',
         'preferences',
       ])
       let filteredData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v != null))
