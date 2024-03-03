@@ -20,6 +20,7 @@ import Swipe from './Swipe'
 import BlockedUser from './BlockedUser'
 import Notification from './Notification'
 import Report from './Report'
+import Occupation from './Occupation'
 
 export default class User extends BaseModel {
   @column({ isPrimary: true })
@@ -48,9 +49,6 @@ export default class User extends BaseModel {
 
   @column()
   public bio: string
-
-  @column()
-  public occupation: string
 
   @column()
   public religion: string
@@ -168,6 +166,16 @@ export default class User extends BaseModel {
   })
   public blockedUsers: HasMany<typeof BlockedUser>
 
+  @column()
+  public occupation_id: number
+
+  @belongsTo(() => Occupation, {
+    foreignKey: 'occupation_id',
+    localKey: 'id',
+    serializeAs: 'occupation',
+  })
+  public occupation: BelongsTo<typeof Occupation>
+
   @hasMany(() => Report, { foreignKey: 'user_id' })
   public reports: HasMany<typeof Report>
 
@@ -177,7 +185,7 @@ export default class User extends BaseModel {
   @column()
   public statusReason: string | null
 
-  @column(({ serializeAs: null }))
+  @column({ serializeAs: null })
   public reportsCount: number
 
   @column.dateTime()
