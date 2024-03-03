@@ -99,6 +99,9 @@ async function processMessages(ws: WebSocket, id: string) {
           .preload('hobbies')
           .preload('pronoun')
           .preload('relationshipGoal')
+          .preload('occupation')
+          .preload('politicalView')
+          .preload('religion')
           .firstOrFail()
         const chat = await Chat.query()
           .where('user_id', user.id)
@@ -110,6 +113,9 @@ async function processMessages(ws: WebSocket, id: string) {
           .preload('hobbies')
           .preload('personalityTraits')
           .preload('relationshipGoal')
+          .preload('occupation')
+          .preload('politicalView')
+          .preload('religion')
           .firstOrFail()
 
         Logger.info(`User found: ${user.name} ${user.surname}`)
@@ -198,19 +204,8 @@ WsService.wss.on('connection', (ws) => {
       }
 
       if (message.type == 'text') {
-        const character = await User.query()
-          .where('uid', message.room_uid)
-          .preload('hobbies')
-          .preload('personalityTraits')
-          .preload('pronoun')
-          .preload('relationshipGoal')
-          .firstOrFail()
-        const user = await User.query()
-          .where('uid', message.message.send_by)
-          .preload('hobbies')
-          .preload('pronoun')
-          .preload('relationshipGoal')
-          .firstOrFail()
+        const character = await User.query().where('uid', message.room_uid).firstOrFail()
+        const user = await User.query().where('uid', message.message.send_by).firstOrFail()
 
         if (!(await canUserMessage(ws, user, character))) {
           return
