@@ -249,17 +249,11 @@ export default class UsersController {
       const politicalView = await PoliticalView.findOrFail(filteredData.political_view.id)
       const religion = await Religion.findOrFail(filteredData.religion.id)
 
-      if (filteredData.hasOwnProperty('relationship_goal')) {
-        delete filteredData['relationship_goal']
-      }
-
-      if (filteredData.hasOwnProperty('pronoun')) {
-        delete filteredData['pronoun']
-      }
-
-      if (filteredData.hasOwnProperty('occupation')) {
-        delete filteredData['occupation']
-      }
+      delete filteredData['relationship_goal']
+      delete filteredData['pronoun']
+      delete filteredData['occupation']
+      delete filteredData['political_view']
+      delete filteredData['religion']
 
       newUser.fill({
         uid: uid,
