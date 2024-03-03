@@ -54,7 +54,9 @@ export default class UsersController {
       .andWhere('id', '<>', user.id)
       .andWhere('status', 'normal')
       .if(searchQuery.sex, (query) => {
-        query.whereIn('sex', searchQuery.sex.split(','))
+        query.whereHas('sex', (relation) => {
+          relation.whereIn('name', searchQuery.sex.split(','))
+        })
       })
       .if(searchQuery.sexuality, (query) => {
         query.whereIn('sexuality', searchQuery.sexuality.split(','))
@@ -63,10 +65,14 @@ export default class UsersController {
         query.whereIn('body_type', searchQuery.body_type.split(','))
       })
       .if(searchQuery.political_view, (query) => {
-        query.whereIn('political_view', searchQuery.political_view.split(','))
+        query.whereHas('politicalView', (relation) => {
+          relation.whereIn('political_view', searchQuery.political_view.split(','))
+        })
       })
       .if(searchQuery.religion, (query) => {
-        query.whereIn('religion', searchQuery.religion.split(','))
+        query.whereHas('religion', (relation) => {
+          relation.whereIn('name', searchQuery.religion.split(','))
+        })
       })
       .if(searchQuery.relationship_goal, (query) => {
         query.whereHas('relationshipGoal', (relation) => {
